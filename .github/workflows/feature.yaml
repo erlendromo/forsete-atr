@@ -1,0 +1,29 @@
+name: On-push feature branch
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - test
+      - dev
+    paths:
+      - "src/**"
+      - "main.go"
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: write
+
+jobs:
+  go:
+    name: Go
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@master
+
+      - name: Go test
+        id: go-test
+        uses: ./.github/actions/test_go
