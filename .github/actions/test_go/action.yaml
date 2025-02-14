@@ -1,0 +1,17 @@
+name: Test go
+description: Test go code
+
+runs:
+  using: composite
+  steps:
+    - name: Go setup
+      id: go-setup
+      uses: actions/setup-go@master
+      with:
+        go-version-file: ./go.mod
+
+    - name: Go test
+      id: go-test
+      run: go test -v ./... --race
+      working-directory: .
+      shell: bash
