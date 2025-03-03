@@ -1,5 +1,12 @@
 .gitignore
-README.md
 LICENSE
-
+Makefile
+*.md
 .github/
+*.env
+
+*.iml
+*.ipr
+
+.idea/
+.DS_Store
