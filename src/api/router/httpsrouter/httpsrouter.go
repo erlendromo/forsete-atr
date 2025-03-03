@@ -37,6 +37,8 @@ func (r *HTTPSRouter) Serve() error {
 		fmt.Sprintf(":%s", r.addr),
 		r.certFile,
 		r.keyFile,
-		middleware.WithLogger(mux),
+		middleware.WithLogger(
+			mux,
+		),
 	)
 }

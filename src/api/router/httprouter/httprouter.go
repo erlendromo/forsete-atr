@@ -31,6 +31,8 @@ func (r *HTTPRouter) Serve() error {
 
 	return http.ListenAndServe(
 		fmt.Sprintf(":%s", r.addr),
-		middleware.WithLogger(mux),
+		middleware.WithLogger(
+			mux,
+		),
 	)
 }
