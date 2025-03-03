@@ -10,9 +10,11 @@
 *.png
 
 # Files
-*.txt
 *.csv
 
 # Logs & env
 *.env
 *.log
+
+# Models
+models

@@ -4,4 +4,10 @@ run:
 test:
 	@go test -v ./... --race
 
-.PHONY: run test
+composeup:
+	@docker compose up --build -d
+
+composedown:
+	@docker compose down --volumes --remove-orphans
+
+.PHONY: run test composeup composedown
