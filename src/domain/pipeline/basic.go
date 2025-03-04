@@ -12,9 +12,7 @@ type BasicPipeline struct {
 }
 
 func (b *BasicPipeline) Encode(destination, filename string) (string, error) {
-	filePath := fmt.Sprintf("%s%s.yaml", destination, filename)
-
-	file, err := os.Create(filePath)
+	file, err := os.Create(fmt.Sprintf("%s/%s", destination, filename))
 	if err != nil {
 		return "", err
 	}
@@ -26,14 +24,14 @@ func (b *BasicPipeline) Encode(destination, filename string) (string, error) {
 		return "", err
 	}
 
-	return filePath, nil
+	return file.Name(), nil
 }
 
 func NewBasicPipeline(lineSegmentationModel, textRecognitionModel string) Pipeline {
 	return &BasicPipeline{
 		Steps: []Step{
 			ModelStep{
-				StepName: "LineSegmentation",
+				StepName: "Segmentation",
 				Settings: ModelStepSettings{
 					ModelType: "yolo",
 					ModelSettings: ModelSettings{
@@ -59,7 +57,7 @@ func NewBasicPipeline(lineSegmentationModel, textRecognitionModel string) Pipeli
 				StepName: "Export",
 				Settings: ExportStepSettings{
 					Format:      "json",
-					Destination: "/tmp/outputs",
+					Destination: "tmp/outputs",
 				},
 			},
 		},

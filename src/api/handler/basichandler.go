@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"os/exec"
@@ -14,55 +16,78 @@ import (
 	"github.com/erlendromo/forsete-atr/src/util"
 )
 
-type Basic struct {
-	LineSegmentationModel string `json:"line_segmentation_model"`
-	TextRecognitionModel  string `json:"text_recognition_model"`
-}
-
-func (b *Basic) ToPipeline() (pipeline.Pipeline, error) {
-	if b.LineSegmentationModel == "" || b.TextRecognitionModel == "" {
-		return nil, errors.New("Invalid request, line_segmentation_model or text_recognition_model is not present.")
-	}
-
-	return pipeline.NewBasicPipeline(b.LineSegmentationModel, b.TextRecognitionModel), nil
+var Models map[string]string = map[string]string{
+	"yolov9-lines-within-regions-1": "models/linesegmentation/yolov9-lines-within-regions-1/model.pt",
+	"TrOCR-norhand-v3":              "models/textrecognition/TrOCR-norhand-v3",
 }
 
 func GetBasic(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	var basic Basic
-	if err := json.NewDecoder(r.Body).Decode(&basic); err != nil {
-		util.ERROR(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	pipeline, err := basic.ToPipeline()
+	imageFile, imageHeader, err := r.FormFile("image")
 	if err != nil {
 		util.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
 
-	yamlPath, err := pipeline.Encode("/tmp/yaml", "basic.yaml")
+	imagePath, err := processImage(imageFile, imageHeader)
+	if err != nil {
+		util.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	lineModel, found := Models[r.FormValue("line_segmentation_model")]
+	if !found {
+		util.ERROR(w, http.StatusBadRequest, errors.New("line_segmentation_model invalid"))
+		return
+	}
+
+	textModel, found := Models[r.FormValue("text_recognition_model")]
+	if !found {
+		util.ERROR(w, http.StatusBadRequest, errors.New("text_recognition_model invalid"))
+		return
+	}
+
+	pipeline := pipeline.NewBasicPipeline(lineModel, textModel)
+
+	yamlPath, err := pipeline.Encode("tmp/yaml", "basic.yaml")
 	if err != nil {
 		util.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
 
-	imagePath := "test.png"
-
-	log.Println("Executing htrflow...")
-	cmd, err := exec.Command("/bin/bash", fmt.Sprintf("scripts/htrflow.sh %s %s", yamlPath, imagePath)).Output()
-	if err != nil {
-		log.Println(string(cmd))
-		util.ERROR(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	output, err := os.Open(fmt.Sprintf("/outputs/%s.json", strings.Split(imagePath, ".")[0]))
+	cmd := exec.Command("/bin/bash", "scripts/htrflow.sh", yamlPath, imagePath)
+	output, err := cmd.Output()
 	if err != nil {
 		util.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	util.JSON(w, http.StatusOK, output)
+	log.Println(string(output))
+
+	jsonOutput, err := os.Open(fmt.Sprintf("tmp/outputs/images/%s.json", strings.Split(strings.Split(imagePath, "/")[2], ".")[0]))
+	if err != nil {
+		util.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	var out any
+	if err := json.NewDecoder(jsonOutput).Decode(&out); err != nil {
+		util.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	util.JSON(w, http.StatusOK, out)
+}
+
+// TODO Move and improve this
+func processImage(imageFile multipart.File, imageHeader *multipart.FileHeader) (string, error) {
+	localImage, err := os.Create("tmp/images/" + imageHeader.Filename)
+	if err != nil {
+		return "", err
+	}
+
+	if _, err := io.Copy(localImage, imageFile); err != nil && err != io.EOF {
+		return "", err
+	}
+
+	return localImage.Name(), nil
 }
