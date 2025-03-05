@@ -4,6 +4,7 @@ package util
 Misc
 */
 const (
+	API_PORT         = "API_PORT"
 	DEFAULT_API_PORT = "8080"
 )
 
