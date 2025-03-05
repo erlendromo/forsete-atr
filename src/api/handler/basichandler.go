@@ -12,14 +12,10 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/erlendromo/forsete-atr/src/domain/model"
 	"github.com/erlendromo/forsete-atr/src/domain/pipeline"
 	"github.com/erlendromo/forsete-atr/src/util"
 )
-
-var Models map[string]string = map[string]string{
-	"yolov9-lines-within-regions-1": "models/linesegmentation/yolov9-lines-within-regions-1/model.pt",
-	"TrOCR-norhand-v3":              "models/textrecognition/TrOCR-norhand-v3",
-}
 
 func GetBasic(w http.ResponseWriter, r *http.Request) {
 	imageFile, imageHeader, err := r.FormFile("image")
@@ -34,21 +30,19 @@ func GetBasic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lineModel, found := Models[r.FormValue("line_segmentation_model")]
+	lineModel, found := model.Path(r.FormValue("line_segmentation_model"))
 	if !found {
 		util.ERROR(w, http.StatusBadRequest, errors.New("line_segmentation_model invalid"))
 		return
 	}
 
-	textModel, found := Models[r.FormValue("text_recognition_model")]
+	textModel, found := model.Path(r.FormValue("text_recognition_model"))
 	if !found {
 		util.ERROR(w, http.StatusBadRequest, errors.New("text_recognition_model invalid"))
 		return
 	}
 
-	pipeline := pipeline.NewBasicPipeline(lineModel, textModel)
-
-	yamlPath, err := pipeline.Encode("tmp/yaml", "basic.yaml")
+	yamlPath, err := pipeline.NewBasicPipeline(lineModel, textModel).Encode("tmp/yaml", "basic.yaml")
 	if err != nil {
 		util.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
