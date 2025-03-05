@@ -10,4 +10,7 @@ composeup:
 composedown:
 	@docker compose down --volumes --remove-orphans
 
-.PHONY: run test composeup composedown
+removetmp:
+	@rm -rf tmp/images/* && rm -rf tmp/outputs/* && rm -rf tmp/yaml/*
+
+.PHONY: run test composeup composedown removetmp
