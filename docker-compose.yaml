@@ -1,17 +1,19 @@
 version: "3.8"
 
 services:
-  htrflow:
-    image: airiksarkivet/htrflow:v0.2.2-14b64fe
-    platform: linux/amd64
-    container_name: htrflow
-    restart: unless-stopped
-    volumes:
-      - temp-yaml-storage:/tmp/yaml # Shared volume for temporary YAML files
-      - temp-image-storage:/tmp/images # Shared volume for temporary images
-      - temp-htrflow-outputs:/tmp/outputs # Shared volume for temporary outputs
-      - models:/models # Shared volume for models
-    tty: true # Keeps the container running for CLI use
+  #htrflow:
+  #build:
+  #context: htrflow
+  #dockerfile: CPU.Dockerfile
+  #platform: linux/amd64
+  #container_name: htrflow
+  #restart: unless-stopped
+  #volumes:
+  #- temp-yaml-storage:/tmp/yaml
+  #- temp-image-storage:/tmp/images
+  #- temp-htrflow-outputs:/tmp/outputs
+  #- models:/models
+  #tty: true # Keeps the container running for CLI use
 
   forsete-atr:
     build:
@@ -19,20 +21,41 @@ services:
       dockerfile: Dockerfile
     container_name: forsete-atr
     restart: unless-stopped
-    depends_on:
-      - htrflow
     volumes:
-      - temp-yaml-storage:/tmp/yaml # Shared volume for temporary YAML files
-      - temp-image-storage:/tmp/images # Shared volume for temporary images
-      - temp-htrflow-outputs:/tmp/outputs # Shared volume for temporary outputs
-      - models:/models # Shared volume for models
+      - temp-yaml-storage:/tmp/yaml
+      - temp-image-storage:/tmp/images
+      - temp-htrflow-outputs:/tmp/outputs
+      - models:/models
     ports:
-      - "8080:8080"
+      - "8080:${API_PORT}"
     environment:
       - API_PORT=${API_PORT}
 
 volumes:
   temp-yaml-storage:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/tmp/yaml
+      o: bind
+
   temp-image-storage:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/tmp/images
+      o: bind
+
   temp-htrflow-outputs:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/tmp/outputs
+      o: bind
+
   models:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/models
+      o: bind
