@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -48,14 +47,10 @@ func GetBasic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd := exec.Command("/bin/bash", "scripts/htrflow.sh", yamlPath, imagePath)
-	output, err := cmd.Output()
-	if err != nil {
+	if err := exec.Command("/bin/bash", "scripts/htrflow.sh", yamlPath, imagePath).Run(); err != nil {
 		util.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
-
-	log.Println(string(output))
 
 	jsonOutput, err := os.Open(fmt.Sprintf("tmp/outputs/images/%s.json", strings.Split(strings.Split(imagePath, "/")[2], ".")[0]))
 	if err != nil {
@@ -79,7 +74,7 @@ func processImage(imageFile multipart.File, imageHeader *multipart.FileHeader) (
 		return "", err
 	}
 
-	if _, err := io.Copy(localImage, imageFile); err != nil && err != io.EOF {
+	if _, err := io.Copy(localImage, imageFile); err != nil {
 		return "", err
 	}
 
