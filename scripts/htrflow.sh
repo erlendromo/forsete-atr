@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Ensure we are in the correct virtual environment
+source /htrflow/venv/bin/activate
+
 # Check if two arguments are provided
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <path-to-yaml-file> <path-to-image-file>"
@@ -22,7 +25,6 @@ if [ ! -f "$IMAGE_FILE" ]; then
     exit 1
 fi
 
-# Run htrflow
 echo "Running htrflow with YAML File: $YAML_FILE and Image File: $IMAGE_FILE"
 htrflow pipeline "$YAML_FILE" "$IMAGE_FILE"
 
