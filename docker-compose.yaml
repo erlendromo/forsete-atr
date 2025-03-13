@@ -1,20 +1,4 @@
-version: "3.8"
-
 services:
-  #htrflow:
-  #build:
-  #context: htrflow
-  #dockerfile: CPU.Dockerfile
-  #platform: linux/amd64
-  #container_name: htrflow
-  #restart: unless-stopped
-  #volumes:
-  #- temp-yaml-storage:/tmp/yaml
-  #- temp-image-storage:/tmp/images
-  #- temp-htrflow-outputs:/tmp/outputs
-  #- models:/models
-  #tty: true # Keeps the container running for CLI use
-
   forsete-atr:
     build:
       context: .
@@ -27,32 +11,14 @@ services:
       - temp-htrflow-outputs:/tmp/outputs
       - models:/models
     ports:
-      - "8080:${API_PORT}"
+      - "${API_PORT}:${API_PORT}"
     environment:
       - API_PORT=${API_PORT}
 
 volumes:
   temp-yaml-storage:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${PWD}/tmp/yaml
-      o: bind
-
   temp-image-storage:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${PWD}/tmp/images
-      o: bind
-
   temp-htrflow-outputs:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${PWD}/tmp/outputs
-      o: bind
-
   models:
     driver: local
     driver_opts:

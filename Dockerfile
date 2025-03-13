@@ -51,6 +51,7 @@ WORKDIR /
 # Copy the Go application from the builder stage
 COPY --from=builder /app/app /app
 COPY --from=builder /app/scripts /scripts
+COPY --from=builder /app/docs /docs
 
 # Make sure bash is installed
 RUN apt-get update && apt-get install -y bash
