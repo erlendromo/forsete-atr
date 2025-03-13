@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"fmt"
+	"mime/multipart"
 	"os"
 
 	"github.com/erlendromo/forsete-atr/src/domain/model/trocrmodel"
@@ -75,4 +76,32 @@ func Path(name string) (string, bool) {
 	}
 
 	return model.Path(), found
+}
+
+func Models() []Model {
+	localModels := make([]Model, 0)
+	for _, model := range models {
+		localModels = append(localModels, model)
+	}
+
+	return localModels
+}
+
+func ModelsByType(modelType string) []Model {
+	modelsResponse := make([]Model, 0)
+
+	for _, model := range models {
+		if model.Type() == modelType {
+			modelsResponse = append(modelsResponse, model)
+		} else {
+			continue
+		}
+	}
+
+	return modelsResponse
+}
+
+func AddModel(modelFile multipart.File, modelHeader *multipart.FileHeader) error {
+
+	return nil
 }

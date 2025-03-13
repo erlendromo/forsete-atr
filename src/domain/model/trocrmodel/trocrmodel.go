@@ -1,21 +1,21 @@
 package trocrmodel
 
 type TrOCRModel struct {
-	modelName string
+	ModelName string `json:"name"`
 	modelPath string
 	modelType string
 }
 
 func NewTrOCRModel(modelName, modelPath, modelType string) *TrOCRModel {
 	return &TrOCRModel{
-		modelName: modelName,
+		ModelName: modelName,
 		modelPath: modelPath,
 		modelType: modelType,
 	}
 }
 
 func (tom *TrOCRModel) Name() string {
-	return tom.modelName
+	return tom.ModelName
 }
 
 func (tom *TrOCRModel) Path() string {

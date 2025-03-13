@@ -1,21 +1,21 @@
 package yolomodel
 
 type YoloModel struct {
-	modelName string
+	ModelName string `json:"name"`
 	modelPath string
 	modelType string
 }
 
 func NewYoloModel(modelName, modelPath, modelType string) *YoloModel {
 	return &YoloModel{
-		modelName: modelName,
+		ModelName: modelName,
 		modelPath: modelPath,
 		modelType: modelType,
 	}
 }
 
 func (ym *YoloModel) Name() string {
-	return ym.modelName
+	return ym.ModelName
 }
 
 func (ym *YoloModel) Path() string {
