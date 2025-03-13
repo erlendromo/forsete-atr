@@ -10,7 +10,13 @@ composeup:
 composedown:
 	@docker compose down --volumes --remove-orphans
 
+attach:
+	@docker compose logs -f
+
 removetmp:
 	@rm -rf tmp/images/* && rm -rf tmp/outputs/* && rm -rf tmp/yaml/*
 
-.PHONY: run test composeup composedown removetmp
+swag:
+	@swag init -g src/api/router/router.go && swag fmt
+
+.PHONY: run test composeup composedown attach removetmp swag
