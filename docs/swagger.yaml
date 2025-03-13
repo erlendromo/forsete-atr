@@ -1,0 +1,55 @@
+definitions:
+  util.ErrorResponse:
+    properties:
+      error:
+        type: string
+      status:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: RESTful JSON-API for Automatic Text Recognition (ATR) developed as
+    part of Bachelor Thesis "FORSETE" at NTNU Gjøvik.
+  title: Forsete-ATR
+  version: v1
+paths:
+  /forsete-atr/v1/atr/basic-documents/:
+    post:
+      consumes:
+      - multipart/form-data
+      description: ATR
+      parameters:
+      - description: imagefile (png)
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: chosen line segmentation model
+        in: formData
+        name: line_segmentation_model
+        required: true
+        type: string
+      - description: chosen text recognition model
+        in: formData
+        name: text_recognition_model
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Run ATR on image-file
+swagger: "2.0"
