@@ -12,9 +12,11 @@ func setHeaders(w http.ResponseWriter, statuscode int) {
 
 func JSON(w http.ResponseWriter, statuscode int, value any) {
 	setHeaders(w, statuscode)
-	if value != nil {
-		if err := json.NewEncoder(w).Encode(value); err != nil {
-			ERROR(w, http.StatusInternalServerError, err)
-		}
+	if statuscode == http.StatusNoContent || value == nil {
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(value); err != nil {
+		ERROR(w, http.StatusInternalServerError, err)
 	}
 }
