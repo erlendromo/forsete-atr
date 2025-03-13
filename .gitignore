@@ -13,7 +13,7 @@
 *.csv
 
 # Logs & env
-*.env
+.env
 *.log
 
 # Models
