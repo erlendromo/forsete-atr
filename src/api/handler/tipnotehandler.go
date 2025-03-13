@@ -13,7 +13,7 @@ type Tipnote struct {
 	TextRecognitionModel    string `json:"text_recognition_model"`
 }
 
-func GetTipnote(w http.ResponseWriter, r *http.Request) {
+func PostTipnoteDocument(w http.ResponseWriter, r *http.Request) {
 	var tipnote Tipnote
 	if err := json.NewDecoder(r.Body).Decode(&tipnote); err != nil {
 		util.ERROR(w, http.StatusUnprocessableEntity, err)
