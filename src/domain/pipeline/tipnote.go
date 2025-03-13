@@ -12,7 +12,7 @@ func NewTipNotePipeline(regionSegmentationModel, lineSegmentationModel, textReco
 	return &TipNotePipeline{
 		Steps: []Step{
 			ModelStep{
-				StepName: "RegionSegmentation",
+				StepName: "Segmentation",
 				Settings: ModelStepSettings{
 					ModelType: "yolo",
 					ModelSettings: ModelSettings{
@@ -22,7 +22,7 @@ func NewTipNotePipeline(regionSegmentationModel, lineSegmentationModel, textReco
 				},
 			},
 			ModelStep{
-				StepName: "LineSegmentation",
+				StepName: "Segmentation",
 				Settings: ModelStepSettings{
 					ModelType: "yolo",
 					ModelSettings: ModelSettings{
@@ -48,7 +48,7 @@ func NewTipNotePipeline(regionSegmentationModel, lineSegmentationModel, textReco
 				StepName: "Export",
 				Settings: ExportStepSettings{
 					Format:      "json",
-					Destination: "/tmp/outputs",
+					Destination: "tmp/outputs",
 				},
 			},
 		},

@@ -12,15 +12,23 @@ type BasicPipeline struct {
 }
 
 func (b *BasicPipeline) Encode(destination, filename string) (string, error) {
-	file, err := os.Create(fmt.Sprintf("%s/%s", destination, filename))
+	filepath := fmt.Sprintf("%s/%s", destination, filename)
+
+	if file, err := os.Open(filepath); err == nil {
+		return file.Name(), nil
+	}
+
+	file, err := os.Create(filepath)
 	if err != nil {
 		return "", err
 	}
 
 	payload, err := yaml.Marshal(b)
-
-	_, err = file.Write(payload)
 	if err != nil {
+		return "", err
+	}
+
+	if _, err := file.Write(payload); err != nil {
 		return "", err
 	}
 
