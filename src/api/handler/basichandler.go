@@ -15,16 +15,52 @@ import (
 	"github.com/erlendromo/forsete-atr/src/util"
 )
 
+// ATRResponse
+//
+//	@Summary		ATRResponse
+//	@Description	Json-Response for ATR
+type ATRResponse struct {
+	Filename  string `json:"file_name"`
+	Imagename string `json:"image_name"`
+	Label     string `json:"label"`
+	Contains  []struct {
+		Segment struct {
+			BBox struct {
+				XMin int `json:"xmin"`
+				YMin int `json:"ymin"`
+				XMax int `json:"xmax"`
+				YMax int `json:"ymax"`
+			} `json:"bbox"`
+			Polygon struct {
+				Points []struct {
+					X int `json:"x"`
+					Y int `json:"y"`
+				} `json:"points"`
+			} `json:"polygon"`
+			Score      float64  `json:"score"`
+			ClassLabel string   `json:"class_label"`
+			OrigShape  []int    `json:"orig_shape"`
+			Data       struct{} `json:"data,omitempty"`
+		} `json:"segment"`
+		TextResult struct {
+			Texts  []string  `json:"texts"`
+			Scores []float64 `json:"scores"`
+			Label  string    `json:"label"`
+		} `json:"text_result"`
+	} `json:"contains"`
+}
+
 // PostBasicDocument
 //
-//	@Summary		Run ATR on image-file
-//	@Description	ATR
+//	@Summary		ATR
+//	@Description	Run ATR on image-file
+//	@Tags			ATR
 //	@Accept			mpfd
-//	@Param			image					formData	file	required	"imagefile (png)"
-//	@Param			line_segmentation_model	formData	string	required	"chosen line segmentation model"
-//	@Param			text_recognition_model	formData	string	required	"chosen text recognition model"
+//	@Param			image					formData	file	required	"png"
+//	@Param			line_segmentation_model	formData	string	required	"name of line segmentation model"
+//	@Param			text_recognition_model	formData	string	required	"name of text recognition model"
 //	@Produce		json
-//	@Success		200
+//	@Success		200	{object}	ATRResponse
 //	@Failure		400	{object}	util.ErrorResponse
 //	@Failure		422	{object}	util.ErrorResponse
 //	@Failure		500	{object}	util.ErrorResponse
@@ -80,13 +116,13 @@ func PostBasicDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var out any
-	if err := json.NewDecoder(jsonOutput).Decode(&out); err != nil {
+	var atrResponse ATRResponse
+	if err := json.NewDecoder(jsonOutput).Decode(&atrResponse); err != nil {
 		util.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	// Respond to client
 
-	util.JSON(w, http.StatusOK, out)
+	util.JSON(w, http.StatusOK, atrResponse)
 }
