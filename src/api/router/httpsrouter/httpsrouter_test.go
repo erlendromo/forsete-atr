@@ -24,6 +24,10 @@ var serveHTTPSCases []serveHTTPSCase = []serveHTTPSCase{
 }
 
 func TestServeTLS(t *testing.T) {
+	t.Run("Serve HTTPS test", testServeTLS)
+}
+
+func testServeTLS(t *testing.T) {
 	for _, httpsCase := range serveHTTPSCases {
 		done := make(chan struct{})
 

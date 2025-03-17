@@ -24,6 +24,10 @@ var serveHTTPCases []serveHTTPCase = []serveHTTPCase{
 }
 
 func TestServe(t *testing.T) {
+	t.Run("Serve HTTP test", testServe)
+}
+
+func testServe(t *testing.T) {
 	for _, httpCase := range serveHTTPCases {
 		done := make(chan struct{})
 
