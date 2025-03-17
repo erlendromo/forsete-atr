@@ -31,7 +31,7 @@ func WithEndpoints(mux *http.ServeMux) *http.ServeMux {
 	mux.HandleFunc(fmt.Sprintf("GET %s", util.LINE_SEGMENTATION_ENDPOINT), handler.GetLineSegmentationModels)
 	mux.HandleFunc(fmt.Sprintf("POST %s", util.LINE_SEGMENTATION_ENDPOINT), handler.PostLineSegmentationModel)
 	mux.HandleFunc(fmt.Sprintf("GET %s", util.TEXT_RECOGNITION_ENDPOINT), handler.GetTextRecognitionModels)
-	mux.HandleFunc(fmt.Sprintf("POST %s", util.TEXT_RECOGNITION_ENDPOINT), handler.PostTextRecognitionModel)
+	//mux.HandleFunc(fmt.Sprintf("POST %s", util.TEXT_RECOGNITION_ENDPOINT), handler.PostTextRecognitionModel)
 
 	// ATR
 	mux.HandleFunc(fmt.Sprintf("POST %s", util.BASIC_DOCUMENTS_ENDPOINT), handler.PostBasicDocument)
