@@ -17,32 +17,35 @@ const docTemplate = `{
     "paths": {
         "/forsete-atr/v1/atr/basic-documents/": {
             "post": {
-                "description": "ATR",
+                "description": "Run ATR on image-file",
                 "consumes": [
                     "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Run ATR on image-file",
+                "tags": [
+                    "ATR"
+                ],
+                "summary": "ATR",
                 "parameters": [
                     {
                         "type": "file",
-                        "description": "imagefile (png)",
+                        "description": "png",
                         "name": "image",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "chosen line segmentation model",
+                        "description": "name of line segmentation model",
                         "name": "line_segmentation_model",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "chosen text recognition model",
+                        "description": "name of text recognition model",
                         "name": "text_recognition_model",
                         "in": "formData",
                         "required": true
@@ -50,7 +53,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ATRResponse"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -72,10 +78,396 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/forsete-atr/v1/models/": {
+            "get": {
+                "description": "Retrieve all active models",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Models"
+                ],
+                "summary": "Models",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ModelsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v1/models/line-segmentation-models/": {
+            "get": {
+                "description": "Retrieve all active line segmentation models",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LineSegmentationModels"
+                ],
+                "summary": "LineSegmentationModels",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ModelsResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a line segmentation model",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LineSegmentationModels"
+                ],
+                "summary": "LineSegmentationModels",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of the model",
+                        "name": "model_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "model.pt",
+                        "name": "model",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v1/models/region-segmentation-models/": {
+            "get": {
+                "description": "Retrieve all active region segmentation models",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RegionSegmentationModels"
+                ],
+                "summary": "RegionSegmentationModels",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ModelsResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a region segmentation model",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RegionSegmentationModels"
+                ],
+                "summary": "RegionSegmentationModels",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of the model",
+                        "name": "model_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "model.pt",
+                        "name": "model",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v1/models/text-recognition-models/": {
+            "get": {
+                "description": "Retrieve all active text recognition models",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TextRecognitionModels"
+                ],
+                "summary": "TextRecognitionModels",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ModelsResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a text recognition model",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TextRecognitionModels"
+                ],
+                "summary": "TextRecognitionModels",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of the model",
+                        "name": "model_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "model.safetensors",
+                        "name": "model",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "config.json",
+                        "name": "config",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "generation_config.json",
+                        "name": "generation_config",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "merges.txt",
+                        "name": "merges",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "preprocessor_config-json",
+                        "name": "preprocessor_config",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "special_tokens_map.json",
+                        "name": "special_tokens_map",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "tokenizer.json",
+                        "name": "tokenizer",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "tokenizer_config.json",
+                        "name": "tokenizer_config",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "vocab.json",
+                        "name": "vocab",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "handler.ATRResponse": {
+            "description": "Json-Response for ATR",
+            "type": "object",
+            "properties": {
+                "contains": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "segment": {
+                                "type": "object",
+                                "properties": {
+                                    "bbox": {
+                                        "type": "object",
+                                        "properties": {
+                                            "xmax": {
+                                                "type": "integer"
+                                            },
+                                            "xmin": {
+                                                "type": "integer"
+                                            },
+                                            "ymax": {
+                                                "type": "integer"
+                                            },
+                                            "ymin": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    },
+                                    "class_label": {
+                                        "type": "string"
+                                    },
+                                    "data": {
+                                        "type": "object"
+                                    },
+                                    "orig_shape": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "polygon": {
+                                        "type": "object",
+                                        "properties": {
+                                            "points": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "x": {
+                                                            "type": "integer"
+                                                        },
+                                                        "y": {
+                                                            "type": "integer"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "score": {
+                                        "type": "number"
+                                    }
+                                }
+                            },
+                            "text_result": {
+                                "type": "object",
+                                "properties": {
+                                    "label": {
+                                        "type": "string"
+                                    },
+                                    "scores": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "number"
+                                        }
+                                    },
+                                    "texts": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "file_name": {
+                    "type": "string"
+                },
+                "image_name": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.ModelsResponse": {
+            "description": "Json-Response for models",
+            "type": "object",
+            "properties": {
+                "line_segmentation_models": {
+                    "type": "array",
+                    "items": {}
+                },
+                "region_segmentation_models": {
+                    "type": "array",
+                    "items": {}
+                },
+                "text_recognition_models": {
+                    "type": "array",
+                    "items": {}
+                }
+            }
+        },
         "util.ErrorResponse": {
+            "description": "Json-Response on error",
             "type": "object",
             "properties": {
                 "error": {
