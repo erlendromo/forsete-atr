@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"os"
 
@@ -101,7 +102,37 @@ func ModelsByType(modelType string) []Model {
 	return modelsResponse
 }
 
-func AddModel(modelFile multipart.File, modelHeader *multipart.FileHeader) error {
+func AddYoloModel(modelName, modelType string, modelFile multipart.File) error {
+	defer modelFile.Close()
+
+	var modelDirPath string
+	switch modelType {
+	case "regionsegmentation":
+		modelDirPath = fmt.Sprintf("models/regionsegmentation/%s", modelName)
+	case "linesegmentation":
+		modelDirPath = fmt.Sprintf("models/linesegmentation/%s", modelName)
+	default:
+		return errors.New("invalid model type")
+	}
+
+	if err := os.MkdirAll(modelDirPath, os.ModeDir); err != nil {
+		return err
+	}
+
+	modelPath := fmt.Sprintf("%s/model.pt", modelDirPath)
+
+	localModelFile, err := os.Create(modelPath)
+	if err != nil {
+		return err
+	}
+
+	defer localModelFile.Close()
+
+	if _, err := io.Copy(localModelFile, modelFile); err != nil {
+		return err
+	}
+
+	models[modelName] = yolomodel.NewYoloModel(modelName, modelPath, modelType)
 
 	return nil
 }
