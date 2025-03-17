@@ -5,6 +5,10 @@ import (
 	"net/http"
 )
 
+// ErrorResponse
+//
+//	@Summary		ErrorResponse
+//	@Description	Json-Response on error
 type ErrorResponse struct {
 	Error  string `json:"error"`
 	Status int    `json:"status"`
