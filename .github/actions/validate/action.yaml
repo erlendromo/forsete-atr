@@ -16,9 +16,7 @@ runs:
 
     - name: Set up Terraform
       id: setup-terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: latest
+      uses: hashicorp/setup-terraform@v3
 
     - name: Terraform Init
       id: init
