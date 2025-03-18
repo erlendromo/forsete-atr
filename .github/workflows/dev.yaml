@@ -17,6 +17,7 @@ permissions:
 env:
   TF_VAR_application_credential_id: ${{ secrets.OS_APPLICATION_CREDENTIAL_ID }}
   TF_VAR_application_credential_secret: ${{ secrets.OS_APPLICATION_CREDENTIAL_SECRET }}
+  TF_VAR_vm_admin_pass: ${{ secrets.VM_ADMIN_PASS }}
   WORKING_DIR: "backend"
   GH_TOKEN: ${{ github.token }}
 
@@ -24,6 +25,7 @@ jobs:
   terraform:
     name: Deploy to OpenStack
     runs-on: ubuntu-latest
+    environment: dev
     steps:
       - name: Checkout
         uses: actions/checkout@master
