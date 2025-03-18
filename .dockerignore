@@ -1,5 +1,22 @@
 .gitignore
-README.md
 LICENSE
+Makefile
+*.md
+*.env
 
 .github/
+htrflow/
+models/
+
+*.iml
+*.ipr
+
+.idea/
+.DS_Store
+
+*.json
+*.yaml
+*.yml
+*.png
+*.jpg
+*.jpeg
