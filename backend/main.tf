@@ -80,5 +80,3 @@ resource "openstack_networking_floatingip_associate_v2" "floating_ip_assoc" {
   floating_ip = openstack_networking_floatingip_v2.floating_ip.address
   port_id     = openstack_compute_instance_v2.vm.network.0.uuid
 }
-
-# This is a test
