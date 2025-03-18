@@ -1,0 +1,40 @@
+name: Deploy dev
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "src/**"
+      - "main.go"
+  workflow_dispatch:
+
+env:
+  TF_VAR_application_credential_id: ${{ secrets.OS_APPLICATION_CREDENTIAL_ID }}
+  TF_VAR_application_credential_secret: ${{ secrets.OS_APPLICATION_CREDENTIAL_SECRET }}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  terraform:
+    name: Deploy to OpenStack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
