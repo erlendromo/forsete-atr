@@ -7,8 +7,10 @@ on:
       - test
       - dev
     paths:
+      - "backend/**"
       - "src/**"
       - "main.go"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,6 +18,30 @@ permissions:
   pull-requests: write
 
 jobs:
+  terraform:
+    name: Validate and format Terraform
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: latest
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: backend
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: backend
+
+      - name: Terraform Format
+        run: terraform fmt -recursive
+        working-directory: backend
+
   go:
     name: Go
     runs-on: ubuntu-latest
