@@ -76,7 +76,7 @@ resource "openstack_compute_instance_v2" "vm" {
   flavor_name     = "m1.small"
   key_pair        = "my-key"
   admin_pass      = var.vm_admin_pass
-  security_groups = [openstack_networking_secgroup_v2.allow_all.name]
+  security_groups = [openstack_networking_secgroup_v2.security_group_1.name]
 
   network {
     uuid = openstack_networking_network_v2.private_net.id
