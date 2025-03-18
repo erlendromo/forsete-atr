@@ -14,6 +14,12 @@ runs:
       id: checkout
       uses: actions/checkout@master
 
+    - name: Set up Terraform
+      id: setup-terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: latest
+
     - name: Terraform Init
       id: init
       run: terraform init

@@ -32,8 +32,6 @@ jobs:
       - name: Terraform fmt
         id: fmt
         uses: ./.github/actions/format
-        with:
-          working_dir: "backend"
 
   validate:
     name: Validate Terraform Files
