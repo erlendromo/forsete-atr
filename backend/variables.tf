@@ -10,3 +10,9 @@ variable "application_credential_secret" {
   type        = string
   sensitive   = true
 }
+
+variable "vm_admin_pass" {
+  description = "Admin password for the VM"
+  type        = string
+  sensitive   = true
+}

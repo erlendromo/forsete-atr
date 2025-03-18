@@ -26,20 +26,41 @@ resource "openstack_networking_router_interface_v2" "router_interface" {
 }
 
 # Security Group
-resource "openstack_networking_secgroup_v2" "allow_all" {
-  name        = "allow_all"
-  description = "Allow all traffic"
+resource "openstack_networking_secgroup_v2" "security_group_1" {
+  name        = "Security Group 1"
+  description = "Allow SSH, HTTP, and HTTPS traffic"
 }
 
-# Security Group Rule
-resource "openstack_networking_secgroup_rule_v2" "all_tcp" {
-  security_group_id = openstack_networking_secgroup_v2.allow_all.id
+# Allow SSH (Port 22)
+resource "openstack_networking_secgroup_rule_v2" "ssh" {
+  security_group_id = openstack_networking_secgroup_v2.security_group_1.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 1
-  port_range_max    = 65535
+  port_range_min    = 22
+  port_range_max    = 22
 }
+
+# Allow HTTP (Port 80)
+resource "openstack_networking_secgroup_rule_v2" "http" {
+  security_group_id = openstack_networking_secgroup_v2.security_group_1.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 80
+  port_range_max    = 80
+}
+
+# Allow HTTPS (Port 443)
+resource "openstack_networking_secgroup_rule_v2" "https" {
+  security_group_id = openstack_networking_secgroup_v2.security_group_1.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 443
+  port_range_max    = 443
+}
+
 
 # Block Storage
 resource "openstack_blockstorage_volume_v3" "volume" {
@@ -54,7 +75,8 @@ resource "openstack_compute_instance_v2" "vm" {
   image_name      = "Ubuntu-22.04"
   flavor_name     = "m1.small"
   key_pair        = "my-key"
-  security_groups = [openstack_networking_secgroup_v2.allow_all.name]
+  admin_pass      = var.vm_admin_pass
+  security_groups = [openstack_networking_secgroup_v2.security_group_1.name]
 
   network {
     uuid = openstack_networking_network_v2.private_net.id
@@ -80,5 +102,3 @@ resource "openstack_networking_floatingip_associate_v2" "floating_ip_assoc" {
   floating_ip = openstack_networking_floatingip_v2.floating_ip.address
   port_id     = openstack_compute_instance_v2.vm.network.0.uuid
 }
-
-# This is a test
