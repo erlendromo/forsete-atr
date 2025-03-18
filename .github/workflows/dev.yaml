@@ -30,6 +30,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
+      - name: Set up Terraform
+        id: setup-terraform
+        uses: hashicorp/setup-terraform@v3
+
       - name: Terraform Init
         run: terraform init
         working-directory: ${{ env.WORKING_DIR }}
