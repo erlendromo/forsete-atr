@@ -17,6 +17,7 @@ env:
   TF_VAR_application_credential_id: ${{ secrets.OS_APPLICATION_CREDENTIAL_ID }}
   TF_VAR_application_credential_secret: ${{ secrets.OS_APPLICATION_CREDENTIAL_SECRET }}
   WORKING_DIR: "backend"
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
   terraform:
