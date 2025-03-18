@@ -13,34 +13,42 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  issues: read
+  contents: write
+  issues: write
   pull-requests: write
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
-  terraform:
-    name: Validate and format Terraform
+  format:
+    name: Format Terraform Files
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
+        id: checkout
         uses: actions/checkout@master
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v4
+      - name: Terraform fmt
+        id: fmt
+        uses: ./.github/actions/format
         with:
-          terraform_version: latest
+          working_dir: "backend"
 
-      - name: Terraform Init
-        run: terraform init
-        working-directory: backend
+  validate:
+    name: Validate Terraform Files
+    runs-on: ubuntu-latest
+    needs: format
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@master
 
-      - name: Terraform Validate
-        run: terraform validate
-        working-directory: backend
-
-      - name: Terraform Format
-        run: terraform fmt -recursive
-        working-directory: backend
+      - name: Terraform validate
+        id: validate
+        uses: ./.github/actions/validate
+        with:
+          working_dir: "backend"
 
   go:
     name: Go
