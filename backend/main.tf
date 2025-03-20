@@ -1,104 +1,103 @@
-# Create Network
-resource "openstack_networking_network_v2" "private_net" {
-  name           = "private_network"
+resource "openstack_networking_network_v2" "main" {
+  name           = "network1"
   admin_state_up = true
 }
 
-# Create Subnet
-resource "openstack_networking_subnet_v2" "private_subnet" {
-  name        = "private_subnet"
-  network_id  = openstack_networking_network_v2.private_net.id
+resource "openstack_networking_subnet_v2" "main" {
+  network_id = openstack_networking_network_v2.main.id
+
+  name        = "subnet1"
   cidr        = "192.168.1.0/24"
   ip_version  = 4
   enable_dhcp = true
+
+  depends_on = [openstack_networking_network_v2.main]
 }
 
-# Create Router
-resource "openstack_networking_router_v2" "router" {
-  name                = "router"
-  external_network_id = "public_network_id"
+resource "openstack_networking_router_v2" "main" {
+  name                = "router1"
+  external_network_id = "730cb16e-a460-4a87-8c73-50a2cb2293f9"
+
+  depends_on = [
+    openstack_networking_network_v2.main
+  ]
 }
 
-# Router Interface
-resource "openstack_networking_router_interface_v2" "router_interface" {
-  router_id = openstack_networking_router_v2.router.id
-  subnet_id = openstack_networking_subnet_v2.private_subnet.id
+resource "openstack_networking_router_interface_v2" "main" {
+  router_id = openstack_networking_router_v2.main.id
+  subnet_id = openstack_networking_subnet_v2.main.id
+
+  depends_on = [
+    openstack_networking_router_v2.main,
+    openstack_networking_subnet_v2.main
+  ]
 }
 
-# Security Group
-resource "openstack_networking_secgroup_v2" "security_group_1" {
-  name        = "Security Group 1"
-  description = "Allow SSH, HTTP, and HTTPS traffic"
+resource "openstack_networking_secgroup_v2" "ssh" {
+  name        = "SSH-Security-Group"
+  description = "Allow SSH"
+
 }
 
-# Allow SSH (Port 22)
 resource "openstack_networking_secgroup_rule_v2" "ssh" {
-  security_group_id = openstack_networking_secgroup_v2.security_group_1.id
+  security_group_id = openstack_networking_secgroup_v2.ssh.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 22
   port_range_max    = 22
+
+  depends_on = [openstack_networking_secgroup_v2.ssh]
 }
 
-# Allow HTTP (Port 80)
-resource "openstack_networking_secgroup_rule_v2" "http" {
-  security_group_id = openstack_networking_secgroup_v2.security_group_1.id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 80
-  port_range_max    = 80
+resource "openstack_compute_keypair_v2" "main" {
+  name       = "my-openstack-key"
+  public_key = file("~/.ssh/openstack_key.pub")
 }
 
-# Allow HTTPS (Port 443)
-resource "openstack_networking_secgroup_rule_v2" "https" {
-  security_group_id = openstack_networking_secgroup_v2.security_group_1.id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 443
-  port_range_max    = 443
+resource "openstack_networking_port_v2" "main" {
+  network_id         = openstack_networking_network_v2.main.id
+  security_group_ids = [openstack_networking_secgroup_v2.ssh.id]
+
+  fixed_ip {
+    subnet_id = openstack_networking_subnet_v2.main.id
+  }
+
+  depends_on = [
+    openstack_networking_network_v2.main,
+    openstack_networking_subnet_v2.main
+  ]
 }
 
-
-# Block Storage
-resource "openstack_blockstorage_volume_v3" "volume" {
-  name        = "my-volume"
-  size        = 10
-  description = "A test volume"
-}
-
-# Compute Instance (VM)
-resource "openstack_compute_instance_v2" "vm" {
-  name            = "my-vm"
-  image_name      = "Ubuntu-22.04"
-  flavor_name     = "m1.small"
-  key_pair        = "my-key"
-  admin_pass      = var.vm_admin_pass
-  security_groups = [openstack_networking_secgroup_v2.security_group_1.name]
+resource "openstack_compute_instance_v2" "main" {
+  name        = "forsete-vm"
+  image_id    = "5bdb1498-831c-4de0-b7a0-8f63379c96ed"
+  flavor_name = "de3.12c60r.a100-10g"
+  key_pair    = openstack_compute_keypair_v2.main.name
+  admin_pass  = var.vm_admin_pass
 
   network {
-    uuid = openstack_networking_network_v2.private_net.id
+    port = openstack_networking_port_v2.main.id
   }
 
-  block_device {
-    uuid                  = openstack_blockstorage_volume_v3.volume.id
-    source_type           = "volume"
-    destination_type      = "volume"
-    boot_index            = 0
-    delete_on_termination = true
-  }
+  depends_on = [
+    openstack_compute_keypair_v2.main,
+    openstack_networking_secgroup_v2.ssh,
+    openstack_networking_network_v2.main,
+    openstack_networking_port_v2.main
+  ]
 }
 
-# Floating IP
-resource "openstack_networking_floatingip_v2" "floating_ip" {
-  pool = "public"
+resource "openstack_networking_floatingip_v2" "main" {
+  pool = "ntnu-internal"
 }
 
+resource "openstack_networking_floatingip_associate_v2" "main" {
+  floating_ip = openstack_networking_floatingip_v2.main.address
+  port_id     = openstack_networking_port_v2.main.id
 
-# Associate Floating IP
-resource "openstack_networking_floatingip_associate_v2" "floating_ip_assoc" {
-  floating_ip = openstack_networking_floatingip_v2.floating_ip.address
-  port_id     = openstack_compute_instance_v2.vm.network.0.uuid
+  depends_on = [
+    openstack_networking_floatingip_v2.main,
+    openstack_networking_port_v2.main
+  ]
 }
