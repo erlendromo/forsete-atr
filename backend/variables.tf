@@ -11,8 +11,9 @@ variable "application_credential_secret" {
   sensitive   = true
 }
 
-variable "vm_admin_pass" {
-  description = "Admin password for the VM"
+variable "my_openstack_key_public" {
+  description = "Public key for OpenStack keypair"
+  nullable    = false
   type        = string
   sensitive   = true
 }

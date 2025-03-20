@@ -52,7 +52,7 @@ resource "openstack_networking_secgroup_rule_v2" "ssh" {
 
 resource "openstack_compute_keypair_v2" "main" {
   name       = "my-openstack-key"
-  public_key = file("~/.ssh/openstack_key.pub")
+  public_key = var.my_openstack_key_public
 }
 
 resource "openstack_networking_port_v2" "main" {
@@ -74,7 +74,6 @@ resource "openstack_compute_instance_v2" "main" {
   image_id    = "5bdb1498-831c-4de0-b7a0-8f63379c96ed"
   flavor_name = "de3.12c60r.a100-10g"
   key_pair    = openstack_compute_keypair_v2.main.name
-  admin_pass  = var.vm_admin_pass
 
   network {
     port = openstack_networking_port_v2.main.id
