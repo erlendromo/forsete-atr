@@ -1,25 +1,31 @@
+data "openstack_networking_network_v2" "ntnu_internal" {
+  name = "ntnu-internal"
+}
+
 resource "openstack_networking_network_v2" "main" {
-  name           = "network1"
-  admin_state_up = true
+  name           = var.network_name
+  admin_state_up = var.admin_state_up
 }
 
 resource "openstack_networking_subnet_v2" "main" {
   network_id = openstack_networking_network_v2.main.id
 
-  name        = "subnet1"
-  cidr        = "192.168.1.0/24"
-  ip_version  = 4
-  enable_dhcp = true
-
-  depends_on = [openstack_networking_network_v2.main]
-}
-
-resource "openstack_networking_router_v2" "main" {
-  name                = "router1"
-  external_network_id = "730cb16e-a460-4a87-8c73-50a2cb2293f9"
+  name        = var.subnet_name
+  cidr        = var.subnet_cidr
+  ip_version  = var.subnet_ip_version
+  enable_dhcp = var.subnet_enable_dhcp
 
   depends_on = [
     openstack_networking_network_v2.main
+  ]
+}
+
+resource "openstack_networking_router_v2" "main" {
+  name                = var.router_name
+  external_network_id = data.openstack_networking_network_v2.ntnu_internal.id
+
+  depends_on = [
+    data.openstack_networking_network_v2.ntnu_internal
   ]
 }
 
@@ -33,31 +39,41 @@ resource "openstack_networking_router_interface_v2" "main" {
   ]
 }
 
-resource "openstack_networking_secgroup_v2" "ssh" {
-  name        = "SSH-Security-Group"
-  description = "Allow SSH"
+resource "openstack_networking_secgroup_v2" "main" {
+  name        = "My-Security-Group"
+  description = "Allow SSH and application endpoint"
 
 }
 
 resource "openstack_networking_secgroup_rule_v2" "ssh" {
-  security_group_id = openstack_networking_secgroup_v2.ssh.id
+  security_group_id = openstack_networking_secgroup_v2.main.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 22
   port_range_max    = 22
 
-  depends_on = [openstack_networking_secgroup_v2.ssh]
+  depends_on = [
+    openstack_networking_secgroup_v2.main
+  ]
 }
 
-resource "openstack_compute_keypair_v2" "main" {
-  name       = "my-openstack-key"
-  public_key = var.my_openstack_key_public
+resource "openstack_networking_secgroup_rule_v2" "application" {
+  security_group_id = openstack_networking_secgroup_v2.main.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 8080
+  port_range_max    = 8080
+
+  depends_on = [
+    openstack_networking_secgroup_v2.main
+  ]
 }
 
 resource "openstack_networking_port_v2" "main" {
   network_id         = openstack_networking_network_v2.main.id
-  security_group_ids = [openstack_networking_secgroup_v2.ssh.id]
+  security_group_ids = [openstack_networking_secgroup_v2.main.id]
 
   fixed_ip {
     subnet_id = openstack_networking_subnet_v2.main.id
@@ -65,14 +81,20 @@ resource "openstack_networking_port_v2" "main" {
 
   depends_on = [
     openstack_networking_network_v2.main,
+    openstack_networking_secgroup_v2.main,
     openstack_networking_subnet_v2.main
   ]
 }
 
+resource "openstack_compute_keypair_v2" "main" {
+  name       = var.my_openstack_key_name
+  public_key = var.my_openstack_key_public
+}
+
 resource "openstack_compute_instance_v2" "main" {
-  name        = "forsete-vm"
-  image_id    = "5bdb1498-831c-4de0-b7a0-8f63379c96ed"
-  flavor_name = "de3.12c60r.a100-10g"
+  name        = var.vm_name
+  image_id    = var.vm_image_id
+  flavor_name = var.vm_flavor_name
   key_pair    = openstack_compute_keypair_v2.main.name
 
   network {
@@ -81,14 +103,16 @@ resource "openstack_compute_instance_v2" "main" {
 
   depends_on = [
     openstack_compute_keypair_v2.main,
-    openstack_networking_secgroup_v2.ssh,
-    openstack_networking_network_v2.main,
     openstack_networking_port_v2.main
   ]
 }
 
 resource "openstack_networking_floatingip_v2" "main" {
-  pool = "ntnu-internal"
+  pool = data.openstack_networking_network_v2.ntnu_internal.name
+
+  depends_on = [
+    data.openstack_networking_network_v2.ntnu_internal
+  ]
 }
 
 resource "openstack_networking_floatingip_associate_v2" "main" {
