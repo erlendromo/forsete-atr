@@ -17,7 +17,7 @@ permissions:
 env:
   TF_VAR_application_credential_id: ${{ secrets.OS_APPLICATION_CREDENTIAL_ID }}
   TF_VAR_application_credential_secret: ${{ secrets.OS_APPLICATION_CREDENTIAL_SECRET }}
-  TF_VAR_vm_admin_pass: ${{ secrets.VM_ADMIN_PASS }}
+  TF_VARS_my_openstack_key_public: ${{ secrets.MY_OPENSTACK_KEY_PUBLIC }}
   WORKING_DIR: "backend"
   GH_TOKEN: ${{ github.token }}
 

@@ -18,6 +18,7 @@ permissions:
   pull-requests: write
 
 env:
+  TF_VARS_my_openstack_key_public: ${{ secrets.MY_OPENSTACK_KEY_PUBLIC }}
   GH_TOKEN: ${{ github.token }}
 
 jobs:
