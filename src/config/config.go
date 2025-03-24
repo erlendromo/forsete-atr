@@ -7,12 +7,20 @@ import (
 
 type Config struct {
 	API_PORT string
+	DEVICE   string
 }
 
-func NewConfig() *Config {
-	return &Config{
-		API_PORT: mustGetEnv("API_PORT"),
+var config *Config
+
+func GetConfig() *Config {
+	if config == nil {
+		config = &Config{
+			API_PORT: mustGetEnv("API_PORT"),
+			DEVICE:   mustGetEnv("DEVICE"),
+		}
 	}
+
+	return config
 }
 
 func mustGetEnv(key string) string {
