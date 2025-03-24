@@ -23,6 +23,10 @@ const (
 	SWAGGO_ENDPOINT      = BASE_ENDPOINT + SWAGGO + SLASH
 	SWAGGO_DOCS_ENDPOINT = SWAGGO_ENDPOINT + DOC_JSON
 
+	// Status
+	STATUS          = "status"
+	STATUS_ENDPOINT = BASE_ENDPOINT + STATUS + SLASH
+
 	// Models
 	MODELS                       = "models"
 	REGION_SEGMENTATION_MODELS   = "region-segmentation-models"
