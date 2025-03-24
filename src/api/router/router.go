@@ -24,6 +24,10 @@ func WithEndpoints(mux *http.ServeMux) *http.ServeMux {
 		swaggo.Handler(swaggo.URL(util.SWAGGO_DOCS_ENDPOINT)),
 	)
 
+	// Status
+	mux.HandleFunc(fmt.Sprintf("HEAD %s", util.STATUS_ENDPOINT), handler.HeadStatus)
+	mux.HandleFunc(fmt.Sprintf("GET %s", util.STATUS_ENDPOINT), handler.GetStatus)
+
 	// Models
 	mux.HandleFunc(fmt.Sprintf("GET %s", util.MODELS_ENDPOINT), handler.GetModels)
 	mux.HandleFunc(fmt.Sprintf("GET %s", util.REGION_SEGMENTATION_ENDPOINT), handler.GetRegionSegmentationModels)
