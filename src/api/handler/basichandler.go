@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/erlendromo/forsete-atr/src/config"
 	"github.com/erlendromo/forsete-atr/src/domain/image"
 	"github.com/erlendromo/forsete-atr/src/domain/model"
 	"github.com/erlendromo/forsete-atr/src/domain/pipeline"
@@ -95,7 +96,7 @@ func PostBasicDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	yamlPath, err := pipeline.NewBasicPipeline(lineModel, textModel).Encode("tmp/yaml", "basic.yaml")
+	yamlPath, err := pipeline.NewBasicPipeline(lineModel, textModel, config.GetConfig().DEVICE).Encode("tmp/yaml", "basic.yaml")
 	if err != nil {
 		util.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
