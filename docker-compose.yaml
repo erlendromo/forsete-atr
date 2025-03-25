@@ -2,7 +2,7 @@ services:
   forsete-atr:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/Dockerfile
     container_name: forsete-atr
     restart: unless-stopped
     volumes:

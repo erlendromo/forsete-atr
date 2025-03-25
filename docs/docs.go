@@ -346,6 +346,38 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/forsete-atr/v1/status/": {
+            "get": {
+                "description": "Retrieve status of service",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Status"
+                ],
+                "summary": "GetStatus",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Status"
+                        }
+                    }
+                }
+            },
+            "head": {
+                "description": "Retrieve status of service",
+                "tags": [
+                    "Status"
+                ],
+                "summary": "HeadStatus",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -463,6 +495,18 @@ const docTemplate = `{
                 "text_recognition_models": {
                     "type": "array",
                     "items": {}
+                }
+            }
+        },
+        "handler.Status": {
+            "description": "Json-response for Status",
+            "type": "object",
+            "properties": {
+                "uptime": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
                 }
             }
         },
