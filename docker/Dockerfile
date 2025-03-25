@@ -38,7 +38,7 @@ RUN python3 -m venv /htrflow/venv
 ENV PATH="/htrflow/venv/bin:$PATH"
 
 # Upgrade and install dependencies
-COPY requirements.txt .
+COPY docker/requirements.txt .
 RUN /htrflow/venv/bin/pip install --no-cache-dir --upgrade pip setuptools wheel && \
     /htrflow/venv/bin/pip install --no-cache-dir -r requirements.txt
 
