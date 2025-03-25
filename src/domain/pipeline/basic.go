@@ -35,7 +35,7 @@ func (b *BasicPipeline) Encode(destination, filename string) (string, error) {
 	return file.Name(), nil
 }
 
-func NewBasicPipeline(lineSegmentationModel, textRecognitionModel string) Pipeline {
+func NewBasicPipeline(lineSegmentationModel, textRecognitionModel, device string) Pipeline {
 	return &BasicPipeline{
 		Steps: []Step{
 			ModelStep{
@@ -44,7 +44,7 @@ func NewBasicPipeline(lineSegmentationModel, textRecognitionModel string) Pipeli
 					ModelType: "yolo",
 					ModelSettings: ModelSettings{
 						Model:  lineSegmentationModel,
-						Device: "cpu",
+						Device: device,
 					},
 				},
 			},
@@ -54,7 +54,7 @@ func NewBasicPipeline(lineSegmentationModel, textRecognitionModel string) Pipeli
 					ModelType: "TrOCR",
 					ModelSettings: ModelSettings{
 						Model:  textRecognitionModel,
-						Device: "cpu",
+						Device: device,
 					},
 				},
 			},

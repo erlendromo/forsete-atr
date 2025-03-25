@@ -1,7 +1,13 @@
 #!/bin/bash
 
-# Ensure we are in the correct virtual environment
-source /htrflow/venv/bin/activate
+# Exit on error and catch errors in piped commands
+set -eo pipefail
+
+echo "Activating Virtual Environment..."
+source /htrflow/venv/bin/activate || { echo "FAILED TO ACTIVATE VENV"; exit 1; }
+
+echo "Checking HTRflow:"
+which htrflow || { echo "HTRFLOW NOT FOUND"; exit 1; }
 
 # Check if two arguments are provided
 if [ "$#" -ne 2 ]; then
@@ -26,6 +32,6 @@ if [ ! -f "$IMAGE_FILE" ]; then
 fi
 
 echo "Running htrflow with YAML File: $YAML_FILE and Image File: $IMAGE_FILE"
-htrflow pipeline "$YAML_FILE" "$IMAGE_FILE"
+htrflow pipeline "$YAML_FILE" "$IMAGE_FILE" || { echo "HTRFlow execution failed!"; exit 1; }
 
 exit 0

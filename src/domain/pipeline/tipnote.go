@@ -8,7 +8,7 @@ func (t *TipNotePipeline) Encode(destination, filename string) (string, error) {
 	return "", nil
 }
 
-func NewTipNotePipeline(regionSegmentationModel, lineSegmentationModel, textRecognitionModel string) Pipeline {
+func NewTipNotePipeline(regionSegmentationModel, lineSegmentationModel, textRecognitionModel, device string) Pipeline {
 	return &TipNotePipeline{
 		Steps: []Step{
 			ModelStep{
@@ -17,7 +17,7 @@ func NewTipNotePipeline(regionSegmentationModel, lineSegmentationModel, textReco
 					ModelType: "yolo",
 					ModelSettings: ModelSettings{
 						Model:  regionSegmentationModel,
-						Device: "cpu",
+						Device: device,
 					},
 				},
 			},
@@ -27,7 +27,7 @@ func NewTipNotePipeline(regionSegmentationModel, lineSegmentationModel, textReco
 					ModelType: "yolo",
 					ModelSettings: ModelSettings{
 						Model:  lineSegmentationModel,
-						Device: "cpu",
+						Device: device,
 					},
 				},
 			},
@@ -37,7 +37,7 @@ func NewTipNotePipeline(regionSegmentationModel, lineSegmentationModel, textReco
 					ModelType: "TrOCR",
 					ModelSettings: ModelSettings{
 						Model:  textRecognitionModel,
-						Device: "cpu",
+						Device: device,
 					},
 				},
 			},
