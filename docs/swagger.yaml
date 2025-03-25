@@ -76,6 +76,14 @@ definitions:
         items: {}
         type: array
     type: object
+  handler.Status:
+    description: Json-response for Status
+    properties:
+      uptime:
+        type: string
+      version:
+        type: string
+    type: object
   util.ErrorResponse:
     description: Json-Response on error
     properties:
@@ -315,4 +323,25 @@ paths:
       summary: TextRecognitionModels
       tags:
       - TextRecognitionModels
+  /forsete-atr/v1/status/:
+    get:
+      description: Retrieve status of service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Status'
+      summary: GetStatus
+      tags:
+      - Status
+    head:
+      description: Retrieve status of service
+      responses:
+        "204":
+          description: No Content
+      summary: HeadStatus
+      tags:
+      - Status
 swagger: "2.0"
