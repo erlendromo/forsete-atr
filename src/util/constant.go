@@ -60,3 +60,14 @@ const (
 	CONTENT_TYPE     = "Content-Type"
 	APPLICATION_JSON = "application/json"
 )
+
+/*
+Color
+*/
+const (
+	RESET  = "\033[0m"
+	RED    = "\033[31m"
+	YELLOW = "\033[33m"
+	GREEN  = "\033[32m"
+	CYAN   = "\033[36m"
+)
