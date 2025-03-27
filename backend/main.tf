@@ -63,8 +63,8 @@ resource "openstack_networking_secgroup_rule_v2" "application" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 8080
-  port_range_max    = 8080
+  port_range_min    = var.application_port
+  port_range_max    = var.application_port
 
   depends_on = [
     openstack_networking_secgroup_v2.main

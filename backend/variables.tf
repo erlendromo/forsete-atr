@@ -59,6 +59,14 @@ variable "router_name" {
   type        = string
 }
 
+# Security group
+
+variable "application_port" {
+  default     = 8080
+  description = "Application port"
+  type        = number
+}
+
 # Key pair
 
 variable "my_openstack_key_name" {

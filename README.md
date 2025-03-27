@@ -4,14 +4,16 @@
 
 ### Install dependencies
 - Open a terminal in the root directory (e.g. where this README.md file is located)
-- On Windows, run `scripts/windows.bat` (cmd)
 - On Linux, run `./scripts/linux.sh` (/bin/bash)
+
+`NOT TESTED YET:`
+- On Windows, run `scripts/windows.bat` (cmd)
 - On MacOS, run `./scripts/macos.sh` (/bin/bash)
 
 ### Environment configuration
 - Create a `.env` file in the root directory
 - Look at the `example.env` file for the required environment variables
-- NOTE: If you have CUDA resources available, set the DEVICE to `cuda` in the `.env` file. If not, set it to `cpu`.
+- NOTE: If the service is to be deployed on Openstack, the `API_PORT` must be the same as the `application_port` in the terraform configuration. The default value is `8080` for both.
 
 ### Usage
 - To run the application on `CPU`, run `make composecpu`
