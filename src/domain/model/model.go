@@ -122,13 +122,13 @@ func readEntries(modelEntries []fs.DirEntry, requiredFiles []string, modelType s
 
 		switch modelType {
 		case "regionsegmentation", "linesegmentation":
-			models[modelPath] = yolomodel.NewYoloModel(
+			models[modelName] = yolomodel.NewYoloModel(
 				modelName,
 				fmt.Sprintf("%s/model.pt", modelPath),
 				modelType,
 			)
 		case "textrecognition":
-			models[modelPath] = trocrmodel.NewTrOCRModel(
+			models[modelName] = trocrmodel.NewTrOCRModel(
 				modelName,
 				modelPath,
 				modelType,
