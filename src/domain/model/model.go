@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"mime/multipart"
 	"os"
 	"sync"
@@ -19,76 +20,6 @@ type Model interface {
 	Name() string
 	Path() string
 	Type() string
-}
-
-func InitModels() error {
-	if models != nil {
-		return errors.New("models already initialized")
-	}
-
-	models = make(map[string]Model)
-
-	entriesDir, err := os.ReadDir("models")
-	if err != nil {
-		return err
-	}
-
-	for _, entryDir := range entriesDir {
-		if !entryDir.IsDir() {
-			continue
-		}
-		entryDirName := entryDir.Name()
-
-		modelsDir, err := os.ReadDir(fmt.Sprintf("models/%s", entryDirName))
-		if err != nil {
-			return err
-		}
-
-		for _, modelDir := range modelsDir {
-			if !modelDir.IsDir() {
-				continue
-			}
-
-			modelDirName := modelDir.Name()
-
-			if entryDirName == "linesegmentation" || entryDirName == "regionsegmentation" {
-				entries, err := os.ReadDir(modelDirName)
-				if err != nil {
-					return err
-				}
-
-				found := false
-				for _, entry := range entries {
-					if entry.Name() == "model.pt" {
-						found = true
-						break
-					}
-				}
-
-				if !found {
-					return errors.New("Yolo-model missing 'model.pt' file...")
-				}
-
-				models[modelDirName] = yolomodel.NewYoloModel(
-					modelDirName,
-					fmt.Sprintf("models/%s/%s/model.pt", entryDirName, modelDirName),
-					entryDirName,
-				)
-			} else if entryDirName == "textrecognition" {
-				// TODO add check for files here?
-
-				models[modelDirName] = trocrmodel.NewTrOCRModel(
-					modelDirName,
-					fmt.Sprintf("models/%s/%s", entryDirName, modelDirName),
-					entryDirName,
-				)
-			} else {
-				return errors.New("invalid directory or file accessed")
-			}
-		}
-	}
-
-	return nil
 }
 
 func Path(name string) (string, bool) {
@@ -112,6 +43,118 @@ func ModelsByType(modelType string) []Model {
 	}
 
 	return modelsResponse
+}
+
+func InitModels() error {
+	if models != nil {
+		return errors.New("models already initialized")
+	}
+
+	models = make(map[string]Model, 0)
+
+	regionSegmentationEntries, err := os.ReadDir("models/regionsegmentation")
+	if err != nil {
+		return err
+	}
+
+	requiredFiles := []string{
+		"model.pt",
+	}
+
+	if len(regionSegmentationEntries) > 0 {
+		if err := readEntries(regionSegmentationEntries, requiredFiles, "regionsegmentation"); err != nil {
+			return err
+		}
+	}
+
+	lineSegmentationEntries, err := os.ReadDir("models/linesegmentation")
+	if err != nil {
+		return err
+	}
+
+	if len(lineSegmentationEntries) > 0 {
+		if err := readEntries(lineSegmentationEntries, requiredFiles, "linesegmentation"); err != nil {
+			return err
+		}
+	}
+
+	requiredFiles = []string{
+		"model.safetensors",
+		"config.json",
+		"generation_config.json",
+		"merges.txt",
+		"preprocessor_config.json",
+		"special_tokens_map.json",
+		"tokenizer.json",
+		"tokenizer_config.json",
+		"vocab.json",
+	}
+
+	textRecognitionEntries, err := os.ReadDir("models/textrecognition")
+	if err != nil {
+		return err
+	}
+
+	if len(textRecognitionEntries) > 0 {
+		if err := readEntries(textRecognitionEntries, requiredFiles, "textrecognition"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func readEntries(modelEntries []fs.DirEntry, requiredFiles []string, modelType string) error {
+	var errList []error
+
+	for _, modelDir := range modelEntries {
+		if !modelDir.IsDir() {
+			continue
+		}
+
+		modelName := modelDir.Name()
+		modelPath := fmt.Sprintf("models/%s/%s", modelType, modelName)
+
+		if err := checkRequiredFiles(modelPath, requiredFiles); err != nil {
+			errList = append(errList, fmt.Errorf("%s: %v", modelPath, err))
+			continue
+		}
+
+		switch modelType {
+		case "regionsegmentation", "linesegmentation":
+			models[modelPath] = yolomodel.NewYoloModel(
+				modelName,
+				fmt.Sprintf("%s/model.pt", modelPath),
+				modelType,
+			)
+		case "textrecognition":
+			models[modelPath] = trocrmodel.NewTrOCRModel(
+				modelName,
+				modelPath,
+				modelType,
+			)
+		default:
+			errList = append(errList, fmt.Errorf("unknown model type: %s", modelType))
+		}
+	}
+
+	if len(errList) > 0 {
+		return fmt.Errorf("errors occurred: %v", errList)
+	}
+
+	return nil
+}
+
+func checkRequiredFiles(dir string, filenames []string) error {
+	for _, filename := range filenames {
+		filePath := fmt.Sprintf("%s/%s", dir, filename)
+
+		if _, err := os.Stat(filePath); errors.Is(err, fs.ErrNotExist) {
+			return fmt.Errorf("missing file: %s", filename)
+		}
+	}
+
+	return nil
 }
 
 func AddYoloModel(modelName, modelType string, modelFile multipart.File) error {
