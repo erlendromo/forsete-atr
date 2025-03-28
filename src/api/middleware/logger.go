@@ -21,7 +21,6 @@ func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		r.RemoteAddr,
 		r.URL.Path,
 		r.Method,
-		r.Form,
 	)
 
 	recieveLog.PrintLog("INFO")
@@ -30,8 +29,13 @@ func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	l.next.ServeHTTP(srw, r)
 	srw.Done()
 
-	took := time.Since(start).Milliseconds()
-	unit := "ms"
+	took := time.Since(start).Microseconds()
+	unit := "μs"
+
+	if took >= 1000 {
+		took = time.Since(start).Milliseconds()
+		unit = "ms"
+	}
 
 	if took >= 1000 {
 		took = int64(time.Since(start).Seconds())

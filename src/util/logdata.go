@@ -32,17 +32,15 @@ type RecieveLog struct {
 	client   string
 	endpoint string
 	method   string
-	form     map[string][]string
 }
 
-func NewRecieveLog(start, zone, client, endpoint, method string, form map[string][]string) *RecieveLog {
+func NewRecieveLog(start, zone, client, endpoint, method string) *RecieveLog {
 	return &RecieveLog{
 		start:    start,
 		zone:     zone,
 		client:   client,
 		endpoint: endpoint,
 		method:   method,
-		form:     form,
 	}
 }
 
@@ -50,7 +48,7 @@ func (rl *RecieveLog) PrintLog(logType string) {
 	logType, color := getTypeAndColor(logType)
 
 	fmt.Printf(
-		"\n%s%s%s\nRequest recieved: %s (%s)\nClient: %s\nEndpoint: %s\nMethod: %s\nForm: %v\n\n",
+		"\n%s%s%s\nRequest recieved: %s (%s)\nClient: %s\nEndpoint: %s\nMethod: %s\n",
 		color,
 		logType,
 		RESET,
@@ -59,7 +57,6 @@ func (rl *RecieveLog) PrintLog(logType string) {
 		rl.client,
 		rl.endpoint,
 		rl.method,
-		rl.form,
 	)
 }
 
@@ -81,7 +78,7 @@ func (rl *ResponseLog) PrintLog(logType string) {
 	logType, color := getTypeAndColor(logType)
 
 	fmt.Printf(
-		"\n%s%s%s\nStatus: %d\nTook: %d%s\n\n",
+		"\n%s%s%s\nStatus: %d\nTook: %d%s\n",
 		color,
 		logType,
 		RESET,
