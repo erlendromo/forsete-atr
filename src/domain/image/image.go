@@ -1,6 +1,7 @@
 package image
 
 import (
+	"fmt"
 	"io"
 	"mime/multipart"
 	"os"
@@ -9,7 +10,7 @@ import (
 func ProcessImage(imageFile multipart.File, imageHeader *multipart.FileHeader) (string, error) {
 	defer imageFile.Close()
 
-	localImage, err := os.Create("tmp/images/" + imageHeader.Filename)
+	localImage, err := os.Create(fmt.Sprintf("tmp/images/%s", imageHeader.Filename))
 	if err != nil {
 		return "", err
 	}
