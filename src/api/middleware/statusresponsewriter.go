@@ -3,18 +3,23 @@ package middleware
 import "net/http"
 
 type StatusResponseWriter struct {
-	StatusCode     int
+	written        bool
+	status         int
 	responseWriter http.ResponseWriter
 }
 
 func NewStatusResponseWriter(w http.ResponseWriter) *StatusResponseWriter {
 	return &StatusResponseWriter{
-		StatusCode:     0,
+		written:        false,
+		status:         0,
 		responseWriter: w,
 	}
 }
 
 func (w *StatusResponseWriter) Write(b []byte) (int, error) {
+	if !w.written {
+		w.WriteHeader(http.StatusOK)
+	}
 	return w.responseWriter.Write(b)
 }
 
@@ -23,12 +28,17 @@ func (w *StatusResponseWriter) Header() http.Header {
 }
 
 func (w *StatusResponseWriter) WriteHeader(statusCode int) {
-	w.StatusCode = statusCode
-	w.responseWriter.WriteHeader(statusCode)
+	if !w.written {
+		w.written = true
+		w.responseWriter.WriteHeader(statusCode)
+	}
+	w.status = statusCode
 }
 
-func (w *StatusResponseWriter) Done() {
-	if w.StatusCode == 0 {
-		w.StatusCode = http.StatusOK
-	}
+func (w *StatusResponseWriter) Status() int {
+	return w.status
+}
+
+func (w *StatusResponseWriter) Written() bool {
+	return w.written
 }
