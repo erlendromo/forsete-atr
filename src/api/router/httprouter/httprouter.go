@@ -15,8 +15,8 @@ type HTTPRouter struct {
 	addr string
 }
 
-func NewHTTPRouter(addr string) router.Router {
-	if _, err := strconv.Atoi(addr); err != nil || addr == "" {
+func NewHTTPRouter(addr string) *HTTPRouter {
+	if intAddr, err := strconv.Atoi(addr); err != nil || addr == "" || intAddr < 1000 || intAddr > 9999 {
 		addr = util.DEFAULT_API_PORT
 	}
 
@@ -32,7 +32,9 @@ func (r *HTTPRouter) Serve() error {
 	return http.ListenAndServe(
 		fmt.Sprintf(":%s", r.addr),
 		middleware.WithLogger(
-			mux,
+			middleware.WithContexter(
+				mux,
+			),
 		),
 	)
 }

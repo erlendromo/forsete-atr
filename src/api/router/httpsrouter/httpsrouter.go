@@ -17,8 +17,8 @@ type HTTPSRouter struct {
 	keyFile  string
 }
 
-func NewHTTPSRouter(addr, certFile, keyFile string) router.Router {
-	if _, err := strconv.Atoi(addr); err != nil {
+func NewHTTPSRouter(addr, certFile, keyFile string) *HTTPSRouter {
+	if intAddr, err := strconv.Atoi(addr); err != nil || addr == "" || intAddr < 1000 || intAddr > 9999 {
 		addr = util.DEFAULT_API_PORT
 	}
 
@@ -38,7 +38,9 @@ func (r *HTTPSRouter) Serve() error {
 		r.certFile,
 		r.keyFile,
 		middleware.WithLogger(
-			mux,
+			middleware.WithContexter(
+				mux,
+			),
 		),
 	)
 }

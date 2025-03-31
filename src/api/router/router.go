@@ -5,7 +5,9 @@ import (
 	"net/http"
 
 	_ "github.com/erlendromo/forsete-atr/docs"
-	"github.com/erlendromo/forsete-atr/src/api/handler"
+	"github.com/erlendromo/forsete-atr/src/api/handler/atr"
+	"github.com/erlendromo/forsete-atr/src/api/handler/model"
+	"github.com/erlendromo/forsete-atr/src/api/handler/status"
 	"github.com/erlendromo/forsete-atr/src/util"
 	swaggo "github.com/swaggo/http-swagger/v2"
 )
@@ -25,21 +27,21 @@ func WithEndpoints(mux *http.ServeMux) *http.ServeMux {
 	)
 
 	// Status
-	mux.HandleFunc(fmt.Sprintf("HEAD %s", util.STATUS_ENDPOINT), handler.HeadStatus)
-	mux.HandleFunc(fmt.Sprintf("GET %s", util.STATUS_ENDPOINT), handler.GetStatus)
+	mux.HandleFunc(fmt.Sprintf("HEAD %s", util.STATUS_ENDPOINT), status.HeadStatus)
+	mux.HandleFunc(fmt.Sprintf("GET %s", util.STATUS_ENDPOINT), status.GetStatus)
 
 	// Models
-	mux.HandleFunc(fmt.Sprintf("GET %s", util.MODELS_ENDPOINT), handler.GetModels)
-	mux.HandleFunc(fmt.Sprintf("GET %s", util.REGION_SEGMENTATION_ENDPOINT), handler.GetRegionSegmentationModels)
-	mux.HandleFunc(fmt.Sprintf("POST %s", util.REGION_SEGMENTATION_ENDPOINT), handler.PostRegionSegmentationModel)
-	mux.HandleFunc(fmt.Sprintf("GET %s", util.LINE_SEGMENTATION_ENDPOINT), handler.GetLineSegmentationModels)
-	mux.HandleFunc(fmt.Sprintf("POST %s", util.LINE_SEGMENTATION_ENDPOINT), handler.PostLineSegmentationModel)
-	mux.HandleFunc(fmt.Sprintf("GET %s", util.TEXT_RECOGNITION_ENDPOINT), handler.GetTextRecognitionModels)
-	mux.HandleFunc(fmt.Sprintf("POST %s", util.TEXT_RECOGNITION_ENDPOINT), handler.PostTextRecognitionModel)
+	mux.HandleFunc(fmt.Sprintf("GET %s", util.MODELS_ENDPOINT), model.GetModels)
+	mux.HandleFunc(fmt.Sprintf("GET %s", util.REGION_SEGMENTATION_ENDPOINT), model.GetRegionSegmentationModels)
+	mux.HandleFunc(fmt.Sprintf("POST %s", util.REGION_SEGMENTATION_ENDPOINT), model.PostRegionSegmentationModel)
+	mux.HandleFunc(fmt.Sprintf("GET %s", util.LINE_SEGMENTATION_ENDPOINT), model.GetLineSegmentationModels)
+	mux.HandleFunc(fmt.Sprintf("POST %s", util.LINE_SEGMENTATION_ENDPOINT), model.PostLineSegmentationModel)
+	mux.HandleFunc(fmt.Sprintf("GET %s", util.TEXT_RECOGNITION_ENDPOINT), model.GetTextRecognitionModels)
+	mux.HandleFunc(fmt.Sprintf("POST %s", util.TEXT_RECOGNITION_ENDPOINT), model.PostTextRecognitionModel)
 
 	// ATR
-	mux.HandleFunc(fmt.Sprintf("POST %s", util.BASIC_DOCUMENTS_ENDPOINT), handler.PostBasicDocument)
-	//mux.HandleFunc(fmt.Sprintf("POST %s", util.TIPNOTE_ENDPOINT), handler.PostTipnoteDocument)
+	mux.HandleFunc(fmt.Sprintf("POST %s", util.BASIC_DOCUMENTS_ENDPOINT), atr.PostBasicDocument)
+	mux.HandleFunc(fmt.Sprintf("POST %s", util.TIPNOTE_DOCUMENTS_ENDPOINT), atr.PostTipnoteDocument)
 
 	return mux
 }
