@@ -300,7 +300,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "file",
-                        "description": "preprocessor_config-json",
+                        "description": "preprocessor_config.json",
                         "name": "preprocessor_config",
                         "in": "formData",
                         "required": true

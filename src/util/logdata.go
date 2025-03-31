@@ -1,38 +1,89 @@
 package util
 
-import "fmt"
+import (
+	"fmt"
+)
 
-type LogData struct {
-	start      string
-	zone       string
-	endpoint   string
-	method     string
-	hasPayload bool
-	status     int
-	took       int64
+var logColors = map[string]string{
+	"INFO":         CYAN,
+	"SUCCESS":      GREEN,
+	"CLIENT ERROR": YELLOW,
+	"SERVER ERROR": RED,
+	"MISC":         RESET,
 }
 
-func NewLogData(start, zone, endpoint, method string, hasPayload bool, status int, took int64) *LogData {
-	return &LogData{
-		start:      start,
-		zone:       zone,
-		endpoint:   endpoint,
-		method:     method,
-		hasPayload: hasPayload,
-		status:     status,
-		took:       took,
+func getTypeAndColor(logType string) (string, string) {
+	color, found := logColors[logType]
+	if !found {
+		logType = "MISC"
+		color = logColors[logType]
+	}
+
+	return logType, color
+}
+
+type Log interface {
+	PrintLog(logType string)
+}
+
+type RecieveLog struct {
+	start    string
+	zone     string
+	client   string
+	endpoint string
+	method   string
+}
+
+func NewRecieveLog(start, zone, client, endpoint, method string) *RecieveLog {
+	return &RecieveLog{
+		start:    start,
+		zone:     zone,
+		client:   client,
+		endpoint: endpoint,
+		method:   method,
 	}
 }
 
-func (l *LogData) PrintLog() {
+func (rl *RecieveLog) PrintLog(logType string) {
+	logType, color := getTypeAndColor(logType)
+
 	fmt.Printf(
-		"\nRequest recieved: %s (%s)\nEndpoint: %s\nMethod: %s\nHas payload: %v\nStatus: %d\nTook: %dms\n\n",
-		l.start,
-		l.zone,
-		l.endpoint,
-		l.method,
-		l.hasPayload,
-		l.status,
-		l.took,
+		"\n%s%s%s\nRequest recieved: %s (%s)\nClient: %s\nEndpoint: %s\nMethod: %s\n",
+		color,
+		logType,
+		RESET,
+		rl.start,
+		rl.zone,
+		rl.client,
+		rl.endpoint,
+		rl.method,
+	)
+}
+
+type ResponseLog struct {
+	status int
+	took   int64
+	unit   string
+}
+
+func NewResponseLog(status int, took int64, unit string) *ResponseLog {
+	return &ResponseLog{
+		status: status,
+		took:   took,
+		unit:   unit,
+	}
+}
+
+func (rl *ResponseLog) PrintLog(logType string) {
+	logType, color := getTypeAndColor(logType)
+
+	fmt.Printf(
+		"\n%s%s%s\nStatus: %d\nTook: %d%s\n",
+		color,
+		logType,
+		RESET,
+		rl.status,
+		rl.took,
+		rl.unit,
 	)
 }
