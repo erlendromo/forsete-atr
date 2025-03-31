@@ -1,11 +1,18 @@
 package util
 
 /*
-Misc
+Environment
 */
 const (
-	API_PORT         = "API_PORT"
+	// Variables
+	API_PORT = "API_PORT"
+	DEVICE   = "DEVICE"
+	TIMEOUT  = "TIMEOUT"
+
+	// Default values
 	DEFAULT_API_PORT = "8080"
+	DEFAULT_DEVICE   = "cpu"
+	DEFAULT_TIMEOUT  = "10m"
 )
 
 /*
@@ -67,7 +74,21 @@ Color
 const (
 	RESET  = "\033[0m"
 	RED    = "\033[31m"
-	YELLOW = "\033[33m"
 	GREEN  = "\033[32m"
+	YELLOW = "\033[33m"
+	PURPLE = "\033[35m"
 	CYAN   = "\033[36m"
+)
+
+/*
+Misc
+*/
+const (
+	REGION_SEGMENTATION = "regionsegmentation"
+	LINE_SEGMENTATION   = "linesegmentation"
+	TEXT_RECOGNITION    = "textrecognition"
+)
+
+const (
+	INTERNAL_SERVER_ERROR = "internal server error"
 )
