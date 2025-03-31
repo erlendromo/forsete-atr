@@ -1,14 +1,17 @@
 package pipeline
 
+import (
+	"fmt"
+	"os"
+
+	"gopkg.in/yaml.v3"
+)
+
 type TipNotePipeline struct {
 	Steps []Step
 }
 
-func (t *TipNotePipeline) Encode(destination, filename string) (string, error) {
-	return "", nil
-}
-
-func NewTipNotePipeline(regionSegmentationModel, lineSegmentationModel, textRecognitionModel, device string) Pipeline {
+func NewTipNotePipeline(regionSegmentationModel, lineSegmentationModel, textRecognitionModel, device string) *TipNotePipeline {
 	return &TipNotePipeline{
 		Steps: []Step{
 			ModelStep{
@@ -53,4 +56,28 @@ func NewTipNotePipeline(regionSegmentationModel, lineSegmentationModel, textReco
 			},
 		},
 	}
+}
+
+func (t *TipNotePipeline) Encode(destination, filename string) (string, error) {
+	filepath := fmt.Sprintf("%s/%s", destination, filename)
+
+	if file, err := os.Open(filepath); err == nil {
+		return file.Name(), nil
+	}
+
+	file, err := os.Create(filepath)
+	if err != nil {
+		return "", err
+	}
+
+	payload, err := yaml.Marshal(t)
+	if err != nil {
+		return "", err
+	}
+
+	if _, err := file.Write(payload); err != nil {
+		return "", err
+	}
+
+	return file.Name(), nil
 }

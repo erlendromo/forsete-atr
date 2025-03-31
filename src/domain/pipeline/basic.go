@@ -11,31 +11,7 @@ type BasicPipeline struct {
 	Steps []Step
 }
 
-func (b *BasicPipeline) Encode(destination, filename string) (string, error) {
-	filepath := fmt.Sprintf("%s/%s", destination, filename)
-
-	if file, err := os.Open(filepath); err == nil {
-		return file.Name(), nil
-	}
-
-	file, err := os.Create(filepath)
-	if err != nil {
-		return "", err
-	}
-
-	payload, err := yaml.Marshal(b)
-	if err != nil {
-		return "", err
-	}
-
-	if _, err := file.Write(payload); err != nil {
-		return "", err
-	}
-
-	return file.Name(), nil
-}
-
-func NewBasicPipeline(lineSegmentationModel, textRecognitionModel, device string) Pipeline {
+func NewBasicPipeline(lineSegmentationModel, textRecognitionModel, device string) *BasicPipeline {
 	return &BasicPipeline{
 		Steps: []Step{
 			ModelStep{
@@ -70,4 +46,28 @@ func NewBasicPipeline(lineSegmentationModel, textRecognitionModel, device string
 			},
 		},
 	}
+}
+
+func (b *BasicPipeline) Encode(destination, filename string) (string, error) {
+	filepath := fmt.Sprintf("%s/%s", destination, filename)
+
+	if file, err := os.Open(filepath); err == nil {
+		return file.Name(), nil
+	}
+
+	file, err := os.Create(filepath)
+	if err != nil {
+		return "", err
+	}
+
+	payload, err := yaml.Marshal(b)
+	if err != nil {
+		return "", err
+	}
+
+	if _, err := file.Write(payload); err != nil {
+		return "", err
+	}
+
+	return file.Name(), nil
 }
