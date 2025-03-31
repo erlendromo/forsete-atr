@@ -14,6 +14,22 @@ import (
 	"github.com/erlendromo/forsete-atr/src/util"
 )
 
+var requiredYoloFiles = []string{
+	"model.pt",
+}
+
+var requiredTrOCRFiles = []string{
+	"model.safetensors",
+	"config.json",
+	"generation_config.json",
+	"merges.txt",
+	"preprocessor_config.json",
+	"special_tokens_map.json",
+	"tokenizer.json",
+	"tokenizer_config.json",
+	"vocab.json",
+}
+
 var models map[string]Model
 
 type Model interface {
@@ -52,54 +68,100 @@ func InitModels() error {
 
 	models = make(map[string]Model, 0)
 
-	regionSegmentationEntries, err := os.ReadDir("models/regionsegmentation")
+	regionSegmentationEntries, err := os.ReadDir(fmt.Sprintf("%s/%s", util.MODELS, util.REGION_SEGMENTATION))
 	if err != nil {
 		return err
 	}
 
-	requiredFiles := []string{
-		"model.pt",
-	}
-
 	if len(regionSegmentationEntries) > 0 {
-		if err := readEntries(regionSegmentationEntries, requiredFiles, "regionsegmentation"); err != nil {
+		if err := readEntries(regionSegmentationEntries, requiredYoloFiles, util.REGION_SEGMENTATION); err != nil {
 			return err
 		}
 	}
 
-	lineSegmentationEntries, err := os.ReadDir("models/linesegmentation")
+	lineSegmentationEntries, err := os.ReadDir(fmt.Sprintf("%s/%s", util.MODELS, util.LINE_SEGMENTATION))
 	if err != nil {
 		return err
 	}
 
 	if len(lineSegmentationEntries) > 0 {
-		if err := readEntries(lineSegmentationEntries, requiredFiles, "linesegmentation"); err != nil {
+		if err := readEntries(lineSegmentationEntries, requiredYoloFiles, util.LINE_SEGMENTATION); err != nil {
 			return err
 		}
 	}
 
-	requiredFiles = []string{
-		"model.safetensors",
-		"config.json",
-		"generation_config.json",
-		"merges.txt",
-		"preprocessor_config.json",
-		"special_tokens_map.json",
-		"tokenizer.json",
-		"tokenizer_config.json",
-		"vocab.json",
-	}
-
-	textRecognitionEntries, err := os.ReadDir("models/textrecognition")
+	textRecognitionEntries, err := os.ReadDir(fmt.Sprintf("%s/%s", util.MODELS, util.TEXT_RECOGNITION))
 	if err != nil {
 		return err
 	}
 
 	if len(textRecognitionEntries) > 0 {
-		if err := readEntries(textRecognitionEntries, requiredFiles, "textrecognition"); err != nil {
+		if err := readEntries(textRecognitionEntries, requiredTrOCRFiles, util.TEXT_RECOGNITION); err != nil {
 			return err
 		}
 	}
+
+	return nil
+}
+
+func AddYoloModel(modelName, modelType string, modelFile multipart.File) error {
+	defer modelFile.Close()
+
+	modelDirPath, err := modelDirPath(modelName, modelType)
+	if err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(modelDirPath, os.ModeDir); err != nil {
+		return err
+	}
+
+	modelPath := fmt.Sprintf("%s/model.pt", modelDirPath)
+
+	if err := createLocalFile(modelFile, modelPath); err != nil {
+		fmt.Printf("\n%sCREATE FILE ERROR%s\n%v",
+			util.RED,
+			util.RESET,
+			err,
+		)
+		return err
+	}
+
+	models[modelName] = yolomodel.NewYoloModel(modelName, modelPath, modelType)
+
+	return nil
+}
+
+func AddTrOCRModel(modelName, modelType string, files map[string]multipart.File) error {
+	modelDirPath, err := modelDirPath(modelName, modelType)
+	if err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(modelDirPath, os.ModeDir); err != nil {
+		return err
+	}
+
+	var wg *sync.WaitGroup
+
+	for fileName, file := range files {
+		wg.Add(1)
+		go func(fileName string, file multipart.File) {
+			defer file.Close()
+			if err := createLocalFile(file, fmt.Sprintf("%s/%s", modelDirPath, fileName)); err != nil {
+				fmt.Printf("\n%sCREATE FILE ERROR%s\n%v",
+					util.RED,
+					util.RESET,
+					err,
+				)
+			}
+			wg.Done()
+		}(fileName, file)
+	}
+
+	wg.Wait()
+
+	models[modelName] = trocrmodel.NewTrOCRModel(modelName, modelDirPath, modelType)
 
 	return nil
 }
@@ -113,7 +175,7 @@ func readEntries(modelEntries []fs.DirEntry, requiredFiles []string, modelType s
 		}
 
 		modelName := modelDir.Name()
-		modelPath := fmt.Sprintf("models/%s/%s", modelType, modelName)
+		modelPath := fmt.Sprintf("%s/%s/%s", util.MODELS, modelType, modelName)
 
 		if err := checkRequiredFiles(modelPath, requiredFiles); err != nil {
 			errList = append(errList, fmt.Errorf("%s: %v", modelPath, err))
@@ -121,13 +183,13 @@ func readEntries(modelEntries []fs.DirEntry, requiredFiles []string, modelType s
 		}
 
 		switch modelType {
-		case "regionsegmentation", "linesegmentation":
+		case util.REGION_SEGMENTATION, util.LINE_SEGMENTATION:
 			models[modelName] = yolomodel.NewYoloModel(
 				modelName,
 				fmt.Sprintf("%s/model.pt", modelPath),
 				modelType,
 			)
-		case "textrecognition":
+		case util.TEXT_RECOGNITION:
 			models[modelName] = trocrmodel.NewTrOCRModel(
 				modelName,
 				modelPath,
@@ -157,64 +219,6 @@ func checkRequiredFiles(dir string, filenames []string) error {
 	return nil
 }
 
-func AddYoloModel(modelName, modelType string, modelFile multipart.File) error {
-	defer modelFile.Close()
-
-	modelDirPath, err := modelDirPath(modelName, modelType)
-	if err != nil {
-		return err
-	}
-
-	if err := os.MkdirAll(modelDirPath, os.ModeDir); err != nil {
-		return err
-	}
-
-	modelPath := fmt.Sprintf("%s/model.pt", modelDirPath)
-
-	if err := createLocalFile(modelFile, modelPath); err != nil {
-		return err
-	}
-
-	models[modelName] = yolomodel.NewYoloModel(modelName, modelPath, modelType)
-
-	return nil
-}
-
-func AddTrOCRModel(modelName, modelType string, files map[string]multipart.File) error {
-	modelDirPath, err := modelDirPath(modelName, modelType)
-	if err != nil {
-		return err
-	}
-
-	if err := os.MkdirAll(modelDirPath, os.ModeDir); err != nil {
-		return err
-	}
-
-	var wg *sync.WaitGroup
-
-	for fileName, file := range files {
-		wg.Add(1)
-		go func(fileName string, file multipart.File) {
-			defer file.Close()
-			if err := createLocalFile(file, fmt.Sprintf("%s/%s", modelDirPath, fileName)); err != nil {
-				fmt.Printf("\n%s%s%s\n%v",
-					util.RED,
-					"ERROR",
-					util.RESET,
-					err,
-				)
-			}
-			wg.Done()
-		}(fileName, file)
-	}
-
-	wg.Wait()
-
-	models[modelName] = trocrmodel.NewTrOCRModel(modelName, modelDirPath, modelType)
-
-	return nil
-}
-
 func createLocalFile(file multipart.File, path string) error {
 	localFile, err := os.Create(path)
 	if err != nil {
@@ -231,14 +235,9 @@ func createLocalFile(file multipart.File, path string) error {
 }
 
 func modelDirPath(modelName, modelType string) (string, error) {
-	switch modelType {
-	case "regionsegmentation":
-		return fmt.Sprintf("models/regionsegmentation/%s", modelName), nil
-	case "linesegmentation":
-		return fmt.Sprintf("models/linesegmentation/%s", modelName), nil
-	case "textrecognition":
-		return fmt.Sprintf("models/textrecognition/%s", modelName), nil
-	default:
+	if modelType != util.REGION_SEGMENTATION && modelType != util.LINE_SEGMENTATION && modelType != util.TEXT_RECOGNITION {
 		return "", errors.New("invalid model type")
 	}
+
+	return fmt.Sprintf("%s/%s/%s", util.MODELS, modelType, modelName), nil
 }
