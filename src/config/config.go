@@ -3,20 +3,30 @@ package config
 import (
 	"fmt"
 	"os"
+	"time"
+
+	"github.com/erlendromo/forsete-atr/src/util"
 )
 
 type Config struct {
 	API_PORT string
 	DEVICE   string
+	TIMEOUT  time.Duration
 }
 
 var config *Config
 
 func GetConfig() *Config {
+	timeout, err := time.ParseDuration(mustGetEnv(util.TIMEOUT))
+	if err != nil {
+		panic(err)
+	}
+
 	if config == nil {
 		config = &Config{
-			API_PORT: mustGetEnv("API_PORT"),
-			DEVICE:   mustGetEnv("DEVICE"),
+			API_PORT: mustGetEnv(util.API_PORT),
+			DEVICE:   mustGetEnv(util.DEVICE),
+			TIMEOUT:  timeout,
 		}
 	}
 
