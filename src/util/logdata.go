@@ -87,3 +87,27 @@ func (rl *ResponseLog) PrintLog(logType string) {
 		rl.unit,
 	)
 }
+
+type InternalErrorLog struct {
+	entryError string
+	err        error
+}
+
+func NewInternalErrorLog(entryError string, err error) *InternalErrorLog {
+	return &InternalErrorLog{
+		entryError: entryError,
+		err:        err,
+	}
+}
+
+func (i *InternalErrorLog) PrintLog(logType string) {
+	logType, color := getTypeAndColor(logType)
+
+	fmt.Printf(
+		"\n%s%s%s\n%s\n",
+		color,
+		i.entryError,
+		RESET,
+		i.err.Error(),
+	)
+}
