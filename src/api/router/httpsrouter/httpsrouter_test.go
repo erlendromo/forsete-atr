@@ -8,19 +8,13 @@ import (
 )
 
 type serveHTTPSCase struct {
-	router   router.Router
-	expected bool
+	router       router.Router
+	expectedPass bool
 }
 
 var serveHTTPSCases []serveHTTPSCase = []serveHTTPSCase{
-	{
-		router:   NewHTTPSRouter("8001", "aaa", "bbb"),
-		expected: false,
-	},
-	{
-		router:   NewHTTPSRouter("8002", "ccc", "ddd"),
-		expected: false,
-	},
+	{router: NewHTTPSRouter("8001", "aaa", "bbb"), expectedPass: false},
+	{router: NewHTTPSRouter("8002", "ccc", "ddd"), expectedPass: false},
 }
 
 func TestServeTLS(t *testing.T) {
@@ -32,7 +26,8 @@ func testServeTLS(t *testing.T) {
 		done := make(chan struct{})
 
 		go func() {
-			if err := httpsCase.router.Serve(); err != nil && httpsCase.expected == true {
+			err := httpsCase.router.Serve()
+			if (err == nil) != httpsCase.expectedPass {
 				t.Errorf("router.Serve() failed: %v", err)
 			}
 			close(done)
@@ -40,9 +35,7 @@ func testServeTLS(t *testing.T) {
 
 		select {
 		case <-time.After(1 * time.Second):
-			t.Log("Timeout reached, stopping server")
 		case <-done:
-			t.Log("Server stopped gracefully")
 		}
 	}
 }

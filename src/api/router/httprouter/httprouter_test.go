@@ -8,19 +8,13 @@ import (
 )
 
 type serveHTTPCase struct {
-	router   router.Router
-	expected bool
+	router       router.Router
+	expectedPass bool
 }
 
 var serveHTTPCases []serveHTTPCase = []serveHTTPCase{
-	{
-		router:   NewHTTPRouter("test"),
-		expected: true,
-	},
-	{
-		router:   NewHTTPRouter("9090"),
-		expected: true,
-	},
+	{router: NewHTTPRouter("test"), expectedPass: true},
+	{router: NewHTTPRouter("9090"), expectedPass: true},
 }
 
 func TestServe(t *testing.T) {
@@ -32,7 +26,8 @@ func testServe(t *testing.T) {
 		done := make(chan struct{})
 
 		go func() {
-			if err := httpCase.router.Serve(); err != nil && httpCase.expected == true {
+			err := httpCase.router.Serve()
+			if (err == nil) != httpCase.expectedPass {
 				t.Errorf("router.Serve() failed: %v", err)
 			}
 			close(done)
@@ -40,9 +35,7 @@ func testServe(t *testing.T) {
 
 		select {
 		case <-time.After(1 * time.Second):
-			t.Log("Timeout reached, stopping server")
 		case <-done:
-			t.Log("Server stopped gracefully")
 		}
 	}
 }
