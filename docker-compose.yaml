@@ -1,0 +1,29 @@
+services:
+  forsete-atr:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: forsete-atr
+    restart: unless-stopped
+    volumes:
+      - temp-yaml-storage:/tmp/yaml
+      - temp-image-storage:/tmp/images
+      - temp-htrflow-outputs:/tmp/outputs
+      - models:/models
+    ports:
+      - "${API_PORT}:${API_PORT}"
+    environment:
+      - API_PORT=${API_PORT}
+      - TIMEOUT=${TIMEOUT}
+      - DEVICE=cpu
+
+volumes:
+  temp-yaml-storage:
+  temp-image-storage:
+  temp-htrflow-outputs:
+  models:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/models
+      o: bind

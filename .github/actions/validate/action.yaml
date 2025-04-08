@@ -1,0 +1,44 @@
+name: Validate Terraform Files
+description: Validate Terraform code using terraform validate, tfsec, and checkov
+
+inputs:
+  working_dir:
+    description: "The working directory for the Terraform code"
+    required: false
+    default: "."
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      id: checkout
+      uses: actions/checkout@master
+
+    - name: Set up Terraform
+      id: setup-terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform Init
+      id: init
+      run: terraform init
+      working-directory: ${{ inputs.working_dir }}
+      shell: bash
+
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate
+      working-directory: ${{ inputs.working_dir }}
+      shell: bash
+
+    - name: Tfsec
+      id: tfsec
+      uses: aquasecurity/tfsec-action@v1.0.3
+      with:
+        working_directory: ${{ inputs.working_dir }}
+
+    - name: Checkov
+      id: checkov
+      uses: bridgecrewio/checkov-action@master
+      with:
+        directory: ${{ inputs.working_dir }}
+      continue-on-error: true

@@ -1,0 +1,36 @@
+name: Format Terraform Files
+description: Format Terraform files using terraform fmt and commit changes back to the repository
+
+inputs:
+  working_dir:
+    description: "The directory to run terraform fmt in"
+    required: false
+    default: "."
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      id: checkout
+      uses: actions/checkout@master
+
+    - name: terraform fmt
+      id: fmt
+      uses: dflook/terraform-fmt@v1.44.0
+      with:
+        path: ${{ inputs.working_dir }}
+
+    - name: Commit changes
+      id: commit
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git diff-index --quiet HEAD || git commit -m "terraform fmt applied"
+      shell: bash
+
+    - name: Push Changes
+      id: push
+      run: |
+        git push origin ${{ github.ref }}
+      shell: bash

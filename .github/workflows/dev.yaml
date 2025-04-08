@@ -1,0 +1,47 @@
+name: Deploy dev
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "backend/**"
+      - "src/**"
+      - "main.go"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  TF_VAR_application_credential_id: ${{ secrets.OS_APPLICATION_CREDENTIAL_ID }}
+  TF_VAR_application_credential_secret: ${{ secrets.OS_APPLICATION_CREDENTIAL_SECRET }}
+  TF_VAR_my_openstack_key_public: ${{ secrets.OS_PUBLIC_KEY }}
+  WORKING_DIR: "backend"
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  terraform:
+    name: Deploy to OpenStack
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Set up Terraform
+        id: setup-terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ${{ env.WORKING_DIR }}

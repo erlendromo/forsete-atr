@@ -1,0 +1,21 @@
+# Misc
+.idea/
+.DS_Store
+*.iml
+*.ipr
+
+# Images
+*.jpg
+*.jpeg
+*.png
+
+# Files
+*.csv
+
+# Logs & env
+.env
+*.log
+
+# Models
+models
+tmp

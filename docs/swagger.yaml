@@ -1,0 +1,397 @@
+definitions:
+  atr.ATRResponse:
+    description: Json-Response for ATR
+    properties:
+      contains:
+        items:
+          properties:
+            segment:
+              properties:
+                bbox:
+                  properties:
+                    xmax:
+                      type: integer
+                    xmin:
+                      type: integer
+                    ymax:
+                      type: integer
+                    ymin:
+                      type: integer
+                  type: object
+                class_label:
+                  type: string
+                data:
+                  type: object
+                orig_shape:
+                  items:
+                    type: integer
+                  type: array
+                polygon:
+                  properties:
+                    points:
+                      items:
+                        properties:
+                          x:
+                            type: integer
+                          "y":
+                            type: integer
+                        type: object
+                      type: array
+                  type: object
+                score:
+                  type: number
+              type: object
+            text_result:
+              properties:
+                label:
+                  type: string
+                scores:
+                  items:
+                    type: number
+                  type: array
+                texts:
+                  items:
+                    type: string
+                  type: array
+              type: object
+          type: object
+        type: array
+      file_name:
+        type: string
+      image_name:
+        type: string
+      label:
+        type: string
+    type: object
+  model.ModelsResponse:
+    description: Json-Response for models
+    properties:
+      line_segmentation_models:
+        items: {}
+        type: array
+      region_segmentation_models:
+        items: {}
+        type: array
+      text_recognition_models:
+        items: {}
+        type: array
+    type: object
+  status.Status:
+    description: Json-response for Status
+    properties:
+      atr:
+        type: string
+      uptime:
+        type: string
+      version:
+        type: string
+    type: object
+  util.ErrorResponse:
+    description: Json-Response on error
+    properties:
+      error:
+        type: string
+      status:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: RESTful JSON-API for Automatic Text Recognition (ATR) developed as
+    part of Bachelor Thesis "FORSETE" at NTNU Gjøvik.
+  title: Forsete-ATR
+  version: v1
+paths:
+  /forsete-atr/v1/atr/basic-documents/:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Run ATR on image-file
+      parameters:
+      - description: png, jpg, jpeg
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: name of line segmentation model
+        in: formData
+        name: line_segmentation_model
+        required: true
+        type: string
+      - description: name of text recognition model
+        in: formData
+        name: text_recognition_model
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/atr.ATRResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: ATR
+      tags:
+      - ATR
+  /forsete-atr/v1/atr/tipnote-documents/:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Run ATR on image-file
+      parameters:
+      - description: png, jpg, jpeg
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: name of the region segmentation model
+        in: formData
+        name: region_segmentation_model
+        required: true
+        type: string
+      - description: name of line segmentation model
+        in: formData
+        name: line_segmentation_model
+        required: true
+        type: string
+      - description: name of text recognition model
+        in: formData
+        name: text_recognition_model
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/atr.ATRResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: ATR
+      tags:
+      - ATR
+  /forsete-atr/v1/models/:
+    get:
+      description: Retrieve all active models
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ModelsResponse'
+      summary: Models
+      tags:
+      - Models
+  /forsete-atr/v1/models/line-segmentation-models/:
+    get:
+      description: Retrieve all active line segmentation models
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ModelsResponse'
+      summary: LineSegmentationModels
+      tags:
+      - LineSegmentationModels
+    post:
+      consumes:
+      - multipart/form-data
+      description: Add a line segmentation model
+      parameters:
+      - description: Name of the model
+        in: formData
+        name: model_name
+        required: true
+        type: string
+      - description: model.pt
+        in: formData
+        name: model
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: LineSegmentationModels
+      tags:
+      - LineSegmentationModels
+  /forsete-atr/v1/models/region-segmentation-models/:
+    get:
+      description: Retrieve all active region segmentation models
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ModelsResponse'
+      summary: RegionSegmentationModels
+      tags:
+      - RegionSegmentationModels
+    post:
+      consumes:
+      - multipart/form-data
+      description: Add a region segmentation model
+      parameters:
+      - description: Name of the model
+        in: formData
+        name: model_name
+        required: true
+        type: string
+      - description: model.pt
+        in: formData
+        name: model
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: RegionSegmentationModels
+      tags:
+      - RegionSegmentationModels
+  /forsete-atr/v1/models/text-recognition-models/:
+    get:
+      description: Retrieve all active text recognition models
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ModelsResponse'
+      summary: TextRecognitionModels
+      tags:
+      - TextRecognitionModels
+    post:
+      consumes:
+      - multipart/form-data
+      description: Add a text recognition model
+      parameters:
+      - description: Name of the model
+        in: formData
+        name: model_name
+        required: true
+        type: string
+      - description: model.safetensors
+        in: formData
+        name: model
+        required: true
+        type: file
+      - description: config.json
+        in: formData
+        name: config
+        required: true
+        type: file
+      - description: generation_config.json
+        in: formData
+        name: generation_config
+        required: true
+        type: file
+      - description: merges.txt
+        in: formData
+        name: merges
+        required: true
+        type: file
+      - description: preprocessor_config.json
+        in: formData
+        name: preprocessor_config
+        required: true
+        type: file
+      - description: special_tokens_map.json
+        in: formData
+        name: special_tokens_map
+        required: true
+        type: file
+      - description: tokenizer.json
+        in: formData
+        name: tokenizer
+        required: true
+        type: file
+      - description: tokenizer_config.json
+        in: formData
+        name: tokenizer_config
+        required: true
+        type: file
+      - description: vocab.json
+        in: formData
+        name: vocab
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: TextRecognitionModels
+      tags:
+      - TextRecognitionModels
+  /forsete-atr/v1/status/:
+    get:
+      description: Retrieve status of service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/status.Status'
+      summary: GetStatus
+      tags:
+      - Status
+    head:
+      description: Retrieve status of service
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: HeadStatus
+      tags:
+      - Status
+swagger: "2.0"
