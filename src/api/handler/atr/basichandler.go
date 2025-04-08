@@ -5,13 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/erlendromo/forsete-atr/src/config"
+	"github.com/erlendromo/forsete-atr/src/domain/htrflow"
 	"github.com/erlendromo/forsete-atr/src/domain/image"
-	"github.com/erlendromo/forsete-atr/src/domain/model"
+	"github.com/erlendromo/forsete-atr/src/domain/modelstore"
 	"github.com/erlendromo/forsete-atr/src/domain/pipeline"
 	"github.com/erlendromo/forsete-atr/src/util"
 )
@@ -80,60 +79,90 @@ func PostBasicDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lineModel, found := model.Path(r.FormValue("line_segmentation_model"))
+	lineModel, found := modelstore.GetModelstore().PathToModel(r.FormValue("line_segmentation_model"))
 	if !found {
 		util.ERROR(w, http.StatusBadRequest, errors.New("invalid line_segmentation_model, see /forsete-atr/v1/models/line-segmentation-models/ for valid models"))
 		return
 	}
 
-	textModel, found := model.Path(r.FormValue("text_recognition_model"))
+	textModel, found := modelstore.GetModelstore().PathToModel(r.FormValue("text_recognition_model"))
 	if !found {
 		util.ERROR(w, http.StatusBadRequest, errors.New("invalid text_recognition_model, see /forsete-atr/v1/models/text-recognition-models/ for valid models"))
 		return
 	}
 
-	// Process image and yaml
+	// Process image
 
-	imagePath, err := image.ProcessImage(imageFile, imageHeader)
+	image, err := image.NewImage(imageHeader.Filename, imageFile)
 	if err != nil {
-		fmt.Printf("\n%sIMAGE ERROR%s\n%s\n", util.RED, util.RESET, err.Error())
+		util.NewInternalErrorLog("NEW IMAGE ERROR", err).PrintLog("SERVER ERROR")
 		util.ERROR(w, http.StatusInternalServerError, errors.New(util.INTERNAL_SERVER_ERROR))
 		return
 	}
 
-	yamlPath, err := pipeline.NewBasicPipeline(lineModel, textModel, config.GetConfig().DEVICE).Encode("tmp/yaml", "basic.yaml")
+	imagePath, err := image.CreateLocalImage()
 	if err != nil {
-		fmt.Printf("\n%sPIPELINE ERROR%s\n%s\n", util.RED, util.RESET, err.Error())
+		util.NewInternalErrorLog("CREATE LOCAL IMAGE ERROR", err).PrintLog("SERVER ERROR")
+		util.ERROR(w, http.StatusInternalServerError, errors.New(util.INTERNAL_SERVER_ERROR))
+		return
+	}
+
+	// Process pipeline
+
+	pipeline, err := pipeline.NewPipeline(
+		config.GetConfig().DEVICE,
+		fmt.Sprintf(
+			"%s_%s",
+			r.FormValue("line_segmentation_model"),
+			r.FormValue("text_recognition_model"),
+		),
+	)
+	if err != nil {
+		util.NewInternalErrorLog("PIPELINE ERROR", err).PrintLog("SERVER ERROR")
+		util.ERROR(w, http.StatusInternalServerError, errors.New(util.INTERNAL_SERVER_ERROR))
+		return
+	}
+
+	pipeline.AppendYoloStep(
+		lineModel,
+	).AppendTrOCRStep(
+		textModel,
+	).AppendOrderStep(
+		"OrderLines",
+	).AppendExportStep(
+		"json",
+	)
+
+	yamlPath, err := pipeline.CreateLocalYaml()
+	if err != nil {
+		util.NewInternalErrorLog("PIPELINE ERROR", err).PrintLog("SERVER ERROR")
 		util.ERROR(w, http.StatusInternalServerError, errors.New(util.INTERNAL_SERVER_ERROR))
 		return
 	}
 
 	// Execute htrflow
 
-	cmd := exec.Command("/bin/bash", "scripts/htrflow.sh", yamlPath, imagePath)
-	if output, err := cmd.CombinedOutput(); err != nil {
-		fmt.Printf("\n%sHTRFLOW ERROR%s\n%s\n", util.RED, util.RESET, output)
-		util.ERROR(w, http.StatusInternalServerError, errors.New(util.INTERNAL_SERVER_ERROR))
-		return
-	}
+	htrflow := htrflow.NewHTRflow(
+		yamlPath,
+		imagePath,
+		fmt.Sprintf("tmp/outputs/images/%s.json", strings.Split(strings.Split(imagePath, "/")[2], ".")[0]),
+	)
 
-	// Read and decode json-output
-
-	jsonOutput, err := os.Open(fmt.Sprintf("tmp/outputs/images/%s.json", strings.Split(strings.Split(imagePath, "/")[2], ".")[0]))
+	outputFile, err := htrflow.Run()
 	if err != nil {
-		fmt.Printf("\n%sREAD RESPONSE ERROR%s\n%s\n", util.RED, util.RESET, err.Error())
+		util.NewInternalErrorLog("HTRFLOW ERROR", err).PrintLog("SERVER ERROR")
 		util.ERROR(w, http.StatusInternalServerError, errors.New(util.INTERNAL_SERVER_ERROR))
 		return
 	}
+
+	// Decode and write response
 
 	var atrResponse ATRResponse
-	if err := json.NewDecoder(jsonOutput).Decode(&atrResponse); err != nil {
-		fmt.Printf("\n%sENCODE RESPONSE ERROR%s\n%s\n", util.RED, util.RESET, err.Error())
+	if err := json.NewDecoder(outputFile).Decode(&atrResponse); err != nil {
+		util.NewInternalErrorLog("DECODE RESPONSE ERROR", err).PrintLog("SERVER ERROR")
 		util.ERROR(w, http.StatusInternalServerError, errors.New(util.INTERNAL_SERVER_ERROR))
 		return
 	}
-
-	// Respond to client
 
 	util.JSON(w, http.StatusOK, atrResponse)
 }
