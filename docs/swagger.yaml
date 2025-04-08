@@ -1,5 +1,5 @@
 definitions:
-  handler.ATRResponse:
+  atr.ATRResponse:
     description: Json-Response for ATR
     properties:
       contains:
@@ -63,7 +63,7 @@ definitions:
       label:
         type: string
     type: object
-  handler.ModelsResponse:
+  model.ModelsResponse:
     description: Json-Response for models
     properties:
       line_segmentation_models:
@@ -76,9 +76,11 @@ definitions:
         items: {}
         type: array
     type: object
-  handler.Status:
+  status.Status:
     description: Json-response for Status
     properties:
+      atr:
+        type: string
       uptime:
         type: string
       version:
@@ -105,7 +107,7 @@ paths:
       - multipart/form-data
       description: Run ATR on image-file
       parameters:
-      - description: png
+      - description: png, jpg, jpeg
         in: formData
         name: image
         required: true
@@ -126,13 +128,53 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.ATRResponse'
+            $ref: '#/definitions/atr.ATRResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/util.ErrorResponse'
-        "422":
-          description: Unprocessable Entity
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: ATR
+      tags:
+      - ATR
+  /forsete-atr/v1/atr/tipnote-documents/:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Run ATR on image-file
+      parameters:
+      - description: png, jpg, jpeg
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: name of the region segmentation model
+        in: formData
+        name: region_segmentation_model
+        required: true
+        type: string
+      - description: name of line segmentation model
+        in: formData
+        name: line_segmentation_model
+        required: true
+        type: string
+      - description: name of text recognition model
+        in: formData
+        name: text_recognition_model
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/atr.ATRResponse'
+        "400":
+          description: Bad Request
           schema:
             $ref: '#/definitions/util.ErrorResponse'
         "500":
@@ -151,7 +193,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.ModelsResponse'
+            $ref: '#/definitions/model.ModelsResponse'
       summary: Models
       tags:
       - Models
@@ -164,7 +206,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.ModelsResponse'
+            $ref: '#/definitions/model.ModelsResponse'
       summary: LineSegmentationModels
       tags:
       - LineSegmentationModels
@@ -208,7 +250,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.ModelsResponse'
+            $ref: '#/definitions/model.ModelsResponse'
       summary: RegionSegmentationModels
       tags:
       - RegionSegmentationModels
@@ -252,7 +294,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.ModelsResponse'
+            $ref: '#/definitions/model.ModelsResponse'
       summary: TextRecognitionModels
       tags:
       - TextRecognitionModels
@@ -320,6 +362,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
       summary: TextRecognitionModels
       tags:
       - TextRecognitionModels
@@ -332,7 +378,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.Status'
+            $ref: '#/definitions/status.Status'
       summary: GetStatus
       tags:
       - Status
@@ -341,6 +387,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
       summary: HeadStatus
       tags:
       - Status

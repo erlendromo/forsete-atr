@@ -9,7 +9,7 @@ var logColors = map[string]string{
 	"SUCCESS":      GREEN,
 	"CLIENT ERROR": YELLOW,
 	"SERVER ERROR": RED,
-	"MISC":         RESET,
+	"MISC":         PURPLE,
 }
 
 func getTypeAndColor(logType string) (string, string) {
@@ -26,7 +26,7 @@ type Log interface {
 	PrintLog(logType string)
 }
 
-type RecieveLog struct {
+type ReceiveLog struct {
 	start    string
 	zone     string
 	client   string
@@ -34,8 +34,8 @@ type RecieveLog struct {
 	method   string
 }
 
-func NewRecieveLog(start, zone, client, endpoint, method string) *RecieveLog {
-	return &RecieveLog{
+func NewReceiveLog(start, zone, client, endpoint, method string) *ReceiveLog {
+	return &ReceiveLog{
 		start:    start,
 		zone:     zone,
 		client:   client,
@@ -44,7 +44,7 @@ func NewRecieveLog(start, zone, client, endpoint, method string) *RecieveLog {
 	}
 }
 
-func (rl *RecieveLog) PrintLog(logType string) {
+func (rl *ReceiveLog) PrintLog(logType string) {
 	logType, color := getTypeAndColor(logType)
 
 	fmt.Printf(
@@ -85,5 +85,29 @@ func (rl *ResponseLog) PrintLog(logType string) {
 		rl.status,
 		rl.took,
 		rl.unit,
+	)
+}
+
+type InternalErrorLog struct {
+	entryError string
+	err        error
+}
+
+func NewInternalErrorLog(entryError string, err error) *InternalErrorLog {
+	return &InternalErrorLog{
+		entryError: entryError,
+		err:        err,
+	}
+}
+
+func (i *InternalErrorLog) PrintLog(logType string) {
+	logType, color := getTypeAndColor(logType)
+
+	fmt.Printf(
+		"\n%s%s%s\n%s\n",
+		color,
+		i.entryError,
+		RESET,
+		i.err.Error(),
 	)
 }

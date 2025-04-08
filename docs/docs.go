@@ -31,7 +31,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "file",
-                        "description": "png",
+                        "description": "png, jpg, jpeg",
                         "name": "image",
                         "in": "formData",
                         "required": true
@@ -55,7 +55,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.ATRResponse"
+                            "$ref": "#/definitions/atr.ATRResponse"
                         }
                     },
                     "400": {
@@ -64,8 +64,67 @@ const docTemplate = `{
                             "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
-                    "422": {
-                        "description": "Unprocessable Entity",
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v1/atr/tipnote-documents/": {
+            "post": {
+                "description": "Run ATR on image-file",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ATR"
+                ],
+                "summary": "ATR",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "png, jpg, jpeg",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of the region segmentation model",
+                        "name": "region_segmentation_model",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of line segmentation model",
+                        "name": "line_segmentation_model",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of text recognition model",
+                        "name": "text_recognition_model",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/atr.ATRResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/util.ErrorResponse"
                         }
@@ -93,7 +152,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.ModelsResponse"
+                            "$ref": "#/definitions/model.ModelsResponse"
                         }
                     }
                 }
@@ -113,7 +172,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.ModelsResponse"
+                            "$ref": "#/definitions/model.ModelsResponse"
                         }
                     }
                 }
@@ -179,7 +238,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.ModelsResponse"
+                            "$ref": "#/definitions/model.ModelsResponse"
                         }
                     }
                 }
@@ -245,7 +304,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.ModelsResponse"
+                            "$ref": "#/definitions/model.ModelsResponse"
                         }
                     }
                 }
@@ -343,6 +402,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/util.ErrorResponse"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -361,7 +426,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Status"
+                            "$ref": "#/definitions/status.Status"
                         }
                     }
                 }
@@ -375,13 +440,19 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
-        "handler.ATRResponse": {
+        "atr.ATRResponse": {
             "description": "Json-Response for ATR",
             "type": "object",
             "properties": {
@@ -480,7 +551,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.ModelsResponse": {
+        "model.ModelsResponse": {
             "description": "Json-Response for models",
             "type": "object",
             "properties": {
@@ -498,10 +569,13 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.Status": {
+        "status.Status": {
             "description": "Json-response for Status",
             "type": "object",
             "properties": {
+                "atr": {
+                    "type": "string"
+                },
                 "uptime": {
                     "type": "string"
                 },

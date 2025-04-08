@@ -12,55 +12,63 @@ type Logger struct {
 }
 
 func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Start timer
 	start := time.Now()
 	zone, _ := start.Zone()
 
-	recieveLog := util.NewRecieveLog(
+	// Print receive-log
+	receiveLog := util.NewReceiveLog(
 		start.Format(util.TIME_FORMAT),
 		zone,
 		r.RemoteAddr,
 		r.URL.Path,
 		r.Method,
 	)
+	receiveLog.PrintLog("INFO")
 
-	recieveLog.PrintLog("INFO")
-
+	// Do request
 	srw := NewStatusResponseWriter(w)
 	l.next.ServeHTTP(srw, r)
-	srw.Done()
 
-	took := time.Since(start).Microseconds()
-	unit := "μs"
-
-	if took >= 1000 {
-		took = time.Since(start).Milliseconds()
-		unit = "ms"
-	}
-
-	if took >= 1000 {
-		took = int64(time.Since(start).Seconds())
+	// Calculate time elapsed
+	elapsed := time.Since(start)
+	var took int64
+	var unit string
+	switch {
+	case elapsed >= time.Minute:
+		took = int64(elapsed.Minutes())
+		unit = "m"
+	case elapsed >= time.Second:
+		took = int64(elapsed.Seconds())
 		unit = "s"
+	case elapsed >= time.Millisecond:
+		took = elapsed.Milliseconds()
+		unit = "ms"
+	default:
+		took = elapsed.Microseconds()
+		unit = "μs"
 	}
 
-	responseLog := util.NewResponseLog(
-		srw.StatusCode,
-		took,
-		unit,
-	)
-
+	// Assign log-type
 	var logType string
-	if srw.StatusCode < 200 {
+	if srw.Status() < 200 {
 		logType = "MISC"
-	} else if srw.StatusCode < 300 {
+	} else if srw.Status() < 300 {
 		logType = "SUCCESS"
-	} else if srw.StatusCode < 400 {
+	} else if srw.Status() < 400 {
 		logType = "MISC"
-	} else if srw.StatusCode < 500 {
+	} else if srw.Status() < 500 {
 		logType = "CLIENT ERROR"
 	} else {
 		logType = "SERVER ERROR"
 	}
 
+	// Print response-log
+	responseLog := util.NewResponseLog(
+		srw.Status(),
+		took,
+		unit,
+	)
 	responseLog.PrintLog(logType)
 }
 
