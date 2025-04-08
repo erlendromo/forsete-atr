@@ -1,36 +1,91 @@
 package pipeline
 
-type Pipeline interface {
-	Encode(destination, filename string) (string, error)
+import (
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/erlendromo/forsete-atr/src/domain/pipeline/step"
+	"gopkg.in/yaml.v3"
+)
+
+type Pipeline struct {
+	Steps     []step.Step `yaml:"steps"`
+	device    string
+	filename  string
+	fileDst   string
+	outputDst string
 }
 
-type Step interface{}
+func NewPipeline(device, filename string) (*Pipeline, error) {
+	if device != "cpu" && device != "cuda" {
+		return nil, fmt.Errorf("invalid device '%s', supported devices are cpu and cuda", device)
+	}
 
-type ModelStep struct {
-	StepName string            `yaml:"step"`
-	Settings ModelStepSettings `yaml:"settings"`
+	if len(filename) < 5 || strings.ContainsAny(filename, "*)(/&%$#!:;><@`´+±€£™©∞§|[]≈…‚") {
+		return nil, fmt.Errorf("invalid filename, cannot contain special characters except dash and underscore")
+	}
+
+	return &Pipeline{
+		Steps:     make([]step.Step, 0),
+		device:    device,
+		filename:  filename,
+		fileDst:   "tmp/yaml",
+		outputDst: "tmp/outputs",
+	}, nil
 }
 
-type ModelStepSettings struct {
-	ModelType     string        `yaml:"model"`
-	ModelSettings ModelSettings `yaml:"model_settings"`
+func (p *Pipeline) AppendYoloStep(pathToYoloModel string) *Pipeline {
+	p.Steps = append(p.Steps, *step.NewModelStep(
+		"Segmentation", "yolo", pathToYoloModel, p.device),
+	)
+
+	return p
 }
 
-type ModelSettings struct {
-	Model  string `yaml:"model"`
-	Device string `yaml:"device"`
+func (p *Pipeline) AppendTrOCRStep(pathToTrOCRModel string) *Pipeline {
+	p.Steps = append(p.Steps, *step.NewModelStep(
+		"TextRecognition", "TrOCR", pathToTrOCRModel, p.device),
+	)
+
+	return p
 }
 
-type OrderStep struct {
-	StepName string `yaml:"step"`
+func (p *Pipeline) AppendOrderStep(order string) *Pipeline {
+	p.Steps = append(p.Steps, *step.NewOrderStep(order))
+
+	return p
 }
 
-type ExportStep struct {
-	StepName string             `yaml:"step"`
-	Settings ExportStepSettings `yaml:"settings"`
+func (p *Pipeline) AppendExportStep(format string) *Pipeline {
+	p.Steps = append(p.Steps, *step.NewExportStep("Export", format, p.outputDst))
+
+	return p
 }
 
-type ExportStepSettings struct {
-	Format      string `yaml:"format"`
-	Destination string `yaml:"dest"`
+func (p *Pipeline) CreateLocalYaml() (string, error) {
+	if len(p.Steps) < 2 {
+		return "", fmt.Errorf("missing pipeline steps")
+	}
+
+	filepath := fmt.Sprintf("%s/%s.yaml", p.fileDst, p.filename)
+	if file, err := os.Open(filepath); err == nil {
+		return file.Name(), nil
+	}
+
+	file, err := os.Create(filepath)
+	if err != nil {
+		return "", err
+	}
+
+	payload, err := yaml.Marshal(p)
+	if err != nil {
+		return "", err
+	}
+
+	if _, err := file.Write(payload); err != nil {
+		return "", err
+	}
+
+	return file.Name(), nil
 }
