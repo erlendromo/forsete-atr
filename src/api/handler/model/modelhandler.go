@@ -3,7 +3,8 @@ package model
 import (
 	"net/http"
 
-	"github.com/erlendromo/forsete-atr/src/domain/model"
+	"github.com/erlendromo/forsete-atr/src/domain/modelstore"
+	"github.com/erlendromo/forsete-atr/src/domain/modelstore/model"
 	"github.com/erlendromo/forsete-atr/src/util"
 )
 
@@ -14,9 +15,9 @@ import (
 //
 //	@Tags			Models
 type ModelsResponse struct {
-	RegionSegmentationModels []model.Model `json:"region_segmentation_models,omitempty"`
-	LineSegmentationModels   []model.Model `json:"line_segmentation_models,omitempty"`
-	TextRecognitionModels    []model.Model `json:"text_recognition_models,omitempty"`
+	RegionSegmentationModels []*model.Model `json:"region_segmentation_models,omitempty"`
+	LineSegmentationModels   []*model.Model `json:"line_segmentation_models,omitempty"`
+	TextRecognitionModels    []*model.Model `json:"text_recognition_models,omitempty"`
 }
 
 // GetModels
@@ -29,8 +30,8 @@ type ModelsResponse struct {
 //	@Router			/forsete-atr/v1/models/ [get]
 func GetModels(w http.ResponseWriter, r *http.Request) {
 	util.JSON(w, http.StatusOK, &ModelsResponse{
-		RegionSegmentationModels: model.ModelsByType(util.REGION_SEGMENTATION),
-		LineSegmentationModels:   model.ModelsByType(util.LINE_SEGMENTATION),
-		TextRecognitionModels:    model.ModelsByType(util.TEXT_RECOGNITION),
+		RegionSegmentationModels: modelstore.GetModelstore().ModelsByType(util.REGION_SEGMENTATION),
+		LineSegmentationModels:   modelstore.GetModelstore().ModelsByType(util.LINE_SEGMENTATION),
+		TextRecognitionModels:    modelstore.GetModelstore().ModelsByType(util.TEXT_RECOGNITION),
 	})
 }

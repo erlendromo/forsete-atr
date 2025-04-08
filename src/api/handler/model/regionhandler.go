@@ -3,12 +3,13 @@ package model
 import (
 	"errors"
 	"fmt"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"regexp"
 	"strings"
 
-	"github.com/erlendromo/forsete-atr/src/domain/model"
+	"github.com/erlendromo/forsete-atr/src/domain/modelstore"
 	"github.com/erlendromo/forsete-atr/src/util"
 )
 
@@ -22,7 +23,7 @@ import (
 //	@Router			/forsete-atr/v1/models/region-segmentation-models/ [get]
 func GetRegionSegmentationModels(w http.ResponseWriter, r *http.Request) {
 	util.JSON(w, http.StatusOK, &ModelsResponse{
-		RegionSegmentationModels: model.ModelsByType(util.REGION_SEGMENTATION),
+		RegionSegmentationModels: modelstore.GetModelstore().ModelsByType(util.REGION_SEGMENTATION),
 	})
 }
 
@@ -68,8 +69,12 @@ func PostRegionSegmentationModel(w http.ResponseWriter, r *http.Request) {
 
 	defer modelFile.Close()
 
-	if err := model.AddYoloModel(modelName, util.REGION_SEGMENTATION, modelFile); err != nil {
-		fmt.Printf("\n%sADD YOLOMODEL ERROR%s\n%s\n", util.RED, util.RESET, err.Error())
+	files := map[string]multipart.File{
+		"model.pt": modelFile,
+	}
+
+	if err := modelstore.GetModelstore().AddModel(modelName, util.REGION_SEGMENTATION, files); err != nil {
+		util.NewInternalErrorLog("ADD YOLOMODEL ERROR", err).PrintLog("SERVER ERROR")
 		util.ERROR(w, http.StatusInternalServerError, errors.New(util.INTERNAL_SERVER_ERROR))
 		return
 	}

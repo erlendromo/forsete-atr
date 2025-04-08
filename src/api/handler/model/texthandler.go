@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/erlendromo/forsete-atr/src/domain/model"
+	"github.com/erlendromo/forsete-atr/src/domain/modelstore"
 	"github.com/erlendromo/forsete-atr/src/util"
 )
 
@@ -23,7 +23,7 @@ import (
 //	@Router			/forsete-atr/v1/models/text-recognition-models/ [get]
 func GetTextRecognitionModels(w http.ResponseWriter, r *http.Request) {
 	util.JSON(w, http.StatusOK, &ModelsResponse{
-		TextRecognitionModels: model.ModelsByType(util.TEXT_RECOGNITION),
+		TextRecognitionModels: modelstore.GetModelstore().ModelsByType(util.TEXT_RECOGNITION),
 	})
 }
 
@@ -159,8 +159,8 @@ func PostTextRecognitionModel(w http.ResponseWriter, r *http.Request) {
 		"vocab.json":               vocabFile,
 	}
 
-	if err := model.AddTrOCRModel(modelName, util.TEXT_RECOGNITION, files); err != nil {
-		fmt.Printf("\n%sADD TROCRMODEL ERROR%s\n%s\n", util.RED, util.RESET, err.Error())
+	if err := modelstore.GetModelstore().AddModel(modelName, util.TEXT_RECOGNITION, files); err != nil {
+		util.NewInternalErrorLog("ADD TROCRMODEL ERROR", err).PrintLog("SERVER ERROR")
 		util.ERROR(w, http.StatusInternalServerError, errors.New(util.INTERNAL_SERVER_ERROR))
 		return
 	}
