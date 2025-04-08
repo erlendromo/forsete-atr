@@ -2,7 +2,6 @@ package status
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"os/exec"
 
@@ -29,7 +28,7 @@ type Status struct {
 //	@Router			/forsete-atr/v1/status/ [head]
 func HeadStatus(w http.ResponseWriter, r *http.Request) {
 	if err := exec.Command("/bin/bash", "-c", "source /htrflow/venv/bin/activate && htrflow pipeline --help").Run(); err != nil {
-		fmt.Printf("\n%sHTRFLOW ERROR%s\n%s\n", util.RED, util.RESET, err.Error())
+		util.NewInternalErrorLog("HTRFLOW STATUS ERROR", err).PrintLog("SERVER ERROR")
 		util.ERROR(w, http.StatusInternalServerError, errors.New(util.INTERNAL_SERVER_ERROR))
 	}
 
@@ -46,9 +45,8 @@ func HeadStatus(w http.ResponseWriter, r *http.Request) {
 //	@Router			/forsete-atr/v1/status/ [get]
 func GetStatus(w http.ResponseWriter, r *http.Request) {
 	atr := "ready"
-
 	if err := exec.Command("/bin/bash", "-c", "source /htrflow/venv/bin/activate && htrflow pipeline --help").Run(); err != nil {
-		fmt.Printf("\n%sHTRFLOW ERROR%s\n%s\n", util.RED, util.RESET, err.Error())
+		util.NewInternalErrorLog("HTRFLOW STATUS ERROR", err).PrintLog("SERVER ERROR")
 		atr = "unavailable"
 	}
 
