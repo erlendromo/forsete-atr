@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/erlendromo/forsete-atr/src/cmd/rest"
-	"github.com/erlendromo/forsete-atr/src/domain/model"
+	"github.com/erlendromo/forsete-atr/src/domain/modelstore"
 	"github.com/erlendromo/forsete-atr/src/util"
 )
 
@@ -21,7 +21,7 @@ func init() {
 		os.Setenv(util.TIMEOUT, util.DEFAULT_TIMEOUT)
 	}
 
-	if err := model.InitModels(); err != nil {
+	if err := modelstore.GetModelstore().Initialize(); err != nil {
 		panic(err)
 	}
 }
