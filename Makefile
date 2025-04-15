@@ -14,7 +14,7 @@ composedown:
 	@docker compose down --volumes --remove-orphans
 
 attach:
-	@docker compose logs -f
+	@docker compose logs -f forsete-atr
 
 removetmp:
 	@rm -rf tmp/images/* && rm -rf tmp/outputs/* && rm -rf tmp/yaml/*

@@ -5,8 +5,10 @@ Makefile
 *.env
 
 .github/
-htrflow/
-models/
+assets/models/
+assets/images/
+assets/pipelines/
+assets/outputs/
 
 *.iml
 *.ipr

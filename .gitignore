@@ -17,5 +17,7 @@
 *.log
 
 # Models
-models
-tmp
+assets/models
+assets/images
+assets/outputs
+assets/pipelines
