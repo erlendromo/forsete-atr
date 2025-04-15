@@ -1,11 +1,3 @@
-DROP TABLE IF EXISTS pipelines_models;
-
-DROP TABLE IF EXISTS pipelines;
-
-DROP TABLE IF EXISTS models;
-
-DROP TABLE IF EXISTS model_type;
-
 DROP TABLE IF EXISTS outputs;
 
 DROP TABLE IF EXISTS images;
@@ -15,3 +7,5 @@ DROP TABLE IF EXISTS users_projects;
 DROP TABLE IF EXISTS projects;
 
 DROP TABLE IF EXISTS users;
+
+DROP TABLE IF EXISTS roles;
