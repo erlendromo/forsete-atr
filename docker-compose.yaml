@@ -1,4 +1,24 @@
 services:
+  postgresdb:
+    image: postgres:14.17-alpine3.21
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=${DB_HOST_AUTH_METHOD}
+    ports:
+      - "5433:${DB_PORT}"
+    volumes:
+      - postgresdb-data:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
   forsete-atr:
     build:
       context: .
@@ -6,24 +26,33 @@ services:
     container_name: forsete-atr
     restart: unless-stopped
     volumes:
-      - temp-yaml-storage:/tmp/yaml
-      - temp-image-storage:/tmp/images
-      - temp-htrflow-outputs:/tmp/outputs
-      - models:/models
+      - pipeline-storage:/assets/pipelines
+      - image-storage:/assets/images
+      - output-storage:/assets/outputs
+      - model-storage:/assets/models
     ports:
       - "${API_PORT}:${API_PORT}"
     environment:
       - API_PORT=${API_PORT}
       - TIMEOUT=${TIMEOUT}
       - DEVICE=cpu
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+    depends_on:
+      postgresdb:
+        condition: service_healthy
 
 volumes:
-  temp-yaml-storage:
-  temp-image-storage:
-  temp-htrflow-outputs:
-  models:
+  postgresdb-data:
+  pipeline-storage:
+  image-storage:
+  output-storage:
+  model-storage:
     driver: local
     driver_opts:
       type: none
-      device: ${PWD}/models
+      device: ${PWD}/assets/models
       o: bind
