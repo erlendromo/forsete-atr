@@ -110,7 +110,7 @@ func PostBasicDocument(w http.ResponseWriter, r *http.Request) {
 	// Process pipeline
 
 	pipeline, err := pipeline.NewPipeline(
-		config.GetConfig().DEVICE,
+		config.GetConfig().APIConfig().DEVICE,
 		fmt.Sprintf(
 			"%s_%s",
 			r.FormValue("line_segmentation_model"),

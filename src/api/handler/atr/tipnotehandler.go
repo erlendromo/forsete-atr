@@ -82,7 +82,7 @@ func PostTipnoteDocument(w http.ResponseWriter, r *http.Request) {
 	// Process pipeline
 
 	pipeline, err := pipeline.NewPipeline(
-		config.GetConfig().DEVICE,
+		config.GetConfig().APIConfig().DEVICE,
 		fmt.Sprintf(
 			"%s_%s_%s",
 			r.FormValue("regions_segmentation_model"),
