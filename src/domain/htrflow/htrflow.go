@@ -21,7 +21,7 @@ func NewHTRflow(yamlPath, imagePath, resultDst string) *HTRflow {
 }
 
 func (h *HTRflow) Run() (*os.File, error) {
-	cmd := exec.Command("/bin/bash", "scripts/htrflow.sh", h.yamlPath, h.imagePath)
+	cmd := exec.Command("/bin/bash", "assets/scripts/htrflow.sh", h.yamlPath, h.imagePath)
 	if output, err := cmd.CombinedOutput(); err != nil {
 		return nil, fmt.Errorf("%s", string(output))
 	}

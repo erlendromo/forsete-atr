@@ -6,12 +6,12 @@ import (
 )
 
 func setup() {
-	_ = os.RemoveAll("tmp")
-	_ = os.MkdirAll("tmp/yaml", os.ModePerm)
+	_ = os.RemoveAll("assets")
+	_ = os.MkdirAll("assets/pipelines", os.ModePerm)
 }
 
 func teardown() {
-	_ = os.RemoveAll("tmp")
+	_ = os.RemoveAll("assets")
 }
 
 type newPipelineTestCase struct {

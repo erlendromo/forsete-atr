@@ -26,9 +26,14 @@ func NewModel(name, modelType string) (*Model, error) {
 		return nil, fmt.Errorf("invalid model name '%s', cannot contain special characters except dash and underscore", name)
 	}
 
-	path := fmt.Sprintf("%s/%s/%s", util.MODELS, modelType, name)
-	if modelType == util.REGION_SEGMENTATION || modelType == util.LINE_SEGMENTATION {
-		path = fmt.Sprintf("%s/model.pt", path)
+	var path string
+	switch modelType {
+	case util.REGION_SEGMENTATION, util.LINE_SEGMENTATION:
+		path = fmt.Sprintf("%s/%s/%s/%s/model.pt", util.ASSETS, util.MODELS, modelType, name)
+	case util.TEXT_RECOGNITION:
+		path = fmt.Sprintf("%s/%s/%s/%s", util.ASSETS, util.MODELS, modelType, name)
+	default:
+		return nil, fmt.Errorf("invalid modeltype '%s'", modelType)
 	}
 
 	return &Model{

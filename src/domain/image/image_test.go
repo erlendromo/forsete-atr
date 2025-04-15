@@ -21,12 +21,12 @@ func (f *fakeFile) Close() error {
 }
 
 func setup() {
-	_ = os.RemoveAll("tmp")
-	_ = os.MkdirAll("tmp/images", os.ModePerm)
+	_ = os.RemoveAll("assets")
+	_ = os.MkdirAll("assets/images", os.ModePerm)
 }
 
 func teardown() {
-	_ = os.RemoveAll("tmp")
+	_ = os.RemoveAll("assets")
 }
 
 type NewImageTestCase struct {
@@ -73,7 +73,7 @@ func testCreateLocalImage(t *testing.T) {
 			continue
 		}
 
-		expectedImageName := fmt.Sprintf("tmp/images/%s", testCase.name)
+		expectedImageName := fmt.Sprintf("assets/images/%s", testCase.name)
 		localImageName, err := image.CreateLocalImage()
 		if (err == nil) != testCase.expectedPass {
 			t.Errorf("Test failed for file %s: expected error: %v, got error: %v", testCase.name, testCase.expectedPass, err)

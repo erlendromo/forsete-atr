@@ -71,7 +71,7 @@ func (m *ModelStore) AddModel(name, modelType string, files map[string]multipart
 		return err
 	}
 
-	path := fmt.Sprintf("%s/%s/%s", util.MODELS, modelType, name)
+	path := fmt.Sprintf("%s/%s/%s/%s", util.ASSETS, util.MODELS, modelType, name)
 	if err := os.MkdirAll(path, os.ModeDir); err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func (m *ModelStore) readLocalEntries(modelType string) error {
 		return err
 	}
 
-	entriesDir := fmt.Sprintf("%s/%s", util.MODELS, modelType)
+	entriesDir := fmt.Sprintf("%s/%s/%s", util.ASSETS, util.MODELS, modelType)
 	entries, err := os.ReadDir(entriesDir)
 	if err != nil {
 		return err
@@ -130,7 +130,7 @@ func (m *ModelStore) readLocalEntries(modelType string) error {
 		}
 
 		name := modelDir.Name()
-		path := fmt.Sprintf("%s/%s/%s", util.MODELS, modelType, name)
+		path := fmt.Sprintf("%s/%s", entriesDir, name)
 
 		requiredFiles := m.requiredModelTypeFiles(modelType)
 		var requiredFileError error

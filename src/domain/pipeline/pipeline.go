@@ -30,8 +30,8 @@ func NewPipeline(device, filename string) (*Pipeline, error) {
 		Steps:     make([]step.Step, 0),
 		device:    device,
 		filename:  filename,
-		fileDst:   "tmp/yaml",
-		outputDst: "tmp/outputs",
+		fileDst:   "assets/pipelines",
+		outputDst: "assets/outputs",
 	}, nil
 }
 

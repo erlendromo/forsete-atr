@@ -20,35 +20,35 @@ func (f *fakeFile) Close() error {
 }
 
 func setup(t *testing.T) {
-	os.RemoveAll("models")
+	os.RemoveAll("assets")
 
-	os.MkdirAll("models/regionsegmentation/yolov9-regions-1", os.ModePerm)
-	os.Create("models/regionsegmentation/yolov9-regions-1/model.pt")
+	os.MkdirAll("assets/models/regionsegmentation/yolov9-regions-1", os.ModePerm)
+	os.Create("assets/models/regionsegmentation/yolov9-regions-1/model.pt")
 
-	os.MkdirAll("models/linesegmentation/yolov9-lines-within-regions-1", os.ModePerm)
-	os.Create("models/linesegmentation/yolov9-lines-within-regions-1/model.pt")
+	os.MkdirAll("assets/models/linesegmentation/yolov9-lines-within-regions-1", os.ModePerm)
+	os.Create("assets/models/linesegmentation/yolov9-lines-within-regions-1/model.pt")
 
-	os.MkdirAll("models/textrecognition/TrOCR-norhand-v3", os.ModePerm)
-	os.Create("models/textrecognition/TrOCR-norhand-v3/config.json")
-	os.Create("models/textrecognition/TrOCR-norhand-v3/generation_config.json")
-	os.Create("models/textrecognition/TrOCR-norhand-v3/merges.txt")
-	os.Create("models/textrecognition/TrOCR-norhand-v3/model.safetensors")
-	os.Create("models/textrecognition/TrOCR-norhand-v3/preprocessor_config.json")
-	os.Create("models/textrecognition/TrOCR-norhand-v3/special_tokens_map.json")
-	os.Create("models/textrecognition/TrOCR-norhand-v3/tokenizer.json")
-	os.Create("models/textrecognition/TrOCR-norhand-v3/tokenizer_config.json")
-	os.Create("models/textrecognition/TrOCR-norhand-v3/vocab.json")
+	os.MkdirAll("assets/models/textrecognition/TrOCR-norhand-v3", os.ModePerm)
+	os.Create("assets/models/textrecognition/TrOCR-norhand-v3/config.json")
+	os.Create("assets/models/textrecognition/TrOCR-norhand-v3/generation_config.json")
+	os.Create("assets/models/textrecognition/TrOCR-norhand-v3/merges.txt")
+	os.Create("assets/models/textrecognition/TrOCR-norhand-v3/model.safetensors")
+	os.Create("assets/models/textrecognition/TrOCR-norhand-v3/preprocessor_config.json")
+	os.Create("assets/models/textrecognition/TrOCR-norhand-v3/special_tokens_map.json")
+	os.Create("assets/models/textrecognition/TrOCR-norhand-v3/tokenizer.json")
+	os.Create("assets/models/textrecognition/TrOCR-norhand-v3/tokenizer_config.json")
+	os.Create("assets/models/textrecognition/TrOCR-norhand-v3/vocab.json")
 
-	os.MkdirAll("models/textrecognition/trocr-base-handwritten-hist-swe-2", os.ModePerm)
-	os.Create("models/textrecognition/trocr-base-handwritten-hist-swe-2/config.json")
-	os.Create("models/textrecognition/trocr-base-handwritten-hist-swe-2/generation_config.json")
-	os.Create("models/textrecognition/trocr-base-handwritten-hist-swe-2/merges.txt")
-	os.Create("models/textrecognition/trocr-base-handwritten-hist-swe-2/model.safetensors")
-	os.Create("models/textrecognition/trocr-base-handwritten-hist-swe-2/preprocessor_config.json")
-	os.Create("models/textrecognition/trocr-base-handwritten-hist-swe-2/special_tokens_map.json")
-	os.Create("models/textrecognition/trocr-base-handwritten-hist-swe-2/tokenizer.json")
-	os.Create("models/textrecognition/trocr-base-handwritten-hist-swe-2/tokenizer_config.json")
-	os.Create("models/textrecognition/trocr-base-handwritten-hist-swe-2/vocab.json")
+	os.MkdirAll("assets/models/textrecognition/trocr-base-handwritten-hist-swe-2", os.ModePerm)
+	os.Create("assets/models/textrecognition/trocr-base-handwritten-hist-swe-2/config.json")
+	os.Create("assets/models/textrecognition/trocr-base-handwritten-hist-swe-2/generation_config.json")
+	os.Create("assets/models/textrecognition/trocr-base-handwritten-hist-swe-2/merges.txt")
+	os.Create("assets/models/textrecognition/trocr-base-handwritten-hist-swe-2/model.safetensors")
+	os.Create("assets/models/textrecognition/trocr-base-handwritten-hist-swe-2/preprocessor_config.json")
+	os.Create("assets/models/textrecognition/trocr-base-handwritten-hist-swe-2/special_tokens_map.json")
+	os.Create("assets/models/textrecognition/trocr-base-handwritten-hist-swe-2/tokenizer.json")
+	os.Create("assets/models/textrecognition/trocr-base-handwritten-hist-swe-2/tokenizer_config.json")
+	os.Create("assets/models/textrecognition/trocr-base-handwritten-hist-swe-2/vocab.json")
 
 	if err := GetModelstore().Initialize(); err != nil {
 		t.Errorf("Test failed when initializing models, got error: %s", err.Error())
@@ -56,7 +56,7 @@ func setup(t *testing.T) {
 }
 
 func teardown() {
-	_ = os.RemoveAll("models")
+	_ = os.RemoveAll("assets")
 }
 
 type pathToModelTestCase struct {
@@ -73,8 +73,8 @@ func TestPathToModel(t *testing.T) {
 }
 func testPathToModel(t *testing.T) {
 	pathToModelTestCases := []pathToModelTestCase{
-		{modelstore: GetModelstore(), modelName: "yolov9-lines-within-regions-1", expectedPath: "models/linesegmentation/yolov9-lines-within-regions-1/model.pt"},
-		{modelstore: GetModelstore(), modelName: "TrOCR-norhand-v3", expectedPath: "models/textrecognition/TrOCR-norhand-v3"},
+		{modelstore: GetModelstore(), modelName: "yolov9-lines-within-regions-1", expectedPath: "assets/models/linesegmentation/yolov9-lines-within-regions-1/model.pt"},
+		{modelstore: GetModelstore(), modelName: "TrOCR-norhand-v3", expectedPath: "assets/models/textrecognition/TrOCR-norhand-v3"},
 
 		{modelstore: GetModelstore(), modelName: "somethinginvalid", expectedPath: ""},
 		{modelstore: GetModelstore(), modelName: "", expectedPath: ""},

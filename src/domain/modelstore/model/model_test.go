@@ -15,6 +15,7 @@ var newModelTestCases = []newModelTestCase{
 
 	{name: "xxx", modelType: "", expectedPass: false},
 	{name: "", modelType: "textrecognition", expectedPass: false},
+	{name: "shouldFail", modelType: "someInvalidModelType", expectedPass: false},
 	{name: "", modelType: "", expectedPass: false},
 }
 

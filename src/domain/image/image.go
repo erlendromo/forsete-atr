@@ -40,7 +40,7 @@ func NewImage(name string, file multipart.File) (*Image, error) {
 	return &Image{
 		name:           name,
 		file:           file,
-		localImagePath: fmt.Sprintf("tmp/images/%s", name),
+		localImagePath: fmt.Sprintf("assets/images/%s", name),
 	}, nil
 }
 
