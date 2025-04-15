@@ -1,21 +1,6 @@
 package util
 
 /*
-Environment
-*/
-const (
-	// Variables
-	API_PORT = "API_PORT"
-	DEVICE   = "DEVICE"
-	TIMEOUT  = "TIMEOUT"
-
-	// Default values
-	DEFAULT_API_PORT = "8080"
-	DEFAULT_DEVICE   = "cpu"
-	DEFAULT_TIMEOUT  = "10m"
-)
-
-/*
 Endpoints
 */
 const (
@@ -84,6 +69,7 @@ const (
 Misc
 */
 const (
+	ASSETS              = "assets"
 	REGION_SEGMENTATION = "regionsegmentation"
 	LINE_SEGMENTATION   = "linesegmentation"
 	TEXT_RECOGNITION    = "textrecognition"
