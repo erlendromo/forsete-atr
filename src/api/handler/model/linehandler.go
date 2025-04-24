@@ -22,7 +22,7 @@ import (
 //	@Success		200	{object}	ModelsResponse
 //	@Router			/forsete-atr/v1/models/line-segmentation-models/ [get]
 func GetLineSegmentationModels(w http.ResponseWriter, r *http.Request) {
-	util.JSON(w, http.StatusOK, &ModelsResponse{
+	util.EncodeJSON(w, http.StatusOK, &ModelsResponse{
 		LineSegmentationModels: modelstore.GetModelstore().ModelsByType(util.LINE_SEGMENTATION),
 	})
 }
@@ -79,5 +79,5 @@ func PostLineSegmentationModel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.JSON(w, http.StatusNoContent, nil)
+	util.EncodeJSON(w, http.StatusNoContent, nil)
 }

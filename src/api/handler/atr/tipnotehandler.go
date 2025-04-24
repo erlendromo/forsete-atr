@@ -139,5 +139,5 @@ func PostTipnoteDocument(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.JSON(w, http.StatusOK, atrResponse)
+	util.EncodeJSON(w, http.StatusOK, atrResponse)
 }

@@ -32,7 +32,7 @@ func HeadStatus(w http.ResponseWriter, r *http.Request) {
 		util.ERROR(w, http.StatusInternalServerError, errors.New(util.INTERNAL_SERVER_ERROR))
 	}
 
-	util.JSON(w, http.StatusNoContent, nil)
+	util.EncodeJSON(w, http.StatusNoContent, nil)
 }
 
 // GetStatus
@@ -50,7 +50,7 @@ func GetStatus(w http.ResponseWriter, r *http.Request) {
 		atr = "unavailable"
 	}
 
-	util.JSON(w, http.StatusOK, &Status{
+	util.EncodeJSON(w, http.StatusOK, &Status{
 		ATR:     atr,
 		Version: util.VERSION,
 		Uptime:  util.UpTimeInHHMMSS(),

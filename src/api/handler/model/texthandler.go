@@ -22,7 +22,7 @@ import (
 //	@Success		200	{object}	ModelsResponse
 //	@Router			/forsete-atr/v1/models/text-recognition-models/ [get]
 func GetTextRecognitionModels(w http.ResponseWriter, r *http.Request) {
-	util.JSON(w, http.StatusOK, &ModelsResponse{
+	util.EncodeJSON(w, http.StatusOK, &ModelsResponse{
 		TextRecognitionModels: modelstore.GetModelstore().ModelsByType(util.TEXT_RECOGNITION),
 	})
 }
@@ -165,5 +165,5 @@ func PostTextRecognitionModel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.JSON(w, http.StatusNoContent, nil)
+	util.EncodeJSON(w, http.StatusNoContent, nil)
 }

@@ -22,7 +22,7 @@ import (
 //	@Success		200	{object}	ModelsResponse
 //	@Router			/forsete-atr/v1/models/region-segmentation-models/ [get]
 func GetRegionSegmentationModels(w http.ResponseWriter, r *http.Request) {
-	util.JSON(w, http.StatusOK, &ModelsResponse{
+	util.EncodeJSON(w, http.StatusOK, &ModelsResponse{
 		RegionSegmentationModels: modelstore.GetModelstore().ModelsByType(util.REGION_SEGMENTATION),
 	})
 }
@@ -79,5 +79,5 @@ func PostRegionSegmentationModel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.JSON(w, http.StatusNoContent, nil)
+	util.EncodeJSON(w, http.StatusNoContent, nil)
 }
