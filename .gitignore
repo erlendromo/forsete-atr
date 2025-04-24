@@ -21,3 +21,6 @@ assets/models
 assets/images
 assets/outputs
 assets/pipelines
+
+# Secret migration
+assets/migrations/00004_add_secret.*

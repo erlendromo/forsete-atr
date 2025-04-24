@@ -4,10 +4,12 @@ go 1.23.4
 
 require (
 	github.com/golang-migrate/migrate/v4 v4.18.2
+	github.com/google/uuid v1.6.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/lib/pq v1.10.9
 	github.com/swaggo/http-swagger/v2 v2.0.2
 	github.com/swaggo/swag v1.16.4
+	golang.org/x/crypto v0.37.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
