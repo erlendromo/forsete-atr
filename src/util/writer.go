@@ -10,7 +10,7 @@ func setHeaders(w http.ResponseWriter, statuscode int) {
 	w.WriteHeader(statuscode)
 }
 
-func JSON(w http.ResponseWriter, statuscode int, value any) {
+func EncodeJSON(w http.ResponseWriter, statuscode int, value any) {
 	setHeaders(w, statuscode)
 	if statuscode == http.StatusNoContent || value == nil {
 		return
