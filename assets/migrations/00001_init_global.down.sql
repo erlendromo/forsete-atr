@@ -4,4 +4,4 @@ DROP TABLE IF EXISTS pipelines;
 
 DROP TABLE IF EXISTS models;
 
-DROP TABLE IF EXISTS model_type;
+DROP TABLE IF EXISTS model_types;
