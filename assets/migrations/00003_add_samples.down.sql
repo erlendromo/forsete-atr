@@ -1,8 +1,8 @@
-DELETE FROM roles
+DELETE FROM "role"
 WHERE
     name IN ('Admin', 'Default');
 
-DELETE FROM model_types
+DELETE FROM "model_type"
 WHERE
     type IN (
         'regionsegmentation',
@@ -10,7 +10,7 @@ WHERE
         'textrecognition'
     );
 
-DELETE FROM models
+DELETE FROM "model"
 WHERE
     name IN (
         'yolov9-lines-within-regions-1',

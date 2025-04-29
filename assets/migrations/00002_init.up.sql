@@ -1,39 +1,43 @@
-CREATE TABLE IF NOT EXISTS roles (
+CREATE TABLE IF NOT EXISTS "role" (
     id serial PRIMARY KEY,
     name varchar(50) UNIQUE NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS "user" (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid (),
-    email varchar(255) UNIQUE,
+    email varchar(255) UNIQUE NOT NULL,
     password varchar(255) NOT NULL,
-    role_id integer DEFAULT 2,
-    FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE SET NULL
+    created_at timestamptz DEFAULT now (),
+    role_id integer NOT NULL DEFAULT 2,
+    FOREIGN KEY (role_id) REFERENCES "role" (id)
 );
 
-CREATE TABLE IF NOT EXISTS sessions (
+CREATE TABLE IF NOT EXISTS "session" (
     token uuid PRIMARY KEY DEFAULT gen_random_uuid (),
     user_id uuid NOT NULL,
-    created_at timestamptz NOT NULL DEFAULT now (),
-    expires_at timestamptz NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    created_at timestamptz DEFAULT now (),
+    expires_at timestamptz NOT NULL DEFAULT (now () + interval '24 hours'),
+    FOREIGN KEY (user_id) REFERENCES "user" (id)
 );
 
-CREATE INDEX idx_sessions_expires_at ON sessions (expires_at);
+CREATE INDEX idx_session_expires_at ON "session" (expires_at);
 
-CREATE TABLE IF NOT EXISTS images (
+CREATE TABLE IF NOT EXISTS "image" (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid (),
     name varchar(255) UNIQUE NOT NULL,
+    format varchar(10) NOT NULL,
     path varchar(255) UNIQUE NOT NULL,
-    user_id uuid,
-    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL
+    uploaded_at timestamptz DEFAULT now (),
+    user_id uuid NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES "user" (id)
 );
 
-CREATE TABLE IF NOT EXISTS outputs (
+CREATE TABLE IF NOT EXISTS "output" (
     id serial PRIMARY KEY,
     name varchar(255) UNIQUE NOT NULL,
     path varchar(255) UNIQUE NOT NULL,
-    confirmed boolean,
-    image_id uuid,
-    FOREIGN KEY (image_id) REFERENCES images (id) ON DELETE SET NULL
+    created_at timestamptz DEFAULT now (),
+    confirmed bool,
+    image_id uuid NOT NULL,
+    FOREIGN KEY (image_id) REFERENCES "image" (id)
 );

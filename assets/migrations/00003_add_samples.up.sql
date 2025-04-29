@@ -1,18 +1,18 @@
 INSERT INTO
-    roles (name)
+    "role" (name)
 VALUES
     ('Admin'),
     ('Default');
 
 INSERT INTO
-    model_types (type)
+    "model_type" (type)
 VALUES
     ('regionsegmentation'),
     ('linesegmentation'),
     ('textrecognition');
 
 INSERT INTO
-    models (name, path, model_type_id)
+    "model" (name, path, model_type_id)
 VALUES
     (
         'yolov9-lines-within-regions-1',
