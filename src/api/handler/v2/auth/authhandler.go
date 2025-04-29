@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
-	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/auth_service"
+	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/auth_service"
 	"github.com/erlendromo/forsete-atr/src/util"
 )
 
