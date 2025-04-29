@@ -29,7 +29,8 @@ func NewHTTPSRouter(addr, certFile, keyFile string) *HTTPSRouter {
 }
 
 func (r *HTTPSRouter) Serve() error {
-	mux := router.WithEndpoints(http.NewServeMux())
+	mux := router.WithV2Endpoints(http.NewServeMux())
+
 	log.Printf("Starting tls-server on port %s...\n", r.addr)
 
 	return http.ListenAndServeTLS(
