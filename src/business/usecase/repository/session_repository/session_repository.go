@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/erlendromo/forsete-atr/src/business/domain/auth/session"
+	"github.com/erlendromo/forsete-atr/src/business/domain/session"
 	"github.com/erlendromo/forsete-atr/src/database"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -24,7 +24,7 @@ func NewSessionRepository(db *sqlx.DB) *SessionRepository {
 func (s *SessionRepository) CreateSession(ctx context.Context, userID uuid.UUID) (*session.Session, error) {
 	query := `
 		INSERT INTO
-			sessions (user_id, expires_at)
+			"session" (user_id, expires_at)
 		VALUES
 			($1, $2)
 		RETURNING token
@@ -36,7 +36,7 @@ func (s *SessionRepository) CreateSession(ctx context.Context, userID uuid.UUID)
 func (s *SessionRepository) DeleteSession(ctx context.Context, token uuid.UUID) error {
 	query := `
 		DELETE FROM
-			sessions
+			"session"
 		WHERE
 			token = $1
 	`
@@ -46,7 +46,7 @@ func (s *SessionRepository) DeleteSession(ctx context.Context, token uuid.UUID) 
 		return err
 	}
 
-	fmt.Printf("Deleted %d sessions\n", rowsAffected)
+	fmt.Printf("\nDeleted %d session(s)\n", rowsAffected)
 
 	return nil
 }
@@ -59,7 +59,7 @@ func (s *SessionRepository) GetValidSession(ctx context.Context, token uuid.UUID
 			created_at,
 			expires_at
 		FROM
-			sessions
+			"session"
 		WHERE
 			token = $1
 		AND
@@ -76,7 +76,7 @@ func (s *SessionRepository) GetValidSession(ctx context.Context, token uuid.UUID
 func (s *SessionRepository) ClearExpiredSessions(ctx context.Context) (int, error) {
 	query := `
 		DELETE FROM
-			sessions
+			"session"
 		WHERE
 			expires_at < $1
 	`

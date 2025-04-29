@@ -3,10 +3,10 @@ package authservice
 import (
 	"context"
 
-	"github.com/erlendromo/forsete-atr/src/business/domain/auth/session"
-	"github.com/erlendromo/forsete-atr/src/business/domain/auth/user"
-	sessionrepository "github.com/erlendromo/forsete-atr/src/business/usecase/auth_service/session_repository"
-	userrepository "github.com/erlendromo/forsete-atr/src/business/usecase/auth_service/user_repository"
+	"github.com/erlendromo/forsete-atr/src/business/domain/session"
+	"github.com/erlendromo/forsete-atr/src/business/domain/user"
+	sessionrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/session_repository"
+	userrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/user_repository"
 	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"

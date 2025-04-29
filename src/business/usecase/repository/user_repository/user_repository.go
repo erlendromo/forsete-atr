@@ -3,7 +3,7 @@ package userrepository
 import (
 	"context"
 
-	"github.com/erlendromo/forsete-atr/src/business/domain/auth/user"
+	"github.com/erlendromo/forsete-atr/src/business/domain/user"
 	"github.com/erlendromo/forsete-atr/src/database"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -22,7 +22,7 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 func (u *UserRepository) RegisterUser(ctx context.Context, email, hashedPassword string) (*user.User, error) {
 	query := `
 	INSERT INTO
-		users (email, password)
+		"user" (email, password)
 	VALUES
 		($1, $2)
 	ON CONFLICT
@@ -42,11 +42,12 @@ func (u *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*user.User,
 	    u.id,
 	    u.email,
 	    u.password,
+		u.created_at,
 	    r.name AS role_name
 	FROM
-	    users u
+	    "user" u
 	LEFT JOIN
-	    roles r ON u.role_id = r.id
+	    "role" r ON u.role_id = r.id
 	WHERE
 		u.id = $1
 	`
@@ -60,11 +61,12 @@ func (u *UserRepository) GetByEmail(ctx context.Context, email string) (*user.Us
 	    u.id,
 	    u.email,
 	    u.password,
+		u.created_at,
 	    r.name AS role_name
 	FROM
-	    users u
+	    "user" u
 	LEFT JOIN
-	    roles r ON u.role_id = r.id
+	    "role" r ON u.role_id = r.id
 	WHERE
 		u.email = $1
 	`
