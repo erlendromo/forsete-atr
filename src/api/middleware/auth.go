@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/erlendromo/forsete-atr/src/business/domain/auth/user"
-	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/auth_service"
+	"github.com/erlendromo/forsete-atr/src/business/domain/user"
+	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/auth_service"
 	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
 )
@@ -30,7 +30,7 @@ func AuthMiddleware(auth *authservice.AuthService, next http.HandlerFunc) http.H
 
 		user, err := auth.IsAuthorized(r.Context(), token)
 		if err != nil {
-			util.ERROR(w, http.StatusUnauthorized, err)
+			util.ERROR(w, http.StatusUnauthorized, fmt.Errorf("unauthorized user, log in"))
 			return
 		}
 
@@ -57,7 +57,7 @@ func extractTokenFromHeader(r *http.Request) (uuid.UUID, error) {
 
 	token, err := uuid.Parse(authHeader[len(prefix):])
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, fmt.Errorf("unable to parse token")
 	}
 
 	return token, nil
