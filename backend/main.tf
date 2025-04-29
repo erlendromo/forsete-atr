@@ -1,4 +1,4 @@
-data "openstack_networking_network_v2" "ntnu_internal" {
+data "openstack_networking_network_v2" "ntnu_global" {
   name = "ntnu-internal"
 }
 
