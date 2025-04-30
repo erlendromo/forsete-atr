@@ -13,6 +13,10 @@ type Database interface {
 	MigrateDown() error
 }
 
+// Using generics,
+// query a row in the database and return the data of the selected generic type,
+// assuming no errors.
+// Otherwise the error is returned.
 func QueryRowx[T any](ctx context.Context, db *sqlx.DB, query string, args ...interface{}) (*T, error) {
 	var result T
 	row := db.QueryRowxContext(ctx, query, args...)
@@ -23,6 +27,10 @@ func QueryRowx[T any](ctx context.Context, db *sqlx.DB, query string, args ...in
 	return &result, nil
 }
 
+// Using generics,
+// query multiple rows in the database and return the data in a list of the selected generic type,
+// assuming no errors.
+// Otherwise the error is returned.
 func Queryx[T any](ctx context.Context, db *sqlx.DB, query string, args ...interface{}) ([]*T, error) {
 	rows, err := db.QueryxContext(ctx, query, args...)
 	if err != nil {
@@ -42,6 +50,8 @@ func Queryx[T any](ctx context.Context, db *sqlx.DB, query string, args ...inter
 	return results, nil
 }
 
+// Returns the affected rows after the query is run, assuming no errors.
+// Otherwise the error is returned.
 func ExecuteContext(ctx context.Context, db *sqlx.DB, query string, args ...interface{}) (int, error) {
 	result, err := db.ExecContext(ctx, query, args...)
 	if err != nil {
