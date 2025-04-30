@@ -85,8 +85,8 @@ func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
 	//mux.HandleFunc("POST /forsete-atr/v2/atr/", middleware.AuthMiddleware(authService, atr.HTRflow(...)))
 
 	// Status
-	mux.HandleFunc("HEAD /forsete-atr/v2/status/", status.HeadStatus())
-	mux.HandleFunc("GET /forsete-atr/v2/status/", status.GetStatus())
+	mux.HandleFunc("HEAD /forsete-atr/v2/status/", status.HeadStatus(appCtx.DB()))
+	mux.HandleFunc("GET /forsete-atr/v2/status/", status.GetStatus(appCtx.DB()))
 
 	return mux
 }

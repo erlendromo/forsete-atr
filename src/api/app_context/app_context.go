@@ -13,11 +13,9 @@ type AppContext struct {
 	AuthService     *authservice.AuthService
 	ImageRepository *imagerepository.ImageRepository
 	ModelRepository *modelrepository.ModelRepository
-	//cache *cache.Cache
-}
 
-func GetAppContext() *AppContext {
-	return appCtx
+	db *sqlx.DB
+	//cache *cache.Cache
 }
 
 func InitAppContext(db *sqlx.DB) {
@@ -26,6 +24,15 @@ func InitAppContext(db *sqlx.DB) {
 			AuthService:     authservice.NewAuthService(db),
 			ImageRepository: imagerepository.NewImageRepository(db),
 			ModelRepository: modelrepository.NewModelRepository(db),
+			db:              db,
 		}
 	}
+}
+
+func GetAppContext() *AppContext {
+	return appCtx
+}
+
+func (a *AppContext) DB() *sqlx.DB {
+	return a.db
 }
