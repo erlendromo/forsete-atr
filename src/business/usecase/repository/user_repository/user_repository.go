@@ -21,16 +21,19 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 
 func (u *UserRepository) RegisterUser(ctx context.Context, email, hashedPassword string) (*user.User, error) {
 	query := `
-	INSERT INTO
-		"user" (email, password)
-	VALUES
-		($1, $2)
-	ON CONFLICT
-		(email)
-	DO UPDATE SET
-		email = EXCLUDED.email
-	RETURNING
-		id
+		INSERT INTO
+			"user" (email, password)
+		VALUES
+			($1, $2)
+		ON CONFLICT
+			(email)
+		DO UPDATE SET
+			password = EXCLUDED.password,
+			deleted_at = NULL
+		WHERE
+			"user".deleted_at IS NOT NULL
+		RETURNING
+			id
 	`
 
 	return database.QueryRowx[user.User](ctx, u.db, query, email, hashedPassword)
@@ -38,18 +41,21 @@ func (u *UserRepository) RegisterUser(ctx context.Context, email, hashedPassword
 
 func (u *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*user.User, error) {
 	query := `
-	SELECT
-	    u.id,
-	    u.email,
-	    u.password,
-		u.created_at,
-	    r.name AS role_name
-	FROM
-	    "user" u
-	LEFT JOIN
-	    "role" r ON u.role_id = r.id
-	WHERE
-		u.id = $1
+		SELECT
+		    u.id,
+		    u.email,
+		    u.password,
+			u.created_at,
+			u.deleted_at,
+		    r.name AS role_name
+		FROM
+		    "user" u
+		LEFT JOIN
+		    "role" r ON u.role_id = r.id
+		WHERE
+			u.id = $1
+		AND
+			u.deleted_at IS NULL
 	`
 
 	return database.QueryRowx[user.User](ctx, u.db, query, id)
@@ -57,18 +63,21 @@ func (u *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*user.User,
 
 func (u *UserRepository) GetByEmail(ctx context.Context, email string) (*user.User, error) {
 	query := `
-	SELECT
-	    u.id,
-	    u.email,
-	    u.password,
-		u.created_at,
-	    r.name AS role_name
-	FROM
-	    "user" u
-	LEFT JOIN
-	    "role" r ON u.role_id = r.id
-	WHERE
-		u.email = $1
+		SELECT
+		    u.id,
+		    u.email,
+		    u.password,
+			u.created_at,
+			u.deleted_at,
+		    r.name AS role_name
+		FROM
+		    "user" u
+		LEFT JOIN
+		    "role" r ON u.role_id = r.id
+		WHERE
+			u.email = $1
+		AND
+			u.deleted_at IS NULL
 	`
 
 	return database.QueryRowx[user.User](ctx, u.db, query, email)
