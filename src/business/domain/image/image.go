@@ -24,6 +24,7 @@ type Image struct {
 	Format     string    `db:"format" json:"format"`
 	Path       string    `db:"path" json:"-"`
 	UploadedAt time.Time `db:"uploaded_at" json:"-"`
+	DeletedAt  time.Time `db:"deleted_at" json:"-"`
 	UserID     uuid.UUID `db:"user_id" json:"-"`
 }
 

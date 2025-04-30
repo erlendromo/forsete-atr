@@ -32,6 +32,7 @@ func (i *ImageRepository) ImageByID(ctx context.Context, id, userID uuid.UUID) (
 			format,
 			path,
 			uploaded_at,
+			deleted_at,
 			user_id
 		FROM
 			"image"
@@ -39,6 +40,8 @@ func (i *ImageRepository) ImageByID(ctx context.Context, id, userID uuid.UUID) (
 			id = $1
 		AND
 			user_id = $2
+		AND
+			deleted_at IS NULL
 	`
 
 	return database.QueryRowx[image.Image](ctx, i.db, query, id, userID)
@@ -52,13 +55,16 @@ func (i *ImageRepository) ImagesByUserID(ctx context.Context, userID uuid.UUID) 
 			format,
 			path,
 			uploaded_at,
+			deleted_at,
 			user_id
 		FROM
 			"image"
 		WHERE
 			user_id = $1
+		AND
+			deleted_at IS NULL
 		ORDER BY
-			id
+			uploaded_at
 		ASC
 	`
 
