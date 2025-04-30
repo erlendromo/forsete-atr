@@ -56,7 +56,7 @@ func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
 	// App Context
 	appCtx := appcontext.GetAppContext()
 	authService := appCtx.AuthService
-	imageRepo := appCtx.ImageRepository
+	fileService := appCtx.FileService
 	modelRepo := appCtx.ModelRepository
 
 	// Swaggo
@@ -67,13 +67,12 @@ func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
 	mux.HandleFunc("POST /forsete-atr/v2/auth/login/", auth.Login(authService))
 	mux.HandleFunc("POST /forsete-atr/v2/auth/logout/", middleware.AuthMiddleware(authService, auth.Logout(authService)))
 
-	// Images
-	//mux.HandleFunc("GET /forsete-atr/v2/images/", middleware.AuthMiddleware(authService, image.GetImages(imageRepo))
-	mux.HandleFunc("POST /forsete-atr/v2/images/upload/", middleware.AuthMiddleware(authService, image.UploadImages(imageRepo)))
-
-	// Outputs
-	//mux.HandleFunc("GET /forsete-atr/v2/outputs/{imageID}", middleware.AuthMiddleware(authService, output.GetOutputByImageID(outputRepo))
-	//mux.HandleFunc("GET /forsete-atr/v2/outputs/", middleware.AuthMiddleware(authService, output.GetOutputs(outputRepo))
+	// Images & Outputs
+	mux.HandleFunc("POST /forsete-atr/v2/images/upload/", middleware.AuthMiddleware(authService, image.UploadImages(fileService)))
+	mux.HandleFunc("GET /forsete-atr/v2/images/", middleware.AuthMiddleware(authService, image.GetImages(fileService)))
+	mux.HandleFunc("GET /forsete-atr/v2/images/{imageID}/", middleware.AuthMiddleware(authService, image.GetImageByID(fileService)))
+	//mux.HandleFunc("GET /forsete-atr/v2/images/{imageID}/outputs/", middleware.AuthMiddleware(authService, output.GetOutputs(fileService)))
+	//mux.HandleFunc("GET /forsete-atr/v2/images/{imageID}/outputs/{outputID}/", middleware.AuthMiddleware(authService, output.GetOutputByID(fileService)))
 
 	// Models
 	mux.HandleFunc("GET /forsete-atr/v2/models/", model.GetModels(modelRepo))
