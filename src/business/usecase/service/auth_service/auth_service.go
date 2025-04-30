@@ -47,7 +47,7 @@ func (a *AuthService) Login(ctx context.Context, email, password string) (*sessi
 }
 
 func (a *AuthService) Logout(ctx context.Context, token uuid.UUID) error {
-	if err := a.SessionRepo.DeleteSession(ctx, token); err != nil {
+	if _, err := a.SessionRepo.DeleteSession(ctx, token); err != nil {
 		return err
 	}
 
@@ -69,7 +69,7 @@ func (a *AuthService) RefreshToken(ctx context.Context, oldToken uuid.UUID) (*se
 		return nil, err
 	}
 
-	if err := a.SessionRepo.DeleteSession(ctx, oldToken); err != nil {
+	if _, err := a.SessionRepo.DeleteSession(ctx, oldToken); err != nil {
 		return nil, err
 	}
 

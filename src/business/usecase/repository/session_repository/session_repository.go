@@ -2,7 +2,6 @@ package sessionrepository
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/erlendromo/forsete-atr/src/business/domain/session"
 	"github.com/erlendromo/forsete-atr/src/database"
@@ -32,7 +31,7 @@ func (s *SessionRepository) CreateSession(ctx context.Context, userID uuid.UUID)
 	return database.QueryRowx[session.Session](ctx, s.db, query, userID)
 }
 
-func (s *SessionRepository) DeleteSession(ctx context.Context, token uuid.UUID) error {
+func (s *SessionRepository) DeleteSession(ctx context.Context, token uuid.UUID) (int, error) {
 	query := `
 		DELETE FROM
 			"session"
@@ -40,14 +39,7 @@ func (s *SessionRepository) DeleteSession(ctx context.Context, token uuid.UUID) 
 			token = $1
 	`
 
-	rowsAffected, err := database.ExecuteContext(ctx, s.db, query, token)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("\nDeleted %d session(s)\n", rowsAffected)
-
-	return nil
+	return database.ExecuteContext(ctx, s.db, query, token)
 }
 
 func (s *SessionRepository) GetValidSession(ctx context.Context, token uuid.UUID) (*session.Session, error) {
