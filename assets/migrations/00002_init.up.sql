@@ -21,11 +21,9 @@ CREATE TABLE IF NOT EXISTS "session" (
     FOREIGN KEY (user_id) REFERENCES "user" (id)
 );
 
-CREATE INDEX idx_session_expires_at ON "session" (expires_at);
-
 CREATE TABLE IF NOT EXISTS "image" (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid (),
-    name varchar(255) UNIQUE NOT NULL,
+    name varchar(255) NOT NULL,
     format varchar(10) NOT NULL,
     path varchar(255) UNIQUE NOT NULL,
     uploaded_at timestamptz DEFAULT now (),
@@ -36,13 +34,13 @@ CREATE TABLE IF NOT EXISTS "image" (
 
 CREATE TABLE IF NOT EXISTS "output" (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid (),
-    name varchar(255) UNIQUE NOT NULL,
+    name varchar(255) NOT NULL,
     format varchar(10) NOT NULL,
     path varchar(255) UNIQUE NOT NULL,
     created_at timestamptz DEFAULT now (),
     updated_at timestamptz DEFAULT now (),
     deleted_at timestamptz,
-    confirmed bool,
+    confirmed bool DEFAULT false,
     image_id uuid NOT NULL,
     FOREIGN KEY (image_id) REFERENCES "image" (id)
 );
