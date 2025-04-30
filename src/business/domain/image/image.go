@@ -19,43 +19,43 @@ var validFileTypes = []string{
 }
 
 type Image struct {
-	ID         uuid.UUID `db:"id" json:"id"`
-	Name       string    `db:"name" json:"name"`
-	Format     string    `db:"format" json:"format"`
-	Path       string    `db:"path" json:"-"`
-	UploadedAt time.Time `db:"uploaded_at" json:"-"`
-	DeletedAt  time.Time `db:"deleted_at" json:"-"`
-	UserID     uuid.UUID `db:"user_id" json:"-"`
+	ID         uuid.UUID  `db:"id" json:"id"`
+	Name       string     `db:"name" json:"name"`
+	Format     string     `db:"format" json:"format"`
+	Path       string     `db:"path" json:"-"`
+	UploadedAt time.Time  `db:"uploaded_at" json:"-"`
+	DeletedAt  *time.Time `db:"deleted_at" json:"-"`
+	UserID     uuid.UUID  `db:"user_id" json:"-"`
 }
 
-func (i *Image) CreateLocal(dst string, fileHeader *multipart.FileHeader) (string, error) {
+func (i *Image) CreateLocal(fileHeader *multipart.FileHeader) error {
 	if err := i.checkFileHeader(fileHeader); err != nil {
-		return "", err
+		return err
 	}
 
 	file, err := fileHeader.Open()
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	defer file.Close()
 
-	if err := os.MkdirAll(dst, os.ModeDir); err != nil {
-		return "", err
+	if err := os.MkdirAll(i.Path, os.ModeDir); err != nil {
+		return err
 	}
 
-	localFile, err := os.Create(fmt.Sprintf("%s/%s", strings.TrimRight(dst, "/"), fileHeader.Filename))
+	localFile, err := os.Create(fmt.Sprintf("%s/%s.%s", strings.TrimRight(i.Path, "/"), i.ID.String(), i.Format))
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	defer localFile.Close()
 
 	if _, err := io.Copy(localFile, file); err != nil {
-		return "", err
+		return err
 	}
 
-	return localFile.Name(), nil
+	return nil
 }
 
 // If fileHeader is ok -> error = nil

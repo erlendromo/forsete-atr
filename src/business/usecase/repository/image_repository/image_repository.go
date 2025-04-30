@@ -2,11 +2,6 @@ package imagerepository
 
 import (
 	"context"
-	"fmt"
-	"mime/multipart"
-	"path"
-	"path/filepath"
-	"strings"
 
 	"github.com/erlendromo/forsete-atr/src/business/domain/image"
 	"github.com/erlendromo/forsete-atr/src/database"
@@ -71,17 +66,7 @@ func (i *ImageRepository) ImagesByUserID(ctx context.Context, userID uuid.UUID) 
 	return database.Queryx[image.Image](ctx, i.db, query, userID)
 }
 
-func (i *ImageRepository) UploadImage(ctx context.Context, fileHeader *multipart.FileHeader, userID uuid.UUID) (*image.Image, error) {
-	dst := path.Join("assets", "users", userID.String(), "images")
-	img := &image.Image{}
-
-	path, err := img.CreateLocal(dst, fileHeader)
-	if err != nil {
-		return nil, err
-	}
-
-	format := strings.ToLower(strings.TrimPrefix(filepath.Ext(fileHeader.Filename), "."))
-
+func (i *ImageRepository) RegisterImage(ctx context.Context, name, format, path string, userID uuid.UUID) (*image.Image, error) {
 	query := `
 		INSERT INTO
 			"image" (name, format, path, user_id)
@@ -90,28 +75,42 @@ func (i *ImageRepository) UploadImage(ctx context.Context, fileHeader *multipart
 		RETURNING
 			id,
 			name,
-			format
+			format,
+			path,
+			uploaded_at,
+			deleted_at,
+			user_id
 	`
 
-	return database.QueryRowx[image.Image](ctx, i.db, query, fileHeader.Filename, format, path, userID)
+	return database.QueryRowx[image.Image](ctx, i.db, query, name, format, path, userID)
 }
 
-func (i *ImageRepository) UploadImages(ctx context.Context, fileHeaders []*multipart.FileHeader, userID uuid.UUID) ([]*image.Image, error) {
-	images := make([]*image.Image, 0)
-	errs := make([]error, 0)
-	for _, fileHeader := range fileHeaders {
-		img, err := i.UploadImage(ctx, fileHeader, userID)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
+func (i *ImageRepository) DeleteImageByID(ctx context.Context, id uuid.UUID) (int, error) {
+	query := `
+		UPDATE
+			"image"
+		SET
+			deleted_at = now()
+		WHERE
+			id = $1
+		AND
+			deleted_at IS NULL
+	`
 
-		images = append(images, img)
-	}
+	return database.ExecuteContext(ctx, i.db, query, id)
+}
 
-	if len(errs) > 0 {
-		return nil, fmt.Errorf("error uploading images: %+v", errs)
-	}
+func (i *ImageRepository) UpdateNameByID(ctx context.Context, id uuid.UUID, name string) (int, error) {
+	query := `
+		UPDATE
+			"image"
+		SET
+			name = $1
+		WHERE
+			id = $2
+		AND
+			deleted_at IS NULL
+	`
 
-	return images, nil
+	return database.ExecuteContext(ctx, i.db, query, name, id)
 }
