@@ -39,14 +39,13 @@ resource "openstack_networking_router_interface_v2" "main" {
   ]
 }
 
-resource "openstack_networking_secgroup_v2" "main" {
+resource "openstack_networking_secgroup_v2" "ssh" {
   name        = "My-Security-Group"
-  description = "Allow SSH and application endpoint"
-
+  description = "Allow SSH port"
 }
 
 resource "openstack_networking_secgroup_rule_v2" "ssh" {
-  security_group_id = openstack_networking_secgroup_v2.main.id
+  security_group_id = openstack_networking_secgroup_v2.ssh.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
@@ -54,12 +53,17 @@ resource "openstack_networking_secgroup_rule_v2" "ssh" {
   port_range_max    = 22
 
   depends_on = [
-    openstack_networking_secgroup_v2.main
+    openstack_networking_secgroup_v2.ssh
   ]
 }
 
+resource "openstack_networking_secgroup_v2" "application" {
+  name        = "Application-Security-Group"
+  description = "Allow application port"
+}
+
 resource "openstack_networking_secgroup_rule_v2" "application" {
-  security_group_id = openstack_networking_secgroup_v2.main.id
+  security_group_id = openstack_networking_secgroup_v2.application.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
@@ -67,13 +71,16 @@ resource "openstack_networking_secgroup_rule_v2" "application" {
   port_range_max    = var.application_port
 
   depends_on = [
-    openstack_networking_secgroup_v2.main
+    openstack_networking_secgroup_v2.application
   ]
 }
 
 resource "openstack_networking_port_v2" "main" {
-  network_id         = openstack_networking_network_v2.main.id
-  security_group_ids = [openstack_networking_secgroup_v2.main.id]
+  network_id = openstack_networking_network_v2.main.id
+  security_group_ids = [
+    openstack_networking_secgroup_v2.ssh.id,
+    openstack_networking_secgroup_v2.application.id
+  ]
 
   fixed_ip {
     subnet_id = openstack_networking_subnet_v2.main.id
@@ -81,7 +88,8 @@ resource "openstack_networking_port_v2" "main" {
 
   depends_on = [
     openstack_networking_network_v2.main,
-    openstack_networking_secgroup_v2.main,
+    openstack_networking_secgroup_v2.ssh,
+    openstack_networking_secgroup_v2.application,
     openstack_networking_subnet_v2.main
   ]
 }
