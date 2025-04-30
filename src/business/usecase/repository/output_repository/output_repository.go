@@ -117,7 +117,7 @@ func (o *OutputRepository) DeleteOutputByID(ctx context.Context, id uuid.UUID) (
 	return database.ExecuteContext(ctx, o.db, query, id)
 }
 
-func (o *OutputRepository) SoftDeleteOutputsByImageID(ctx context.Context, imageID uuid.UUID) (int, error) {
+func (o *OutputRepository) DeleteOutputsByImageID(ctx context.Context, imageID uuid.UUID) (int, error) {
 	query := `
         UPDATE
             "output"
