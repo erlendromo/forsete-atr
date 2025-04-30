@@ -1,5 +1,3 @@
-DROP INDEX IF EXISTS unique_output_path;
-
 DROP INDEX IF EXISTS idx_output_image_active;
 
 DROP INDEX IF EXISTS idx_image_user_active;

@@ -11,7 +11,3 @@ WHERE
 CREATE INDEX idx_output_image_active ON "output" (image_id)
 WHERE
     deleted_at IS NULL;
-
-CREATE UNIQUE INDEX unique_output_path ON "output" (path)
-WHERE
-    deleted_at IS NULL;
