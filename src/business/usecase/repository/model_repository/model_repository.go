@@ -51,14 +51,43 @@ func (m *ModelRepository) ModelsByType(ctx context.Context, modelType string) ([
             mt.type = $1
     `
 
-	models, err := database.Queryx[model.Model](ctx, m.db, query, modelType)
-	if err != nil {
-		return nil, err
-	}
+	return database.Queryx[model.Model](ctx, m.db, query, modelType)
+}
 
-	if len(models) < 1 {
-		return make([]*model.Model, 0), nil
-	}
+func (m *ModelRepository) ModelByID(ctx context.Context, id int) (*model.Model, error) {
+	query := `
+		SELECT
+            m.id,
+            m.name,
+            m.path,
+            m.model_type_id,
+            mt.type AS model_type
+        FROM
+            "model" m
+        JOIN
+            "model_type" mt ON m.model_type_id = mt.id
+        WHERE
+        	m.id = $1
+	`
 
-	return models, nil
+	return database.QueryRowx[model.Model](ctx, m.db, query, id)
+}
+
+func (m *ModelRepository) ModelByName(ctx context.Context, name string) (*model.Model, error) {
+	query := `
+		SELECT
+            m.id,
+            m.name,
+            m.path,
+            m.model_type_id,
+            mt.type AS model_type
+        FROM
+            "model" m
+        JOIN
+            "model_type" mt ON m.model_type_id = mt.id
+        WHERE
+        	m.name = $1
+	`
+
+	return database.QueryRowx[model.Model](ctx, m.db, query, name)
 }
