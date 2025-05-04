@@ -19,7 +19,7 @@ func NewOutputRepository(db *sqlx.DB) *OutputRepository {
 	}
 }
 
-func (o *OutputRepository) OutputByID(ctx context.Context, id uuid.UUID) (*output.Output, error) {
+func (o *OutputRepository) OutputByID(ctx context.Context, id, imageID uuid.UUID) (*output.Output, error) {
 	query := `
 		SELECT
 			id,
@@ -36,10 +36,12 @@ func (o *OutputRepository) OutputByID(ctx context.Context, id uuid.UUID) (*outpu
 		WHERE
 			id = $1
 		AND
+			image_id = $2
+		AND
 			deleted_at IS NULL
 	`
 
-	return database.QueryRowx[output.Output](ctx, o.db, query, id)
+	return database.QueryRowx[output.Output](ctx, o.db, query, id, imageID)
 }
 
 func (o *OutputRepository) OutputsByImageID(ctx context.Context, imageID uuid.UUID) ([]*output.Output, error) {
@@ -71,6 +73,16 @@ func (o *OutputRepository) RegisterOutput(ctx context.Context, name, format, pat
 			"output" (name, format, path, image_id)
 		VALUES
 			($1, $2, $3, $4)
+		RETURNING
+			id,
+			name,
+			format,
+			path,
+			created_at,
+			updated_at,
+			deleted_at,
+			confirmed,
+			image_id
 	`
 
 	return database.QueryRowx[output.Output](ctx, o.db, query, name, format, path, imageID)
