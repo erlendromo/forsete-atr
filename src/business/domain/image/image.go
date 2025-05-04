@@ -2,13 +2,12 @@ package image
 
 import (
 	"fmt"
-	"io"
 	"mime/multipart"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
 )
 
@@ -18,6 +17,10 @@ var validFileTypes = []string{
 	"jpeg",
 }
 
+// Image
+//
+//	@Summary		Image
+//	@Description	Image containing id, name, format etc.
 type Image struct {
 	ID         uuid.UUID  `db:"id" json:"id"`
 	Name       string     `db:"name" json:"name"`
@@ -33,25 +36,7 @@ func (i *Image) CreateLocal(fileHeader *multipart.FileHeader) error {
 		return err
 	}
 
-	file, err := fileHeader.Open()
-	if err != nil {
-		return err
-	}
-
-	defer file.Close()
-
-	if err := os.MkdirAll(i.Path, os.ModeDir); err != nil {
-		return err
-	}
-
-	localFile, err := os.Create(fmt.Sprintf("%s/%s.%s", strings.TrimRight(i.Path, "/"), i.ID.String(), i.Format))
-	if err != nil {
-		return err
-	}
-
-	defer localFile.Close()
-
-	if _, err := io.Copy(localFile, file); err != nil {
+	if err := util.CreateLocal(fileHeader, i.Path, i.ID.String(), i.Format); err != nil {
 		return err
 	}
 
@@ -72,17 +57,6 @@ func (i *Image) checkFileHeader(fileHeader *multipart.FileHeader) error {
 	format := strings.ToLower(strings.TrimPrefix(filepath.Ext(fileHeader.Filename), "."))
 	if format == "" || !i.isValidFileType(format) {
 		return fmt.Errorf("unsupported or missing file extension")
-	}
-
-	file, err := fileHeader.Open()
-	if err != nil {
-		return err
-	}
-
-	defer file.Close()
-
-	if file == nil {
-		return fmt.Errorf("invalid file, cannot be nil")
 	}
 
 	return nil

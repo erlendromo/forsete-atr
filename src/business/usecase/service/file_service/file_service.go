@@ -10,20 +10,17 @@ import (
 
 	"github.com/erlendromo/forsete-atr/src/business/domain/image"
 	imagerepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/image_repository"
-	outputrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/output_repository"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
 type FileService struct {
-	ImageRepo  *imagerepository.ImageRepository
-	OutputRepo *outputrepository.OutputRepository
+	ImageRepo *imagerepository.ImageRepository
 }
 
 func NewFileService(db *sqlx.DB) *FileService {
 	return &FileService{
-		ImageRepo:  imagerepository.NewImageRepository(db),
-		OutputRepo: outputrepository.NewOutputRepository(db),
+		ImageRepo: imagerepository.NewImageRepository(db),
 	}
 }
 
