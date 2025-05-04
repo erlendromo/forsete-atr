@@ -91,3 +91,21 @@ func (m *ModelRepository) ModelByName(ctx context.Context, name string) (*model.
 
 	return database.QueryRowx[model.Model](ctx, m.db, query, name)
 }
+
+func (m *ModelRepository) RegisterModel(ctx context.Context, name, path string, model_type_id int) (*model.Model, error) {
+	query := `
+		INSERT INTO
+			"model" (name, path, model_type_id)
+		VALUES
+			($1, $2, $3)
+		RETURNING
+			id
+	`
+
+	insertModel, err := database.QueryRowx[model.Model](ctx, m.db, query, name, path, model_type_id)
+	if err != nil {
+		return nil, err
+	}
+
+	return m.ModelByID(ctx, insertModel.ID)
+}
