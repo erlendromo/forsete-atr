@@ -1,12 +1,18 @@
 package user
 
 import (
+	"os"
+	"path"
 	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
+// User
+//
+//	@Summary		User
+//	@Description	User containing id, email etc.
 type User struct {
 	ID        uuid.UUID  `db:"id" json:"id"`
 	Email     string     `db:"email" json:"email,omitempty"`
@@ -24,4 +30,20 @@ func (u *User) ComparePassword(unhashedPassword string) error {
 
 func (u *User) IsAdmin() bool {
 	return u.RoleName == "Admin"
+}
+
+func (u *User) CreateDirs() error {
+	basePath := path.Join("assets", "users", u.ID.String())
+	imagesPath := path.Join(basePath, "images")
+	outputsPath := path.Join(basePath, "outputs")
+
+	if err := os.MkdirAll(imagesPath, os.ModeDir); err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(outputsPath, os.ModeDir); err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -6,6 +6,10 @@ import (
 	"github.com/google/uuid"
 )
 
+// Session
+//
+//	@Summary		Session
+//	@Description	Session containing token etc.
 type Session struct {
 	Token     uuid.UUID `db:"token" json:"token"`
 	UserID    uuid.UUID `db:"user_id" json:"-"`
