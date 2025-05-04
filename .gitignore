@@ -23,4 +23,4 @@ assets/outputs
 assets/pipelines
 
 # Secret migration
-assets/migrations/00005_add_secret.*
+assets/migrations/00004_add_secret.*

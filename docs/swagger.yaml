@@ -63,20 +63,15 @@ definitions:
       label:
         type: string
     type: object
-  model.ModelsResponse:
-    description: Json-Response for models
+  auth.RegisterAndLoginRequest:
+    description: Body containing email and password.
     properties:
-      line_segmentation_models:
-        items: {}
-        type: array
-      region_segmentation_models:
-        items: {}
-        type: array
-      text_recognition_models:
-        items: {}
-        type: array
+      email:
+        type: string
+      password:
+        type: string
     type: object
-  status.Status:
+  github_com_erlendromo_forsete-atr_src_api_handler_v1_status.Status:
     description: Json-response for Status
     properties:
       atr:
@@ -84,6 +79,151 @@ definitions:
       uptime:
         type: string
       version:
+        type: string
+    type: object
+  github_com_erlendromo_forsete-atr_src_api_handler_v2_status.Status:
+    description: Status containing ATR-readiness, database-readiness, version and
+      uptime.
+    properties:
+      atr:
+        type: string
+      database:
+        type: string
+      uptime:
+        type: string
+      version:
+        type: string
+    type: object
+  github_com_erlendromo_forsete-atr_src_business_domain_image.Image:
+    description: Image containing id, name, format etc.
+    properties:
+      format:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  github_com_erlendromo_forsete-atr_src_business_domain_model.Model:
+    description: Model containing id, name etc.
+    properties:
+      id:
+        type: integer
+      model_type:
+        type: string
+      name:
+        type: string
+    type: object
+  github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model:
+    properties:
+      name:
+        type: string
+    type: object
+  model.ModelsResponse:
+    description: Json-Response for models
+    properties:
+      line_segmentation_models:
+        items:
+          $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model'
+        type: array
+      region_segmentation_models:
+        items:
+          $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model'
+        type: array
+      text_recognition_models:
+        items:
+          $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model'
+        type: array
+    type: object
+  output.ATRResponse:
+    properties:
+      contains:
+        items:
+          properties:
+            segment:
+              properties:
+                bbox:
+                  properties:
+                    xmax:
+                      type: integer
+                    xmin:
+                      type: integer
+                    ymax:
+                      type: integer
+                    ymin:
+                      type: integer
+                  type: object
+                class_label:
+                  type: string
+                data:
+                  type: object
+                orig_shape:
+                  items:
+                    type: integer
+                  type: array
+                polygon:
+                  properties:
+                    points:
+                      items:
+                        properties:
+                          x:
+                            type: integer
+                          "y":
+                            type: integer
+                        type: object
+                      type: array
+                  type: object
+                score:
+                  type: number
+              type: object
+            text_result:
+              properties:
+                label:
+                  type: string
+                scores:
+                  items:
+                    type: number
+                  type: array
+                texts:
+                  items:
+                    type: string
+                  type: array
+              type: object
+          type: object
+        type: array
+      file_name:
+        type: string
+      image_name:
+        type: string
+      label:
+        type: string
+    type: object
+  output.Output:
+    description: Output containing id, name, format, confirmed, image_id etc.
+    properties:
+      confirmed:
+        type: boolean
+      format:
+        type: string
+      id:
+        type: string
+      image_id:
+        type: string
+      name:
+        type: string
+    type: object
+  session.Session:
+    description: Session containing token etc.
+    properties:
+      token:
+        type: string
+    type: object
+  user.User:
+    description: User containing id, email etc.
+    properties:
+      email:
+        type: string
+      id:
         type: string
     type: object
   util.ErrorResponse:
@@ -99,7 +239,7 @@ info:
   description: RESTful JSON-API for Automatic Text Recognition (ATR) developed as
     part of Bachelor Thesis "FORSETE" at NTNU Gjøvik.
   title: Forsete-ATR
-  version: v1
+  version: v2
 paths:
   /forsete-atr/v1/atr/basic-documents/:
     post:
@@ -378,7 +518,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/status.Status'
+            $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_api_handler_v1_status.Status'
       summary: GetStatus
       tags:
       - Status
@@ -392,6 +532,459 @@ paths:
           schema:
             $ref: '#/definitions/util.ErrorResponse'
       summary: HeadStatus
+      tags:
+      - Status
+  /forsete-atr/v2/atr/:
+    post:
+      consumes:
+      - application/json
+      description: Run ATR on images
+      parameters:
+      - description: '''Bearer <token>'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/output.Output'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Run ATR
+      tags:
+      - ATR
+  /forsete-atr/v2/auth/login/:
+    post:
+      consumes:
+      - application/json
+      description: Login as user with email and password.
+      parameters:
+      - description: Login user form
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegisterAndLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          headers:
+            Authorization:
+              description: Bearer <token>
+              type: string
+          schema:
+            $ref: '#/definitions/session.Session'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Login as user
+      tags:
+      - Auth
+  /forsete-atr/v2/auth/logout/:
+    post:
+      description: Logout as user.
+      parameters:
+      - description: '''Bearer <token>'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Logout as user
+      tags:
+      - Auth
+  /forsete-atr/v2/auth/refresh/:
+    post:
+      description: Refresh session token.
+      parameters:
+      - description: '''Bearer <token>'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            Authorization:
+              description: Bearer <token>
+              type: string
+          schema:
+            $ref: '#/definitions/session.Session'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Refresh token
+      tags:
+      - Auth
+  /forsete-atr/v2/auth/register/:
+    post:
+      consumes:
+      - application/json
+      description: Register user with email and password.
+      parameters:
+      - description: Register user form
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegisterAndLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/user.User'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Register user
+      tags:
+      - Auth
+  /forsete-atr/v2/images/:
+    get:
+      description: Get all images the user has uploaded.
+      parameters:
+      - description: '''Bearer <token>'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get images
+      tags:
+      - Images
+  /forsete-atr/v2/images/{imageID}/:
+    get:
+      description: Get image by id.
+      parameters:
+      - description: uuid of image
+        in: query
+        name: imageID
+        required: true
+        type: string
+      - description: '''Bearer <token>'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get image by id
+      tags:
+      - Images
+  /forsete-atr/v2/images/{imageID}/outputs/:
+    get:
+      description: Get outputs by image id.
+      parameters:
+      - description: uuid of image
+        in: query
+        name: imageID
+        required: true
+        type: string
+      - description: '''Bearer <token>'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/output.Output'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get outputs by image id
+      tags:
+      - Outputs
+  /forsete-atr/v2/images/{imageID}/outputs/{outputID}/:
+    get:
+      description: Get output by id.
+      parameters:
+      - description: uuid of image
+        in: query
+        name: imageID
+        required: true
+        type: string
+      - description: uuid of output
+        in: query
+        name: outputID
+        required: true
+        type: string
+      - description: '''Bearer <token>'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/output.Output'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get output by id
+      tags:
+      - Outputs
+  /forsete-atr/v2/images/{imageID}/outputs/{outputID}/data/:
+    get:
+      description: Get output data.
+      parameters:
+      - description: uuid of image
+        in: query
+        name: imageID
+        required: true
+        type: string
+      - description: uuid of output
+        in: query
+        name: outputID
+        required: true
+        type: string
+      - description: '''Bearer <token>'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/output.ATRResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get output data.
+      tags:
+      - Outputs
+  /forsete-atr/v2/images/upload/:
+    post:
+      description: Upload up to 32MB worth of images.
+      parameters:
+      - description: '''Bearer <token>'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: images to upload
+        in: formData
+        name: images
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Upload images
+      tags:
+      - Images
+  /forsete-atr/v2/models/:
+    get:
+      description: Get all models.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get models
+      tags:
+      - Models
+  /forsete-atr/v2/models/{type}/:
+    get:
+      description: Get models by type.
+      parameters:
+      - description: type = region-segmentation-models/line-segmentation-models/text-recognition-models
+        in: query
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get models by type
+      tags:
+      - Models
+  /forsete-atr/v2/status/:
+    get:
+      description: Get status.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_api_handler_v2_status.Status'
+      summary: Get status
+      tags:
+      - Status
+    head:
+      description: Head status.
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Head status
       tags:
       - Status
 swagger: "2.0"

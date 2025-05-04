@@ -4,7 +4,7 @@
         "description": "RESTful JSON-API for Automatic Text Recognition (ATR) developed as part of Bachelor Thesis \"FORSETE\" at NTNU Gjøvik.",
         "title": "Forsete-ATR",
         "contact": {},
-        "version": "v1"
+        "version": "v2"
     },
     "paths": {
         "/forsete-atr/v1/atr/basic-documents/": {
@@ -418,7 +418,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/status.Status"
+                            "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_api_handler_v1_status.Status"
                         }
                     }
                 }
@@ -429,6 +429,690 @@
                     "Status"
                 ],
                 "summary": "HeadStatus",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/atr/": {
+            "post": {
+                "description": "Run ATR on images",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ATR"
+                ],
+                "summary": "Run ATR",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/output.Output"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/auth/login/": {
+            "post": {
+                "description": "Login as user with email and password.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login as user",
+                "parameters": [
+                    {
+                        "description": "Login user form",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.RegisterAndLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/session.Session"
+                        },
+                        "headers": {
+                            "Authorization": {
+                                "type": "string",
+                                "description": "Bearer \u003ctoken\u003e"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/auth/logout/": {
+            "post": {
+                "description": "Logout as user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout as user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/auth/refresh/": {
+            "post": {
+                "description": "Refresh session token.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresh token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/session.Session"
+                        },
+                        "headers": {
+                            "Authorization": {
+                                "type": "string",
+                                "description": "Bearer \u003ctoken\u003e"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/auth/register/": {
+            "post": {
+                "description": "Register user with email and password.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register user",
+                "parameters": [
+                    {
+                        "description": "Register user form",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.RegisterAndLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/user.User"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/images/": {
+            "get": {
+                "description": "Get all images the user has uploaded.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Get images",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/images/upload/": {
+            "post": {
+                "description": "Upload up to 32MB worth of images.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Upload images",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "images to upload",
+                        "name": "images",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/images/{imageID}/": {
+            "get": {
+                "description": "Get image by id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Get image by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "uuid of image",
+                        "name": "imageID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/images/{imageID}/outputs/": {
+            "get": {
+                "description": "Get outputs by image id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Outputs"
+                ],
+                "summary": "Get outputs by image id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "uuid of image",
+                        "name": "imageID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/output.Output"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/images/{imageID}/outputs/{outputID}/": {
+            "get": {
+                "description": "Get output by id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Outputs"
+                ],
+                "summary": "Get output by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "uuid of image",
+                        "name": "imageID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "uuid of output",
+                        "name": "outputID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/output.Output"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/images/{imageID}/outputs/{outputID}/data/": {
+            "get": {
+                "description": "Get output data.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Outputs"
+                ],
+                "summary": "Get output data.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "uuid of image",
+                        "name": "imageID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "uuid of output",
+                        "name": "outputID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/output.ATRResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/models/": {
+            "get": {
+                "description": "Get all models.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Models"
+                ],
+                "summary": "Get models",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/models/{type}/": {
+            "get": {
+                "description": "Get models by type.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Models"
+                ],
+                "summary": "Get models by type",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "type = region-segmentation-models/line-segmentation-models/text-recognition-models",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/status/": {
+            "get": {
+                "description": "Get status.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Status"
+                ],
+                "summary": "Get status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_api_handler_v2_status.Status"
+                        }
+                    }
+                }
+            },
+            "head": {
+                "description": "Head status.",
+                "tags": [
+                    "Status"
+                ],
+                "summary": "Head status",
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -543,25 +1227,19 @@
                 }
             }
         },
-        "model.ModelsResponse": {
-            "description": "Json-Response for models",
+        "auth.RegisterAndLoginRequest": {
+            "description": "Body containing email and password.",
             "type": "object",
             "properties": {
-                "line_segmentation_models": {
-                    "type": "array",
-                    "items": {}
+                "email": {
+                    "type": "string"
                 },
-                "region_segmentation_models": {
-                    "type": "array",
-                    "items": {}
-                },
-                "text_recognition_models": {
-                    "type": "array",
-                    "items": {}
+                "password": {
+                    "type": "string"
                 }
             }
         },
-        "status.Status": {
+        "github_com_erlendromo_forsete-atr_src_api_handler_v1_status.Status": {
             "description": "Json-response for Status",
             "type": "object",
             "properties": {
@@ -572,6 +1250,226 @@
                     "type": "string"
                 },
                 "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_erlendromo_forsete-atr_src_api_handler_v2_status.Status": {
+            "description": "Status containing ATR-readiness, database-readiness, version and uptime.",
+            "type": "object",
+            "properties": {
+                "atr": {
+                    "type": "string"
+                },
+                "database": {
+                    "type": "string"
+                },
+                "uptime": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_erlendromo_forsete-atr_src_business_domain_image.Image": {
+            "description": "Image containing id, name, format etc.",
+            "type": "object",
+            "properties": {
+                "format": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_erlendromo_forsete-atr_src_business_domain_model.Model": {
+            "description": "Model containing id, name etc.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "model_type": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ModelsResponse": {
+            "description": "Json-Response for models",
+            "type": "object",
+            "properties": {
+                "line_segmentation_models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model"
+                    }
+                },
+                "region_segmentation_models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model"
+                    }
+                },
+                "text_recognition_models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model"
+                    }
+                }
+            }
+        },
+        "output.ATRResponse": {
+            "type": "object",
+            "properties": {
+                "contains": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "segment": {
+                                "type": "object",
+                                "properties": {
+                                    "bbox": {
+                                        "type": "object",
+                                        "properties": {
+                                            "xmax": {
+                                                "type": "integer"
+                                            },
+                                            "xmin": {
+                                                "type": "integer"
+                                            },
+                                            "ymax": {
+                                                "type": "integer"
+                                            },
+                                            "ymin": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    },
+                                    "class_label": {
+                                        "type": "string"
+                                    },
+                                    "data": {
+                                        "type": "object"
+                                    },
+                                    "orig_shape": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "polygon": {
+                                        "type": "object",
+                                        "properties": {
+                                            "points": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "x": {
+                                                            "type": "integer"
+                                                        },
+                                                        "y": {
+                                                            "type": "integer"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "score": {
+                                        "type": "number"
+                                    }
+                                }
+                            },
+                            "text_result": {
+                                "type": "object",
+                                "properties": {
+                                    "label": {
+                                        "type": "string"
+                                    },
+                                    "scores": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "number"
+                                        }
+                                    },
+                                    "texts": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "file_name": {
+                    "type": "string"
+                },
+                "image_name": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            }
+        },
+        "output.Output": {
+            "description": "Output containing id, name, format, confirmed, image_id etc.",
+            "type": "object",
+            "properties": {
+                "confirmed": {
+                    "type": "boolean"
+                },
+                "format": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "session.Session": {
+            "description": "Session containing token etc.",
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.User": {
+            "description": "User containing id, email etc.",
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 }
             }

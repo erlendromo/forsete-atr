@@ -28,6 +28,7 @@ services:
       - user-data-storage:/assets/users
       - pipeline-storage:/assets/pipelines
       - model-storage:/assets/models
+      - tmp-output-storage:/assets/outputs/images
     ports:
       - "${API_PORT}:${API_PORT}"
     environment:
@@ -47,6 +48,7 @@ volumes:
   postgresdb-data:
   user-data-storage:
   pipeline-storage:
+  tmp-output-storage:
   model-storage:
     driver: local
     driver_opts:
