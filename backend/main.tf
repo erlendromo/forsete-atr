@@ -1,5 +1,5 @@
 data "openstack_networking_network_v2" "ntnu_global" {
-  name = "ntnu-internal"
+  name = "ntnu-global"
 }
 
 resource "openstack_networking_network_v2" "main" {
@@ -22,10 +22,10 @@ resource "openstack_networking_subnet_v2" "main" {
 
 resource "openstack_networking_router_v2" "main" {
   name                = var.router_name
-  external_network_id = data.openstack_networking_network_v2.ntnu_internal.id
+  external_network_id = data.openstack_networking_network_v2.ntnu_global.id
 
   depends_on = [
-    data.openstack_networking_network_v2.ntnu_internal
+    data.openstack_networking_network_v2.ntnu_global
   ]
 }
 
@@ -116,10 +116,10 @@ resource "openstack_compute_instance_v2" "main" {
 }
 
 resource "openstack_networking_floatingip_v2" "main" {
-  pool = data.openstack_networking_network_v2.ntnu_internal.name
+  pool = data.openstack_networking_network_v2.ntnu_global.name
 
   depends_on = [
-    data.openstack_networking_network_v2.ntnu_internal
+    data.openstack_networking_network_v2.ntnu_global
   ]
 }
 

@@ -54,10 +54,12 @@ func (a *ATRService) UploadModel(ctx context.Context, name, path string, model_t
 }
 
 func (a *ATRService) CreatePipelines(ctx context.Context) ([]*pipeline.Pipeline, error) {
-	regionModels, err := a.ModelRepo.ModelsByType(ctx, "regionsegmentation")
-	if err != nil {
-		return nil, err
-	}
+	/*
+		regionModels, err := a.ModelRepo.ModelsByType(ctx, "regionsegmentation")
+		if err != nil {
+			return nil, err
+		}
+	*/
 
 	lineModels, err := a.ModelRepo.ModelsByType(ctx, "linesegmentation")
 	if err != nil {
@@ -88,14 +90,16 @@ func (a *ATRService) CreatePipelines(ctx context.Context) ([]*pipeline.Pipeline,
 
 			createdPipelines = append(createdPipelines, pipeline)
 
-			for _, regionModel := range regionModels {
-				pipeline, err := a.CreatePipeline(ctx, []*model.Model{regionModel, lineModel, textModel})
-				if err != nil {
-					return nil, err
-				}
+			/*
+				for _, regionModel := range regionModels {
+					pipeline, err := a.CreatePipeline(ctx, []*model.Model{regionModel, lineModel, textModel})
+					if err != nil {
+						return nil, err
+					}
 
-				createdPipelines = append(createdPipelines, pipeline)
-			}
+					createdPipelines = append(createdPipelines, pipeline)
+				}
+			*/
 		}
 	}
 
