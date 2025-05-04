@@ -9,6 +9,10 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// Status
+//
+//	@Summary		Status
+//	@Description	Status containing ATR-readiness, database-readiness, version and uptime.
 type Status struct {
 	ATR      string `json:"atr"`
 	Database string `json:"database"`
@@ -16,6 +20,14 @@ type Status struct {
 	Uptime   string `json:"uptime"`
 }
 
+// HeadStatus
+//
+//	@Summary		Head status
+//	@Description	Head status.
+//	@Tags			Status
+//	@Success		204
+//	@Failure		500	{object}	util.ErrorResponse
+//	@Router			/forsete-atr/v2/status/ [head]
 func HeadStatus(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := exec.Command("/bin/bash", "-c", "source /htrflow/venv/bin/activate && htrflow pipeline --help").Run(); err != nil {
@@ -32,6 +44,14 @@ func HeadStatus(db *sqlx.DB) http.HandlerFunc {
 	}
 }
 
+// GetStatus
+//
+//	@Summary		Get status
+//	@Description	Get status.
+//	@Tags			Status
+//	@Produce		json
+//	@Success		200	{object}	Status
+//	@Router			/forsete-atr/v2/status/ [get]
 func GetStatus(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		atr := "ready"

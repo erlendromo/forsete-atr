@@ -4,10 +4,20 @@ import (
 	"fmt"
 	"net/http"
 
+	_ "github.com/erlendromo/forsete-atr/src/business/domain/model"
 	modelrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/model_repository"
 	"github.com/erlendromo/forsete-atr/src/util"
 )
 
+// GetModels
+//
+//	@Summary		Get models
+//	@Description	Get all models.
+//	@Tags			Models
+//	@Produce		json
+//	@Success		200	{object}	[]model.Model
+//	@Failure		500	{object}	util.ErrorResponse
+//	@Router			/forsete-atr/v2/models/ [get]
 func GetModels(m *modelrepository.ModelRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		models, err := m.AllModels(r.Context())
@@ -21,6 +31,16 @@ func GetModels(m *modelrepository.ModelRepository) http.HandlerFunc {
 	}
 }
 
+// GetModelsByType
+//
+//	@Summary		Get models by type
+//	@Description	Get models by type.
+//	@Tags			Models
+//	@Param			type	query	string	true	"type = region-segmentation-models/line-segmentation-models/text-recognition-models"
+//	@Produce		json
+//	@Success		200	{object}	[]model.Model
+//	@Failure		500	{object}	util.ErrorResponse
+//	@Router			/forsete-atr/v2/models/{type}/ [get]
 func GetModelsByType(m *modelrepository.ModelRepository, modelType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		models, err := m.ModelsByType(r.Context(), modelType)
