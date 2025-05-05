@@ -2,7 +2,10 @@ package file
 
 import (
 	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path"
 
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
 	_ "github.com/erlendromo/forsete-atr/src/business/domain/image"
@@ -128,5 +131,58 @@ func GetImageByID(fileService *fileservice.FileService) http.HandlerFunc {
 		}
 
 		util.EncodeJSON(w, http.StatusOK, image)
+	}
+}
+
+// GetImageByID
+//
+//	@Summary		Get image data
+//	@Description	Get image data.
+//	@Tags			Images
+//	@Param			imageID			query	string	true	"uuid of image"
+//	@Param			Authorization	header	string	true	"'Bearer <token>' must be set for valid response"
+//	@Produce		json
+//	@Success		200	body		file	"image file"
+//	@Failure		401	{object}	util.ErrorResponse
+//	@Failure		422	{object}	util.ErrorResponse
+//	@Failure		500	{object}	util.ErrorResponse
+//	@Router			/forsete-atr/v2/images/{imageID}/data/ [get]
+func GetImageData(fileService *fileservice.FileService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctxValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
+		if !ok {
+			err := fmt.Errorf("missing 'context_values' in request-context")
+			util.NewInternalErrorLog("GET IMAGE DATA", err).PrintLog("SERVER ERROR")
+			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
+			return
+		}
+
+		imageID, err := uuid.Parse(r.PathValue("imageID"))
+		if err != nil {
+			util.ERROR(w, http.StatusUnprocessableEntity, fmt.Errorf("invalid imageID"))
+			return
+		}
+
+		image, err := fileService.ImageRepo.ImageByID(r.Context(), imageID, ctxValues.User.ID)
+		if err != nil {
+			util.NewInternalErrorLog("GET IMAGE DATA", err).PrintLog("SERVER ERROR")
+			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
+			return
+		}
+
+		imagePath := fmt.Sprintf("%s/%s.%s", image.Path, image.ID, image.Format)
+
+		file, err := os.Open(imagePath)
+		if err != nil {
+			util.NewInternalErrorLog("GET IMAGE DATA", err).PrintLog("SERVER ERROR")
+			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
+			return
+		}
+
+		defer file.Close()
+
+		w.Header().Set("Content-Type", path.Join("image", image.Format))
+		w.WriteHeader(http.StatusOK)
+		io.Copy(w, file)
 	}
 }

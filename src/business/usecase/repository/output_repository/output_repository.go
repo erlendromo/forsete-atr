@@ -88,7 +88,7 @@ func (o *OutputRepository) RegisterOutput(ctx context.Context, name, format, pat
 	return database.QueryRowx[output.Output](ctx, o.db, query, name, format, path, imageID)
 }
 
-func (o *OutputRepository) UpdateOutputByID(ctx context.Context, id uuid.UUID, confirmed bool) (*output.Output, error) {
+func (o *OutputRepository) UpdateOutputByID(ctx context.Context, id, imageID uuid.UUID, confirmed bool) (*output.Output, error) {
 	query := `
 		UPDATE
 			"output"
@@ -97,6 +97,8 @@ func (o *OutputRepository) UpdateOutputByID(ctx context.Context, id uuid.UUID, c
 			updated_at = now()
 		WHERE
 			id = $2
+		AND
+			image_id = $3
 		AND
 			deleted_at IS NULL
 		RETURNING
@@ -111,7 +113,7 @@ func (o *OutputRepository) UpdateOutputByID(ctx context.Context, id uuid.UUID, c
 			image_id
 	`
 
-	return database.QueryRowx[output.Output](ctx, o.db, query, confirmed, id)
+	return database.QueryRowx[output.Output](ctx, o.db, query, confirmed, id, imageID)
 }
 
 func (o *OutputRepository) DeleteOutputByID(ctx context.Context, id uuid.UUID) (int, error) {

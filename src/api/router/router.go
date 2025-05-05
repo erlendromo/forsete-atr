@@ -77,10 +77,12 @@ func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
 	mux.HandleFunc("POST /forsete-atr/v2/images/upload/", middleware.AuthMiddleware(authService, file.UploadImages(fileService)))
 	mux.HandleFunc("GET /forsete-atr/v2/images/", middleware.AuthMiddleware(authService, file.GetImages(fileService)))
 	mux.HandleFunc("GET /forsete-atr/v2/images/{imageID}/", middleware.AuthMiddleware(authService, file.GetImageByID(fileService)))
+	mux.HandleFunc("GET /forsete-atr/v2/images/{imageID}/data/", middleware.AuthMiddleware(authService, file.GetImageData(fileService)))
 
 	// Outputs
 	mux.HandleFunc("GET /forsete-atr/v2/images/{imageID}/outputs/", middleware.AuthMiddleware(authService, file.GetOutputsByImageID(atrService)))
 	mux.HandleFunc("GET /forsete-atr/v2/images/{imageID}/outputs/{outputID}/", middleware.AuthMiddleware(authService, file.GetOutputByID(atrService)))
+	mux.HandleFunc("PUT /forsete-atr/v2/images/{imageID}/outputs/{outputID}/", middleware.AuthMiddleware(authService, file.UpdateOutputByID(atrService)))
 	mux.HandleFunc("GET /forsete-atr/v2/images/{imageID}/outputs/{outputID}/data/", middleware.AuthMiddleware(authService, file.GetOutputData(atrService)))
 
 	// Models
