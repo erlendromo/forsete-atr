@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"net/http"
 
 	_ "github.com/erlendromo/forsete-atr/docs"
@@ -11,6 +12,7 @@ import (
 	"github.com/erlendromo/forsete-atr/src/api/handler/v2/model"
 	"github.com/erlendromo/forsete-atr/src/api/handler/v2/status"
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
+	"github.com/erlendromo/forsete-atr/src/util"
 	swaggo "github.com/swaggo/http-swagger/v2"
 )
 
@@ -30,38 +32,98 @@ func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
 	db := appCtx.DB()
 
 	// Swaggo
-	mux.HandleFunc("GET /forsete-atr/v2/swaggo/", swaggo.Handler(swaggo.URL("/forsete-atr/v2/swaggo/doc.json")))
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodGet, util.SWAGGO_ENDPOINT),
+		swaggo.Handler(swaggo.URL(util.SWAGGO_DOCS_ENDPOINT)),
+	)
 
 	// Auth
-	mux.HandleFunc("POST /forsete-atr/v2/auth/register/", auth.Register(authService))
-	mux.HandleFunc("POST /forsete-atr/v2/auth/login/", auth.Login(authService))
-	mux.HandleFunc("POST /forsete-atr/v2/auth/logout/", middleware.AuthMiddleware(authService, auth.Logout(authService)))
-	mux.HandleFunc("POST /forsete-atr/v2/auth/refresh/", middleware.AuthMiddleware(authService, auth.RefreshSession(authService)))
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodPost, util.REGISTER_ENDPOINT),
+		auth.Register(authService),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodPost, util.LOGIN_ENDPOINT),
+		auth.Login(authService),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodPost, util.LOGOUT_ENDPOINT),
+		middleware.AuthMiddleware(authService, auth.Logout(authService)),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodPost, util.REFRESH_ENDPOINT),
+		middleware.AuthMiddleware(authService, auth.RefreshSession(authService)),
+	)
 
 	// Images
-	mux.HandleFunc("POST /forsete-atr/v2/images/upload/", middleware.AuthMiddleware(authService, file.UploadImages(fileService)))
-	mux.HandleFunc("GET /forsete-atr/v2/images/", middleware.AuthMiddleware(authService, file.GetImages(fileService)))
-	mux.HandleFunc("GET /forsete-atr/v2/images/{imageID}/", middleware.AuthMiddleware(authService, file.GetImageByID(fileService)))
-	mux.HandleFunc("GET /forsete-atr/v2/images/{imageID}/data/", middleware.AuthMiddleware(authService, file.GetImageData(fileService)))
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodGet, util.IMAGES_ENDPOINT),
+		middleware.AuthMiddleware(authService, file.GetImages(fileService)),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodPost, util.UPLOAD_IMAGES_ENDPOINT),
+		middleware.AuthMiddleware(authService, file.UploadImages(fileService)),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodGet, util.IMAGE_BY_ID_ENDPOINT),
+		middleware.AuthMiddleware(authService, file.GetImageByID(fileService)),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodGet, util.IMAGE_DATA_ENDPOINT),
+		middleware.AuthMiddleware(authService, file.GetImageData(fileService)),
+	)
 
 	// Outputs
-	mux.HandleFunc("GET /forsete-atr/v2/images/{imageID}/outputs/", middleware.AuthMiddleware(authService, file.GetOutputsByImageID(atrService)))
-	mux.HandleFunc("GET /forsete-atr/v2/images/{imageID}/outputs/{outputID}/", middleware.AuthMiddleware(authService, file.GetOutputByID(atrService)))
-	mux.HandleFunc("PUT /forsete-atr/v2/images/{imageID}/outputs/{outputID}/", middleware.AuthMiddleware(authService, file.UpdateOutputByID(atrService)))
-	mux.HandleFunc("GET /forsete-atr/v2/images/{imageID}/outputs/{outputID}/data/", middleware.AuthMiddleware(authService, file.GetOutputData(atrService)))
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodGet, util.OUTPUTS_ENDPOINT),
+		middleware.AuthMiddleware(authService, file.GetOutputsByImageID(atrService)),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodGet, util.OUTPUT_BY_ID_ENDPOINT),
+		middleware.AuthMiddleware(authService, file.GetOutputByID(atrService)),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodPut, util.OUTPUT_BY_ID_ENDPOINT),
+		middleware.AuthMiddleware(authService, file.UpdateOutputByID(atrService)),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodGet, util.OUTPUT_DATA_ENDPOINT),
+		middleware.AuthMiddleware(authService, file.GetOutputData(atrService)),
+	)
 
 	// Models
-	mux.HandleFunc("GET /forsete-atr/v2/models/", model.GetModels(atrService.ModelRepo))
-	mux.HandleFunc("GET /forsete-atr/v2/models/region-segmentation-models/", model.GetModelsByType(atrService.ModelRepo, "regionsegmentation"))
-	mux.HandleFunc("GET /forsete-atr/v2/models/line-segmentation-models/", model.GetModelsByType(atrService.ModelRepo, "linesegmentation"))
-	mux.HandleFunc("GET /forsete-atr/v2/models/text-recognition-models/", model.GetModelsByType(atrService.ModelRepo, "textrecognition"))
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodGet, util.MODELS_ENDPOINT),
+		model.GetModels(atrService.ModelRepo),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodGet, util.REGION_SEGMENTATION_ENDPOINT),
+		model.GetModelsByType(atrService.ModelRepo, "regionsegmentation"),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodGet, util.LINE_SEGMENTATION_ENDPOINT),
+		model.GetModelsByType(atrService.ModelRepo, "linesegmentation"),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodGet, util.TEXT_RECOGNITION_ENDPOINT),
+		model.GetModelsByType(atrService.ModelRepo, "textrecognition"),
+	)
 
 	// ATR
-	mux.HandleFunc("POST /forsete-atr/v2/atr/", middleware.AuthMiddleware(authService, atr.Run(fileService, atrService)))
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodPost, util.ATR_ENDPOINT),
+		middleware.AuthMiddleware(authService, atr.Run(fileService, atrService)),
+	)
 
 	// Status
-	mux.HandleFunc("HEAD /forsete-atr/v2/status/", status.HeadStatus(db))
-	mux.HandleFunc("GET /forsete-atr/v2/status/", status.GetStatus(db))
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodHead, util.STATUS_ENDPOINT),
+		status.HeadStatus(db),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodGet, util.STATUS_ENDPOINT),
+		status.GetStatus(db),
+	)
 
 	return mux
 }
