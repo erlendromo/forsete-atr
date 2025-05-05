@@ -1,56 +1,21 @@
 package router
 
 import (
-	"fmt"
 	"net/http"
 
 	_ "github.com/erlendromo/forsete-atr/docs"
 	appcontext "github.com/erlendromo/forsete-atr/src/api/app_context"
-	atrv1 "github.com/erlendromo/forsete-atr/src/api/handler/v1/atr"
-	modelv1 "github.com/erlendromo/forsete-atr/src/api/handler/v1/model"
-	statusv1 "github.com/erlendromo/forsete-atr/src/api/handler/v1/status"
 	"github.com/erlendromo/forsete-atr/src/api/handler/v2/atr"
 	"github.com/erlendromo/forsete-atr/src/api/handler/v2/auth"
 	"github.com/erlendromo/forsete-atr/src/api/handler/v2/file"
 	"github.com/erlendromo/forsete-atr/src/api/handler/v2/model"
 	"github.com/erlendromo/forsete-atr/src/api/handler/v2/status"
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
-	"github.com/erlendromo/forsete-atr/src/util"
 	swaggo "github.com/swaggo/http-swagger/v2"
 )
 
 type Router interface {
 	Serve() error
-}
-
-// @title			Forsete-ATR
-// @version		v1
-// @description	RESTful JSON-API for Automatic Text Recognition (ATR) developed as part of Bachelor Thesis "FORSETE" at NTNU Gjøvik.
-func WithV1Endpoints(mux *http.ServeMux) *http.ServeMux {
-	// Swaggo
-	mux.HandleFunc(
-		fmt.Sprintf("GET %s", util.SWAGGO_ENDPOINT),
-		swaggo.Handler(swaggo.URL(util.SWAGGO_DOCS_ENDPOINT)),
-	)
-
-	// Status
-	mux.HandleFunc(fmt.Sprintf("HEAD %s", util.STATUS_ENDPOINT), statusv1.HeadStatus)
-	mux.HandleFunc(fmt.Sprintf("GET %s", util.STATUS_ENDPOINT), statusv1.GetStatus)
-
-	// Models
-	mux.HandleFunc(fmt.Sprintf("GET %s", util.MODELS_ENDPOINT), modelv1.GetModels)
-	mux.HandleFunc(fmt.Sprintf("GET %s", util.REGION_SEGMENTATION_ENDPOINT), modelv1.GetRegionSegmentationModels)
-	mux.HandleFunc(fmt.Sprintf("POST %s", util.REGION_SEGMENTATION_ENDPOINT), modelv1.PostRegionSegmentationModel)
-	mux.HandleFunc(fmt.Sprintf("GET %s", util.LINE_SEGMENTATION_ENDPOINT), modelv1.GetLineSegmentationModels)
-	mux.HandleFunc(fmt.Sprintf("POST %s", util.LINE_SEGMENTATION_ENDPOINT), modelv1.PostLineSegmentationModel)
-	mux.HandleFunc(fmt.Sprintf("GET %s", util.TEXT_RECOGNITION_ENDPOINT), modelv1.GetTextRecognitionModels)
-	mux.HandleFunc(fmt.Sprintf("POST %s", util.TEXT_RECOGNITION_ENDPOINT), modelv1.PostTextRecognitionModel)
-
-	// ATR
-	mux.HandleFunc(fmt.Sprintf("POST %s", util.BASIC_DOCUMENTS_ENDPOINT), atrv1.PostBasicDocument)
-	mux.HandleFunc(fmt.Sprintf("POST %s", util.TIPNOTE_DOCUMENTS_ENDPOINT), atrv1.PostTipnoteDocument)
-
-	return mux
 }
 
 // @title			Forsete-ATR
