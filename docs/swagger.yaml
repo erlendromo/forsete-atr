@@ -1,4 +1,17 @@
 definitions:
+  atr.ATRRequest:
+    description: Body containing line_segmentation_model, text_recognition_model and
+      image_ids.
+    properties:
+      image_ids:
+        items:
+          type: string
+        type: array
+      line_segmentation_model:
+        type: string
+      text_recognition_model:
+        type: string
+    type: object
   atr.ATRResponse:
     description: Json-Response for ATR
     properties:
@@ -70,6 +83,14 @@ definitions:
         type: string
       password:
         type: string
+    type: object
+  file.UpdateOutputForm:
+    description: Form containing confirmed and data associated with the update request.
+    properties:
+      confirmed:
+        type: boolean
+      data:
+        $ref: '#/definitions/output.ATRResponse'
     type: object
   github_com_erlendromo_forsete-atr_src_api_handler_v1_status.Status:
     description: Json-response for Status
@@ -545,6 +566,12 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: Body containing which models to use, alongside the image_ids
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/atr.ATRRequest'
       produces:
       - application/json
       responses:
@@ -758,6 +785,42 @@ paths:
       summary: Get image by id
       tags:
       - Images
+  /forsete-atr/v2/images/{imageID}/data/:
+    get:
+      description: Get image data.
+      parameters:
+      - description: uuid of image
+        in: query
+        name: imageID
+        required: true
+        type: string
+      - description: '''Bearer <token>'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: image file
+          schema:
+            type: body
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get image data
+      tags:
+      - Images
   /forsete-atr/v2/images/{imageID}/outputs/:
     get:
       description: Get outputs by image id.
@@ -835,6 +898,52 @@ paths:
           schema:
             $ref: '#/definitions/util.ErrorResponse'
       summary: Get output by id
+      tags:
+      - Outputs
+    put:
+      description: Update output by id.
+      parameters:
+      - description: uuid of image
+        in: query
+        name: imageID
+        required: true
+        type: string
+      - description: uuid of output
+        in: query
+        name: outputID
+        required: true
+        type: string
+      - description: '''Bearer <token>'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Body containing confirmed and data to update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/file.UpdateOutputForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/output.ATRResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Update output by id
       tags:
       - Outputs
   /forsete-atr/v2/images/{imageID}/outputs/{outputID}/data/:

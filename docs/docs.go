@@ -470,6 +470,15 @@ const docTemplate = `{
                         "name": "Authorization",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "description": "Body containing which models to use, alongside the image_ids",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/atr.ATRRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -850,6 +859,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/forsete-atr/v2/images/{imageID}/data/": {
+            "get": {
+                "description": "Get image data.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Get image data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "uuid of image",
+                        "name": "imageID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "image file",
+                        "schema": {
+                            "type": "body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/forsete-atr/v2/images/{imageID}/outputs/": {
             "get": {
                 "description": "Get outputs by image id.",
@@ -945,6 +1008,74 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/output.Output"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update output by id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Outputs"
+                ],
+                "summary": "Update output by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "uuid of image",
+                        "name": "imageID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "uuid of output",
+                        "name": "outputID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Body containing confirmed and data to update",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/file.UpdateOutputForm"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/output.ATRResponse"
                         }
                     },
                     "401": {
@@ -1136,6 +1267,24 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "atr.ATRRequest": {
+            "description": "Body containing line_segmentation_model, text_recognition_model and image_ids.",
+            "type": "object",
+            "properties": {
+                "image_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "line_segmentation_model": {
+                    "type": "string"
+                },
+                "text_recognition_model": {
+                    "type": "string"
+                }
+            }
+        },
         "atr.ATRResponse": {
             "description": "Json-Response for ATR",
             "type": "object",
@@ -1244,6 +1393,18 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "file.UpdateOutputForm": {
+            "description": "Form containing confirmed and data associated with the update request.",
+            "type": "object",
+            "properties": {
+                "confirmed": {
+                    "type": "boolean"
+                },
+                "data": {
+                    "$ref": "#/definitions/output.ATRResponse"
                 }
             }
         },
