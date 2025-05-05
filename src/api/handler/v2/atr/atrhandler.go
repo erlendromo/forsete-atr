@@ -29,9 +29,9 @@ type ATRRequest struct {
 //	@Description	Run ATR on images
 //	@Tags			ATR
 //	@Accept			json
-//	@Param			Authorization	header	string		true	"'Bearer <token>' must be set for valid response"
+//	@Param			Authorization	header	string		true	"'Bearer token' must be set for valid response"
 //	@Param			request			body	ATRRequest	true	"Body containing which models to use, alongside the image_ids"
-//	@Body			ATRRequest 																																																							{object} 	json 	true	"request-form"
+//	@Body			ATRRequest 																																																																	{object} 	json 	true	"request-form"
 //	@Produce		json
 //	@Success		200	{object}	[]output.Output
 //	@Failure		400	{object}	util.ErrorResponse

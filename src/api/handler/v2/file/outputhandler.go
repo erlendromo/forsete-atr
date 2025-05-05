@@ -16,7 +16,7 @@ import (
 //	@Description	Get outputs by image id.
 //	@Tags			Outputs
 //	@Param			imageID			query	string	true	"uuid of image"
-//	@Param			Authorization	header	string	true	"'Bearer <token>' must be set for valid response"
+//	@Param			Authorization	header	string	true	"'Bearer token' must be set for valid response"
 //	@Produce		json
 //	@Success		200	{object}	[]output.Output
 //	@Failure		401	{object}	util.ErrorResponse
@@ -49,7 +49,7 @@ func GetOutputsByImageID(atrService *atrservice.ATRService) http.HandlerFunc {
 //	@Tags			Outputs
 //	@Param			imageID			query	string	true	"uuid of image"
 //	@Param			outputID		query	string	true	"uuid of output"
-//	@Param			Authorization	header	string	true	"'Bearer <token>' must be set for valid response"
+//	@Param			Authorization	header	string	true	"'Bearer token' must be set for valid response"
 //	@Produce		json
 //	@Success		200	{object}	output.Output
 //	@Failure		401	{object}	util.ErrorResponse
@@ -97,10 +97,10 @@ type UpdateOutputForm struct {
 //	@Tags			Outputs
 //	@Param			imageID			query	string				true	"uuid of image"
 //	@Param			outputID		query	string				true	"uuid of output"
-//	@Param			Authorization	header	string				true	"'Bearer <token>' must be set for valid response"
+//	@Param			Authorization	header	string				true	"'Bearer token' must be set for valid response"
 //	@Param			request			body	UpdateOutputForm	true	"Body containing confirmed and data to update"
 //	@Produce		json
-//	@Success		200	{object}	output.ATRResponse
+//	@Success		200	{object}	output.Output
 //	@Failure		401	{object}	util.ErrorResponse
 //	@Failure		422	{object}	util.ErrorResponse
 //	@Failure		500	{object}	util.ErrorResponse
@@ -138,7 +138,7 @@ func UpdateOutputByID(atrService *atrservice.ATRService) http.HandlerFunc {
 			return
 		}
 
-		util.EncodeJSON(w, http.StatusOK, form.Data)
+		util.EncodeJSON(w, http.StatusOK, output)
 	}
 }
 
@@ -149,7 +149,7 @@ func UpdateOutputByID(atrService *atrservice.ATRService) http.HandlerFunc {
 //	@Tags			Outputs
 //	@Param			imageID			query	string	true	"uuid of image"
 //	@Param			outputID		query	string	true	"uuid of output"
-//	@Param			Authorization	header	string	true	"'Bearer <token>' must be set for valid response"
+//	@Param			Authorization	header	string	true	"'Bearer token' must be set for valid response"
 //	@Produce		json
 //	@Success		200	{object}	output.ATRResponse
 //	@Failure		401	{object}	util.ErrorResponse

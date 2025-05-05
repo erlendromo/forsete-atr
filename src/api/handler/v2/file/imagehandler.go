@@ -19,7 +19,7 @@ import (
 //	@Summary		Upload images
 //	@Description	Upload up to 32MB worth of images.
 //	@Tags			Images
-//	@Param			Authorization	header		string	true		"'Bearer <token>' must be set for valid response"
+//	@Param			Authorization	header		string	true		"'Bearer token' must be set for valid response"
 //	@Param			images			formData	file	required	"images to upload"
 //	@Produce		json
 //	@Success		200	{object}	image.Image
@@ -67,7 +67,7 @@ func UploadImages(fileService *fileservice.FileService) http.HandlerFunc {
 //	@Summary		Get images
 //	@Description	Get all images the user has uploaded.
 //	@Tags			Images
-//	@Param			Authorization	header	string	true	"'Bearer <token>' must be set for valid response"
+//	@Param			Authorization	header	string	true	"'Bearer token' must be set for valid response"
 //	@Produce		json
 //	@Success		200	{object}	[]image.Image
 //	@Failure		401	{object}	util.ErrorResponse
@@ -100,7 +100,7 @@ func GetImages(fileService *fileservice.FileService) http.HandlerFunc {
 //	@Description	Get image by id.
 //	@Tags			Images
 //	@Param			imageID			query	string	true	"uuid of image"
-//	@Param			Authorization	header	string	true	"'Bearer <token>' must be set for valid response"
+//	@Param			Authorization	header	string	true	"'Bearer token' must be set for valid response"
 //	@Produce		json
 //	@Success		200	{object}	image.Image
 //	@Failure		401	{object}	util.ErrorResponse
@@ -140,7 +140,7 @@ func GetImageByID(fileService *fileservice.FileService) http.HandlerFunc {
 //	@Description	Get image data.
 //	@Tags			Images
 //	@Param			imageID			query	string	true	"uuid of image"
-//	@Param			Authorization	header	string	true	"'Bearer <token>' must be set for valid response"
+//	@Param			Authorization	header	string	true	"'Bearer token' must be set for valid response"
 //	@Produce		json
 //	@Success		200	body		file	"image file"
 //	@Failure		401	{object}	util.ErrorResponse

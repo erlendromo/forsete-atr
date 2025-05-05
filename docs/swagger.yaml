@@ -12,70 +12,6 @@ definitions:
       text_recognition_model:
         type: string
     type: object
-  atr.ATRResponse:
-    description: Json-Response for ATR
-    properties:
-      contains:
-        items:
-          properties:
-            segment:
-              properties:
-                bbox:
-                  properties:
-                    xmax:
-                      type: integer
-                    xmin:
-                      type: integer
-                    ymax:
-                      type: integer
-                    ymin:
-                      type: integer
-                  type: object
-                class_label:
-                  type: string
-                data:
-                  type: object
-                orig_shape:
-                  items:
-                    type: integer
-                  type: array
-                polygon:
-                  properties:
-                    points:
-                      items:
-                        properties:
-                          x:
-                            type: integer
-                          "y":
-                            type: integer
-                        type: object
-                      type: array
-                  type: object
-                score:
-                  type: number
-              type: object
-            text_result:
-              properties:
-                label:
-                  type: string
-                scores:
-                  items:
-                    type: number
-                  type: array
-                texts:
-                  items:
-                    type: string
-                  type: array
-              type: object
-          type: object
-        type: array
-      file_name:
-        type: string
-      image_name:
-        type: string
-      label:
-        type: string
-    type: object
   auth.RegisterAndLoginRequest:
     description: Body containing email and password.
     properties:
@@ -91,29 +27,6 @@ definitions:
         type: boolean
       data:
         $ref: '#/definitions/output.ATRResponse'
-    type: object
-  github_com_erlendromo_forsete-atr_src_api_handler_v1_status.Status:
-    description: Json-response for Status
-    properties:
-      atr:
-        type: string
-      uptime:
-        type: string
-      version:
-        type: string
-    type: object
-  github_com_erlendromo_forsete-atr_src_api_handler_v2_status.Status:
-    description: Status containing ATR-readiness, database-readiness, version and
-      uptime.
-    properties:
-      atr:
-        type: string
-      database:
-        type: string
-      uptime:
-        type: string
-      version:
-        type: string
     type: object
   github_com_erlendromo_forsete-atr_src_business_domain_image.Image:
     description: Image containing id, name, format etc.
@@ -134,27 +47,6 @@ definitions:
         type: string
       name:
         type: string
-    type: object
-  github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model:
-    properties:
-      name:
-        type: string
-    type: object
-  model.ModelsResponse:
-    description: Json-Response for models
-    properties:
-      line_segmentation_models:
-        items:
-          $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model'
-        type: array
-      region_segmentation_models:
-        items:
-          $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model'
-        type: array
-      text_recognition_models:
-        items:
-          $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model'
-        type: array
     type: object
   output.ATRResponse:
     properties:
@@ -239,6 +131,19 @@ definitions:
       token:
         type: string
     type: object
+  status.Status:
+    description: Status containing ATR-readiness, database-readiness, version and
+      uptime.
+    properties:
+      atr:
+        type: string
+      database:
+        type: string
+      uptime:
+        type: string
+      version:
+        type: string
+    type: object
   user.User:
     description: User containing id, email etc.
     properties:
@@ -262,306 +167,13 @@ info:
   title: Forsete-ATR
   version: v2
 paths:
-  /forsete-atr/v1/atr/basic-documents/:
-    post:
-      consumes:
-      - multipart/form-data
-      description: Run ATR on image-file
-      parameters:
-      - description: png, jpg, jpeg
-        in: formData
-        name: image
-        required: true
-        type: file
-      - description: name of line segmentation model
-        in: formData
-        name: line_segmentation_model
-        required: true
-        type: string
-      - description: name of text recognition model
-        in: formData
-        name: text_recognition_model
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/atr.ATRResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-      summary: ATR
-      tags:
-      - ATR
-  /forsete-atr/v1/atr/tipnote-documents/:
-    post:
-      consumes:
-      - multipart/form-data
-      description: Run ATR on image-file
-      parameters:
-      - description: png, jpg, jpeg
-        in: formData
-        name: image
-        required: true
-        type: file
-      - description: name of the region segmentation model
-        in: formData
-        name: region_segmentation_model
-        required: true
-        type: string
-      - description: name of line segmentation model
-        in: formData
-        name: line_segmentation_model
-        required: true
-        type: string
-      - description: name of text recognition model
-        in: formData
-        name: text_recognition_model
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/atr.ATRResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-      summary: ATR
-      tags:
-      - ATR
-  /forsete-atr/v1/models/:
-    get:
-      description: Retrieve all active models
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.ModelsResponse'
-      summary: Models
-      tags:
-      - Models
-  /forsete-atr/v1/models/line-segmentation-models/:
-    get:
-      description: Retrieve all active line segmentation models
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.ModelsResponse'
-      summary: LineSegmentationModels
-      tags:
-      - LineSegmentationModels
-    post:
-      consumes:
-      - multipart/form-data
-      description: Add a line segmentation model
-      parameters:
-      - description: Name of the model
-        in: formData
-        name: model_name
-        required: true
-        type: string
-      - description: model.pt
-        in: formData
-        name: model
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-      summary: LineSegmentationModels
-      tags:
-      - LineSegmentationModels
-  /forsete-atr/v1/models/region-segmentation-models/:
-    get:
-      description: Retrieve all active region segmentation models
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.ModelsResponse'
-      summary: RegionSegmentationModels
-      tags:
-      - RegionSegmentationModels
-    post:
-      consumes:
-      - multipart/form-data
-      description: Add a region segmentation model
-      parameters:
-      - description: Name of the model
-        in: formData
-        name: model_name
-        required: true
-        type: string
-      - description: model.pt
-        in: formData
-        name: model
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-      summary: RegionSegmentationModels
-      tags:
-      - RegionSegmentationModels
-  /forsete-atr/v1/models/text-recognition-models/:
-    get:
-      description: Retrieve all active text recognition models
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.ModelsResponse'
-      summary: TextRecognitionModels
-      tags:
-      - TextRecognitionModels
-    post:
-      consumes:
-      - multipart/form-data
-      description: Add a text recognition model
-      parameters:
-      - description: Name of the model
-        in: formData
-        name: model_name
-        required: true
-        type: string
-      - description: model.safetensors
-        in: formData
-        name: model
-        required: true
-        type: file
-      - description: config.json
-        in: formData
-        name: config
-        required: true
-        type: file
-      - description: generation_config.json
-        in: formData
-        name: generation_config
-        required: true
-        type: file
-      - description: merges.txt
-        in: formData
-        name: merges
-        required: true
-        type: file
-      - description: preprocessor_config.json
-        in: formData
-        name: preprocessor_config
-        required: true
-        type: file
-      - description: special_tokens_map.json
-        in: formData
-        name: special_tokens_map
-        required: true
-        type: file
-      - description: tokenizer.json
-        in: formData
-        name: tokenizer
-        required: true
-        type: file
-      - description: tokenizer_config.json
-        in: formData
-        name: tokenizer_config
-        required: true
-        type: file
-      - description: vocab.json
-        in: formData
-        name: vocab
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-      summary: TextRecognitionModels
-      tags:
-      - TextRecognitionModels
-  /forsete-atr/v1/status/:
-    get:
-      description: Retrieve status of service
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_api_handler_v1_status.Status'
-      summary: GetStatus
-      tags:
-      - Status
-    head:
-      description: Retrieve status of service
-      responses:
-        "204":
-          description: No Content
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-      summary: HeadStatus
-      tags:
-      - Status
   /forsete-atr/v2/atr/:
     post:
       consumes:
       - application/json
       description: Run ATR on images
       parameters:
-      - description: '''Bearer <token>'' must be set for valid response'
+      - description: '''Bearer token'' must be set for valid response'
         in: header
         name: Authorization
         required: true
@@ -619,10 +231,14 @@ paths:
           description: Created
           headers:
             Authorization:
-              description: Bearer <token>
+              description: Bearer token
               type: string
           schema:
             $ref: '#/definitions/session.Session'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -638,7 +254,7 @@ paths:
     post:
       description: Logout as user.
       parameters:
-      - description: '''Bearer <token>'' must be set for valid response'
+      - description: '''Bearer token'' must be set for valid response'
         in: header
         name: Authorization
         required: true
@@ -663,7 +279,7 @@ paths:
     post:
       description: Refresh session token.
       parameters:
-      - description: '''Bearer <token>'' must be set for valid response'
+      - description: '''Bearer token'' must be set for valid response'
         in: header
         name: Authorization
         required: true
@@ -709,6 +325,10 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/user.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
         "422":
           description: Unprocessable Entity
           schema:
@@ -724,7 +344,7 @@ paths:
     get:
       description: Get all images the user has uploaded.
       parameters:
-      - description: '''Bearer <token>'' must be set for valid response'
+      - description: '''Bearer token'' must be set for valid response'
         in: header
         name: Authorization
         required: true
@@ -758,7 +378,7 @@ paths:
         name: imageID
         required: true
         type: string
-      - description: '''Bearer <token>'' must be set for valid response'
+      - description: '''Bearer token'' must be set for valid response'
         in: header
         name: Authorization
         required: true
@@ -794,7 +414,7 @@ paths:
         name: imageID
         required: true
         type: string
-      - description: '''Bearer <token>'' must be set for valid response'
+      - description: '''Bearer token'' must be set for valid response'
         in: header
         name: Authorization
         required: true
@@ -830,7 +450,7 @@ paths:
         name: imageID
         required: true
         type: string
-      - description: '''Bearer <token>'' must be set for valid response'
+      - description: '''Bearer token'' must be set for valid response'
         in: header
         name: Authorization
         required: true
@@ -873,7 +493,7 @@ paths:
         name: outputID
         required: true
         type: string
-      - description: '''Bearer <token>'' must be set for valid response'
+      - description: '''Bearer token'' must be set for valid response'
         in: header
         name: Authorization
         required: true
@@ -913,7 +533,7 @@ paths:
         name: outputID
         required: true
         type: string
-      - description: '''Bearer <token>'' must be set for valid response'
+      - description: '''Bearer token'' must be set for valid response'
         in: header
         name: Authorization
         required: true
@@ -930,7 +550,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/output.ATRResponse'
+            $ref: '#/definitions/output.Output'
         "401":
           description: Unauthorized
           schema:
@@ -960,7 +580,7 @@ paths:
         name: outputID
         required: true
         type: string
-      - description: '''Bearer <token>'' must be set for valid response'
+      - description: '''Bearer token'' must be set for valid response'
         in: header
         name: Authorization
         required: true
@@ -991,7 +611,7 @@ paths:
     post:
       description: Upload up to 32MB worth of images.
       parameters:
-      - description: '''Bearer <token>'' must be set for valid response'
+      - description: '''Bearer token'' must be set for valid response'
         in: header
         name: Authorization
         required: true
@@ -1046,15 +666,47 @@ paths:
       summary: Get models
       tags:
       - Models
-  /forsete-atr/v2/models/{type}/:
+  /forsete-atr/v2/models/line-segmentation-models/:
     get:
       description: Get models by type.
-      parameters:
-      - description: type = region-segmentation-models/line-segmentation-models/text-recognition-models
-        in: query
-        name: type
-        required: true
-        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get models by type
+      tags:
+      - Models
+  /forsete-atr/v2/models/region-segmentation-models/:
+    get:
+      description: Get models by type.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get models by type
+      tags:
+      - Models
+  /forsete-atr/v2/models/text-recognition-models/:
+    get:
+      description: Get models by type.
       produces:
       - application/json
       responses:
@@ -1080,7 +732,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_api_handler_v2_status.Status'
+            $ref: '#/definitions/status.Status'
       summary: Get status
       tags:
       - Status

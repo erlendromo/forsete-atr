@@ -15,441 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/forsete-atr/v1/atr/basic-documents/": {
-            "post": {
-                "description": "Run ATR on image-file",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ATR"
-                ],
-                "summary": "ATR",
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": "png, jpg, jpeg",
-                        "name": "image",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "name of line segmentation model",
-                        "name": "line_segmentation_model",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "name of text recognition model",
-                        "name": "text_recognition_model",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/atr.ATRResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/forsete-atr/v1/atr/tipnote-documents/": {
-            "post": {
-                "description": "Run ATR on image-file",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ATR"
-                ],
-                "summary": "ATR",
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": "png, jpg, jpeg",
-                        "name": "image",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "name of the region segmentation model",
-                        "name": "region_segmentation_model",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "name of line segmentation model",
-                        "name": "line_segmentation_model",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "name of text recognition model",
-                        "name": "text_recognition_model",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/atr.ATRResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/forsete-atr/v1/models/": {
-            "get": {
-                "description": "Retrieve all active models",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Models"
-                ],
-                "summary": "Models",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.ModelsResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/forsete-atr/v1/models/line-segmentation-models/": {
-            "get": {
-                "description": "Retrieve all active line segmentation models",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "LineSegmentationModels"
-                ],
-                "summary": "LineSegmentationModels",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.ModelsResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Add a line segmentation model",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "LineSegmentationModels"
-                ],
-                "summary": "LineSegmentationModels",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Name of the model",
-                        "name": "model_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "model.pt",
-                        "name": "model",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/forsete-atr/v1/models/region-segmentation-models/": {
-            "get": {
-                "description": "Retrieve all active region segmentation models",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "RegionSegmentationModels"
-                ],
-                "summary": "RegionSegmentationModels",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.ModelsResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Add a region segmentation model",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "RegionSegmentationModels"
-                ],
-                "summary": "RegionSegmentationModels",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Name of the model",
-                        "name": "model_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "model.pt",
-                        "name": "model",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/forsete-atr/v1/models/text-recognition-models/": {
-            "get": {
-                "description": "Retrieve all active text recognition models",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "TextRecognitionModels"
-                ],
-                "summary": "TextRecognitionModels",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.ModelsResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Add a text recognition model",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "TextRecognitionModels"
-                ],
-                "summary": "TextRecognitionModels",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Name of the model",
-                        "name": "model_name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "model.safetensors",
-                        "name": "model",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "config.json",
-                        "name": "config",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "generation_config.json",
-                        "name": "generation_config",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "merges.txt",
-                        "name": "merges",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "preprocessor_config.json",
-                        "name": "preprocessor_config",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "special_tokens_map.json",
-                        "name": "special_tokens_map",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "tokenizer.json",
-                        "name": "tokenizer",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "tokenizer_config.json",
-                        "name": "tokenizer_config",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "vocab.json",
-                        "name": "vocab",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/forsete-atr/v1/status/": {
-            "get": {
-                "description": "Retrieve status of service",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Status"
-                ],
-                "summary": "GetStatus",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_api_handler_v1_status.Status"
-                        }
-                    }
-                }
-            },
-            "head": {
-                "description": "Retrieve status of service",
-                "tags": [
-                    "Status"
-                ],
-                "summary": "HeadStatus",
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/forsete-atr/v2/atr/": {
             "post": {
                 "description": "Run ATR on images",
@@ -466,7 +31,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "description": "'Bearer token' must be set for valid response",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -551,8 +116,14 @@ const docTemplate = `{
                         "headers": {
                             "Authorization": {
                                 "type": "string",
-                                "description": "Bearer \u003ctoken\u003e"
+                                "description": "Bearer token"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "404": {
@@ -583,7 +154,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "description": "'Bearer token' must be set for valid response",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -621,7 +192,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "description": "'Bearer token' must be set for valid response",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -686,6 +257,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/user.User"
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
@@ -714,7 +291,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "description": "'Bearer token' must be set for valid response",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -758,7 +335,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "description": "'Bearer token' must be set for valid response",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -825,7 +402,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "description": "'Bearer token' must be set for valid response",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -879,7 +456,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "description": "'Bearer token' must be set for valid response",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -933,7 +510,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "description": "'Bearer token' must be set for valid response",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -997,7 +574,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "description": "'Bearer token' must be set for valid response",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -1056,7 +633,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "description": "'Bearer token' must be set for valid response",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -1075,7 +652,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/output.ATRResponse"
+                            "$ref": "#/definitions/output.Output"
                         }
                     },
                     "401": {
@@ -1126,7 +703,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "'Bearer \u003ctoken\u003e' must be set for valid response",
+                        "description": "'Bearer token' must be set for valid response",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -1189,7 +766,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/forsete-atr/v2/models/{type}/": {
+        "/forsete-atr/v2/models/line-segmentation-models/": {
             "get": {
                 "description": "Get models by type.",
                 "produces": [
@@ -1199,15 +776,64 @@ const docTemplate = `{
                     "Models"
                 ],
                 "summary": "Get models by type",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "type = region-segmentation-models/line-segmentation-models/text-recognition-models",
-                        "name": "type",
-                        "in": "query",
-                        "required": true
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
                     }
+                }
+            }
+        },
+        "/forsete-atr/v2/models/region-segmentation-models/": {
+            "get": {
+                "description": "Get models by type.",
+                "produces": [
+                    "application/json"
                 ],
+                "tags": [
+                    "Models"
+                ],
+                "summary": "Get models by type",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forsete-atr/v2/models/text-recognition-models/": {
+            "get": {
+                "description": "Get models by type.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Models"
+                ],
+                "summary": "Get models by type",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1241,7 +867,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_api_handler_v2_status.Status"
+                            "$ref": "#/definitions/status.Status"
                         }
                     }
                 }
@@ -1285,105 +911,6 @@ const docTemplate = `{
                 }
             }
         },
-        "atr.ATRResponse": {
-            "description": "Json-Response for ATR",
-            "type": "object",
-            "properties": {
-                "contains": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "segment": {
-                                "type": "object",
-                                "properties": {
-                                    "bbox": {
-                                        "type": "object",
-                                        "properties": {
-                                            "xmax": {
-                                                "type": "integer"
-                                            },
-                                            "xmin": {
-                                                "type": "integer"
-                                            },
-                                            "ymax": {
-                                                "type": "integer"
-                                            },
-                                            "ymin": {
-                                                "type": "integer"
-                                            }
-                                        }
-                                    },
-                                    "class_label": {
-                                        "type": "string"
-                                    },
-                                    "data": {
-                                        "type": "object"
-                                    },
-                                    "orig_shape": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "integer"
-                                        }
-                                    },
-                                    "polygon": {
-                                        "type": "object",
-                                        "properties": {
-                                            "points": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "x": {
-                                                            "type": "integer"
-                                                        },
-                                                        "y": {
-                                                            "type": "integer"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "score": {
-                                        "type": "number"
-                                    }
-                                }
-                            },
-                            "text_result": {
-                                "type": "object",
-                                "properties": {
-                                    "label": {
-                                        "type": "string"
-                                    },
-                                    "scores": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "number"
-                                        }
-                                    },
-                                    "texts": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "file_name": {
-                    "type": "string"
-                },
-                "image_name": {
-                    "type": "string"
-                },
-                "label": {
-                    "type": "string"
-                }
-            }
-        },
         "auth.RegisterAndLoginRequest": {
             "description": "Body containing email and password.",
             "type": "object",
@@ -1405,39 +932,6 @@ const docTemplate = `{
                 },
                 "data": {
                     "$ref": "#/definitions/output.ATRResponse"
-                }
-            }
-        },
-        "github_com_erlendromo_forsete-atr_src_api_handler_v1_status.Status": {
-            "description": "Json-response for Status",
-            "type": "object",
-            "properties": {
-                "atr": {
-                    "type": "string"
-                },
-                "uptime": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_erlendromo_forsete-atr_src_api_handler_v2_status.Status": {
-            "description": "Status containing ATR-readiness, database-readiness, version and uptime.",
-            "type": "object",
-            "properties": {
-                "atr": {
-                    "type": "string"
-                },
-                "database": {
-                    "type": "string"
-                },
-                "uptime": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
                 }
             }
         },
@@ -1468,38 +962,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                }
-            }
-        },
-        "github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.ModelsResponse": {
-            "description": "Json-Response for models",
-            "type": "object",
-            "properties": {
-                "line_segmentation_models": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model"
-                    }
-                },
-                "region_segmentation_models": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model"
-                    }
-                },
-                "text_recognition_models": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_domain_modelstore_model.Model"
-                    }
                 }
             }
         },
@@ -1627,6 +1089,24 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "status.Status": {
+            "description": "Status containing ATR-readiness, database-readiness, version and uptime.",
+            "type": "object",
+            "properties": {
+                "atr": {
+                    "type": "string"
+                },
+                "database": {
+                    "type": "string"
+                },
+                "uptime": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }

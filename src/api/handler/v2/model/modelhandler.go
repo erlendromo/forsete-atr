@@ -36,11 +36,12 @@ func GetModels(m *modelrepository.ModelRepository) http.HandlerFunc {
 //	@Summary		Get models by type
 //	@Description	Get models by type.
 //	@Tags			Models
-//	@Param			type	query	string	true	"type = region-segmentation-models/line-segmentation-models/text-recognition-models"
 //	@Produce		json
 //	@Success		200	{object}	[]model.Model
 //	@Failure		500	{object}	util.ErrorResponse
-//	@Router			/forsete-atr/v2/models/{type}/ [get]
+//	@Router			/forsete-atr/v2/models/region-segmentation-models/ [get]
+//	@Router			/forsete-atr/v2/models/line-segmentation-models/ [get]
+//	@Router			/forsete-atr/v2/models/text-recognition-models/ [get]
 func GetModelsByType(m *modelrepository.ModelRepository, modelType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		models, err := m.ModelsByType(r.Context(), modelType)

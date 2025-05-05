@@ -3,6 +3,8 @@ package auth
 import (
 	"fmt"
 	"net/http"
+	"regexp"
+	"unicode"
 
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
 	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/auth_service"
@@ -18,6 +20,59 @@ type RegisterAndLoginRequest struct {
 	Password string `json:"password"`
 }
 
+// One character before @, valid domain format, no whitespace or invalid symbols, trailing format atleast 2 characters
+func (rlf *RegisterAndLoginRequest) validEmail() error {
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
+	if ok := emailRegex.MatchString(rlf.Email); !ok {
+		return fmt.Errorf("invalid email: must be a valid address like 'name@example.com'")
+	}
+
+	return nil
+}
+
+// Atleast: one uppercase letter, one lowercase letter, one number, min length of 8
+func (rlf *RegisterAndLoginRequest) validPassword() error {
+	passwordRegex := regexp.MustCompile(`^[a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]{};':"\\|,.<>\/?` + "`" + `~]{8,}$`)
+	if ok := passwordRegex.MatchString(rlf.Password); !ok {
+		return fmt.Errorf("malformed password: must be at least 8 characters and contain only valid characters")
+	}
+
+	var hasUpper, hasLower, hasNumber bool
+	for _, c := range rlf.Password {
+		switch {
+		case unicode.IsUpper(c):
+			hasUpper = true
+		case unicode.IsLower(c):
+			hasLower = true
+		case unicode.IsDigit(c):
+			hasNumber = true
+		}
+	}
+
+	if !hasUpper {
+		return fmt.Errorf("invalid password: must contain atleast one uppercase letter")
+	} else if !hasLower {
+		return fmt.Errorf("invalid password: must contain atleast one lowercase letter")
+	} else if !hasNumber {
+		return fmt.Errorf("invalid password: must contain atleast one number")
+	}
+
+	return nil
+}
+
+// If both email and password are valid -> return nil
+func (rlf *RegisterAndLoginRequest) Validate() error {
+	if err := rlf.validEmail(); err != nil {
+		return err
+	}
+
+	if err := rlf.validPassword(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Register
 //
 //	@Summary		Register user
@@ -27,6 +82,7 @@ type RegisterAndLoginRequest struct {
 //	@Param request body			RegisterAndLoginRequest true "Register user form"
 //	@Produce		json
 //	@Success		201	{object}	user.User
+//	@Failure		400	{object}	util.ErrorResponse
 //	@Failure		422	{object}	util.ErrorResponse
 //	@Failure		500	{object}	util.ErrorResponse
 //	@Router			/forsete-atr/v2/auth/register/ [post]
@@ -36,6 +92,17 @@ func Register(authService *authservice.AuthService) http.HandlerFunc {
 		if err != nil {
 			util.NewInternalErrorLog("REGISTER", err).PrintLog("CLIENT ERROR")
 			util.ERROR(w, http.StatusUnprocessableEntity, fmt.Errorf("invalid request form"))
+			return
+		}
+
+		if err := register.Validate(); err != nil {
+			util.ERROR(w, http.StatusBadRequest, err)
+			return
+		}
+
+		if _, err := authService.UserRepo.GetByEmail(r.Context(), register.Email); err == nil {
+			util.NewInternalErrorLog("REGISTER", err).PrintLog("CLIENT ERROR")
+			util.ERROR(w, http.StatusBadRequest, fmt.Errorf("email already in use"))
 			return
 		}
 
@@ -65,7 +132,8 @@ func Register(authService *authservice.AuthService) http.HandlerFunc {
 //	@Param request body			RegisterAndLoginRequest true "Login user form"
 //	@Produce		json
 //	@Success		201	{object}	session.Session
-//	@Header			201	{string}	Authorization	"Bearer <token>"
+//	@Header			201	{string}	Authorization	"Bearer token"
+//	@Failure		400	{object}	util.ErrorResponse
 //	@Failure		404	{object}	util.ErrorResponse
 //	@Failure		422	{object}	util.ErrorResponse
 //	@Router			/forsete-atr/v2/auth/login/ [post]
@@ -75,6 +143,11 @@ func Login(authService *authservice.AuthService) http.HandlerFunc {
 		if err != nil {
 			util.NewInternalErrorLog("LOGIN", err).PrintLog("CLIENT ERROR")
 			util.ERROR(w, http.StatusUnprocessableEntity, fmt.Errorf("invalid request form"))
+			return
+		}
+
+		if err := login.Validate(); err != nil {
+			util.ERROR(w, http.StatusBadRequest, err)
 			return
 		}
 
@@ -95,7 +168,7 @@ func Login(authService *authservice.AuthService) http.HandlerFunc {
 //	@Summary		Logout as user
 //	@Description	Logout as user.
 //	@Tags			Auth
-//	@Param			Authorization	header	string	true	"'Bearer <token>' must be set for valid response"
+//	@Param			Authorization	header	string	true	"'Bearer token' must be set for valid response"
 //	@Produce		json
 //	@Success		204
 //	@Failure		401	{object}	util.ErrorResponse
@@ -126,7 +199,7 @@ func Logout(authService *authservice.AuthService) http.HandlerFunc {
 //	@Summary		Refresh token
 //	@Description	Refresh session token.
 //	@Tags			Auth
-//	@Param			Authorization	header	string	true	"'Bearer <token>' must be set for valid response"
+//	@Param			Authorization	header	string	true	"'Bearer token' must be set for valid response"
 //	@Produce		json
 //	@Success		200	{object}	session.Session
 //	@Header			200	{string}	Authorization	"Bearer <token>"
