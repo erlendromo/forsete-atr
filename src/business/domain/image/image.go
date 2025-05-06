@@ -2,20 +2,17 @@ package image
 
 import (
 	"fmt"
+	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	"image/png"
+	_ "image/png"
 	"mime/multipart"
-	"path/filepath"
-	"strings"
+	"os"
 	"time"
 
-	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
 )
-
-var validFileTypes = []string{
-	"png",
-	"jpg",
-	"jpeg",
-}
 
 // Image
 //
@@ -32,41 +29,28 @@ type Image struct {
 }
 
 func (i *Image) CreateLocal(fileHeader *multipart.FileHeader) error {
-	if err := i.checkFileHeader(fileHeader); err != nil {
+	file, err := fileHeader.Open()
+	if err != nil {
 		return err
 	}
 
-	if err := util.CreateLocal(fileHeader, i.Path, i.ID.String(), i.Format); err != nil {
+	defer file.Close()
+
+	decodedImage, _, err := image.Decode(file)
+	if err != nil {
+		return err
+	}
+
+	outImage, err := os.Create(fmt.Sprintf("%s/%s.png", i.Path, i.ID.String()))
+	if err != nil {
+		return err
+	}
+
+	defer outImage.Close()
+
+	if err := png.Encode(outImage, decodedImage); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-// If fileHeader is ok -> error = nil
-func (i *Image) checkFileHeader(fileHeader *multipart.FileHeader) error {
-	if len(fileHeader.Filename) < 5 {
-		return fmt.Errorf("invalid filename '%s', should be atleast 5 characters", fileHeader.Filename)
-	}
-
-	sequences := strings.Split(fileHeader.Filename, ".")
-	if len(sequences) != 2 {
-		return fmt.Errorf("invalid filename '%s', should contain only one filetype", fileHeader.Filename)
-	}
-
-	format := strings.ToLower(strings.TrimPrefix(filepath.Ext(fileHeader.Filename), "."))
-	if format == "" || !i.isValidFileType(format) {
-		return fmt.Errorf("unsupported or missing file extension")
-	}
-
-	return nil
-}
-
-func (i *Image) isValidFileType(format string) bool {
-	for _, t := range validFileTypes {
-		if t == format {
-			return true
-		}
-	}
-	return false
 }

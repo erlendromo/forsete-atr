@@ -45,14 +45,11 @@ func (f *FileService) UploadImages(ctx context.Context, userID uuid.UUID, fileHe
 }
 
 func (f *FileService) uploadImage(ctx context.Context, userID uuid.UUID, fileHeader *multipart.FileHeader) (*image.Image, error) {
-	ext := filepath.Ext(fileHeader.Filename)
-	originalName := strings.TrimSuffix(fileHeader.Filename, ext)
-
+	originalName := strings.TrimSuffix(fileHeader.Filename, filepath.Ext(fileHeader.Filename))
 	name := strings.ToLower(originalName)
-	format := strings.ToLower(strings.TrimPrefix(ext, "."))
 	path := path.Join("assets", "users", userID.String(), "images")
 
-	img, err := f.ImageRepo.RegisterImage(ctx, name, format, path, userID)
+	img, err := f.ImageRepo.RegisterImage(ctx, name, "png", path, userID)
 	if err != nil {
 		return nil, err
 	}
