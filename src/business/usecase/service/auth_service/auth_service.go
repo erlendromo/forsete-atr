@@ -43,6 +43,9 @@ func (a *AuthService) Login(ctx context.Context, email, password string) (*sessi
 		return nil, err
 	}
 
+	// Clear ghost sessions
+	a.SessionRepo.ClearSessionsByUserID(ctx, user.ID)
+
 	return a.SessionRepo.CreateSession(ctx, user.ID)
 }
 
