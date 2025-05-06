@@ -24,7 +24,6 @@ type ATRService struct {
 	ModelRepo    *modelrepository.ModelRepository
 	PipelineRepo *pipelinerepository.PipelineRepository
 	OutputRepo   *outputrepository.OutputRepository
-	db           *sqlx.DB
 }
 
 func NewATRService(db *sqlx.DB) *ATRService {
@@ -32,10 +31,10 @@ func NewATRService(db *sqlx.DB) *ATRService {
 		ModelRepo:    modelrepository.NewModelRepository(db),
 		PipelineRepo: pipelinerepository.NewPipelineRepository(db),
 		OutputRepo:   outputrepository.NewOutputRepository(db),
-		db:           db,
 	}
 }
 
+// N.B! This function is not fully implemented.
 func (a *ATRService) UploadModel(ctx context.Context, name, path string, model_type_id int, fileHeaders []*multipart.FileHeader) (*model.Model, error) {
 	model, err := a.ModelRepo.RegisterModel(ctx, name, path, model_type_id)
 	if err != nil {
@@ -53,6 +52,7 @@ func (a *ATRService) UploadModel(ctx context.Context, name, path string, model_t
 	return model, nil
 }
 
+// Setup function to create pipelines on launch
 func (a *ATRService) CreatePipelines(ctx context.Context) ([]*pipeline.Pipeline, error) {
 	/*
 		regionModels, err := a.ModelRepo.ModelsByType(ctx, "regionsegmentation")
