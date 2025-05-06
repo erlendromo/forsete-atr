@@ -34,13 +34,13 @@ func (u *User) IsAdmin() bool {
 
 func (u *User) CreateDirs() error {
 	basePath := path.Join("assets", "users", u.ID.String())
-	imagesPath := path.Join(basePath, "images")
-	outputsPath := path.Join(basePath, "outputs")
 
+	imagesPath := path.Join(basePath, "images")
 	if err := os.MkdirAll(imagesPath, os.ModeDir); err != nil {
 		return err
 	}
 
+	outputsPath := path.Join(basePath, "outputs")
 	if err := os.MkdirAll(outputsPath, os.ModeDir); err != nil {
 		return err
 	}
