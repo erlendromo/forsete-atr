@@ -24,7 +24,7 @@ func (s *SessionRepository) CreateSession(ctx context.Context, userID uuid.UUID)
 		INSERT INTO
 			"session" (user_id, expires_at)
 		VALUES
-			($1, now() + interval '24 hours')
+			($1, now() + interval '1 hours')
 		RETURNING token
 	`
 
@@ -62,6 +62,17 @@ func (s *SessionRepository) GetValidSession(ctx context.Context, token uuid.UUID
 	`
 
 	return database.QueryRowx[session.Session](ctx, s.db, query, token)
+}
+
+func (s *SessionRepository) ClearSessionsByUserID(ctx context.Context, userID uuid.UUID) (int, error) {
+	query := `
+		DELETE FROM
+			"session"
+		WHERE
+			user_id = $1
+	`
+
+	return database.ExecuteContext(ctx, s.db, query, userID)
 }
 
 func (s *SessionRepository) ClearExpiredSessions(ctx context.Context) (int, error) {
