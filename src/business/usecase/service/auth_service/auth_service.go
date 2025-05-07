@@ -2,6 +2,7 @@ package authservice
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/erlendromo/forsete-atr/src/business/domain/session"
 	"github.com/erlendromo/forsete-atr/src/business/domain/user"
@@ -44,15 +45,19 @@ func (a *AuthService) Login(ctx context.Context, email, password string) (*sessi
 	}
 
 	// Clear ghost sessions
-	a.SessionRepo.ClearSessionsByUserID(ctx, user.ID)
+	deletedSessions, _ := a.SessionRepo.ClearSessionsByUserID(ctx, user.ID)
+	fmt.Printf("\nDeleted %d sessions", deletedSessions)
 
 	return a.SessionRepo.CreateSession(ctx, user.ID)
 }
 
 func (a *AuthService) Logout(ctx context.Context, token uuid.UUID) error {
-	if _, err := a.SessionRepo.DeleteSession(ctx, token); err != nil {
+	deletedSessions, err := a.SessionRepo.DeleteSession(ctx, token)
+	if err != nil {
 		return err
 	}
+
+	fmt.Printf("\nDeleted %d sessions", deletedSessions)
 
 	return nil
 }
@@ -72,9 +77,12 @@ func (a *AuthService) RefreshToken(ctx context.Context, oldToken uuid.UUID) (*se
 		return nil, err
 	}
 
-	if _, err := a.SessionRepo.DeleteSession(ctx, oldToken); err != nil {
+	deletedSessions, err := a.SessionRepo.DeleteSession(ctx, oldToken)
+	if err != nil {
 		return nil, err
 	}
+
+	fmt.Printf("\nDeleted %d sessions", deletedSessions)
 
 	newSession, err := a.SessionRepo.CreateSession(ctx, session.UserID)
 	if err != nil {
@@ -82,4 +90,22 @@ func (a *AuthService) RefreshToken(ctx context.Context, oldToken uuid.UUID) (*se
 	}
 
 	return newSession, nil
+}
+
+func (a *AuthService) DeleteUser(ctx context.Context, userID uuid.UUID) error {
+	deletedSessions, err := a.SessionRepo.ClearSessionsByUserID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("\nDeleted %d sessions", deletedSessions)
+
+	deletedUsers, err := a.UserRepo.DeleteUserByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("\nDeleted %d users", deletedUsers)
+
+	return nil
 }
