@@ -8,6 +8,7 @@ import (
 
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
 	"github.com/erlendromo/forsete-atr/src/api/router"
+	"github.com/erlendromo/forsete-atr/src/util"
 )
 
 type HTTPSRouter struct {
@@ -18,7 +19,7 @@ type HTTPSRouter struct {
 
 func NewHTTPSRouter(addr, certFile, keyFile string) *HTTPSRouter {
 	if intAddr, err := strconv.Atoi(addr); err != nil || addr == "" || intAddr < 1000 || intAddr > 9999 {
-		addr = "8080"
+		addr = util.DEFAULT_API_PORT
 	}
 
 	return &HTTPSRouter{
