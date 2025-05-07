@@ -1,4 +1,4 @@
-package file
+package image
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
 	_ "github.com/erlendromo/forsete-atr/src/business/domain/image"
-	fileservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/file_service"
+	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr_service"
 	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
 )
@@ -28,7 +28,7 @@ import (
 //	@Failure		422	{object}	util.ErrorResponse
 //	@Failure		500	{object}	util.ErrorResponse
 //	@Router			/forsete-atr/v2/images/upload/ [post]
-func UploadImages(fileService *fileservice.FileService) http.HandlerFunc {
+func UploadImages(atrService *atrservice.ATRService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctxValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
 		if !ok {
@@ -51,7 +51,7 @@ func UploadImages(fileService *fileservice.FileService) http.HandlerFunc {
 			return
 		}
 
-		images, err := fileService.UploadImages(r.Context(), ctxValues.User.ID, fileHeaders)
+		images, err := atrService.UploadImages(r.Context(), ctxValues.User.ID, fileHeaders)
 		if err != nil {
 			util.NewInternalErrorLog("UPLOAD IMAGES", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
@@ -73,7 +73,7 @@ func UploadImages(fileService *fileservice.FileService) http.HandlerFunc {
 //	@Failure		401	{object}	util.ErrorResponse
 //	@Failure		500	{object}	util.ErrorResponse
 //	@Router			/forsete-atr/v2/images/ [get]
-func GetImages(fileService *fileservice.FileService) http.HandlerFunc {
+func GetImages(atrService *atrservice.ATRService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctxValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
 		if !ok {
@@ -83,7 +83,7 @@ func GetImages(fileService *fileservice.FileService) http.HandlerFunc {
 			return
 		}
 
-		images, err := fileService.ImageRepo.ImagesByUserID(r.Context(), ctxValues.User.ID)
+		images, err := atrService.ImageRepo.ImagesByUserID(r.Context(), ctxValues.User.ID)
 		if err != nil {
 			util.NewInternalErrorLog("GET IMAGES", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
@@ -107,7 +107,7 @@ func GetImages(fileService *fileservice.FileService) http.HandlerFunc {
 //	@Failure		422	{object}	util.ErrorResponse
 //	@Failure		500	{object}	util.ErrorResponse
 //	@Router			/forsete-atr/v2/images/{imageID}/ [get]
-func GetImageByID(fileService *fileservice.FileService) http.HandlerFunc {
+func GetImageByID(atrService *atrservice.ATRService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctxValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
 		if !ok {
@@ -123,7 +123,7 @@ func GetImageByID(fileService *fileservice.FileService) http.HandlerFunc {
 			return
 		}
 
-		image, err := fileService.ImageRepo.ImageByID(r.Context(), id, ctxValues.User.ID)
+		image, err := atrService.ImageRepo.ImageByID(r.Context(), id, ctxValues.User.ID)
 		if err != nil {
 			util.NewInternalErrorLog("GET IMAGE BY ID", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
@@ -147,7 +147,7 @@ func GetImageByID(fileService *fileservice.FileService) http.HandlerFunc {
 //	@Failure		422	{object}	util.ErrorResponse
 //	@Failure		500	{object}	util.ErrorResponse
 //	@Router			/forsete-atr/v2/images/{imageID}/data/ [get]
-func GetImageData(fileService *fileservice.FileService) http.HandlerFunc {
+func GetImageData(atrService *atrservice.ATRService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctxValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
 		if !ok {
@@ -163,7 +163,7 @@ func GetImageData(fileService *fileservice.FileService) http.HandlerFunc {
 			return
 		}
 
-		image, err := fileService.ImageRepo.ImageByID(r.Context(), imageID, ctxValues.User.ID)
+		image, err := atrService.ImageRepo.ImageByID(r.Context(), imageID, ctxValues.User.ID)
 		if err != nil {
 			util.NewInternalErrorLog("GET IMAGE DATA", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))

@@ -5,10 +5,7 @@ import (
 	"net/http"
 
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
-	"github.com/erlendromo/forsete-atr/src/business/domain/output"
-	"github.com/erlendromo/forsete-atr/src/business/domain/pipeline"
 	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr_service"
-	fileservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/file_service"
 	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
 )
@@ -21,6 +18,21 @@ type ATRRequest struct {
 	LineModelName string   `json:"line_segmentation_model"`
 	TextModelName string   `json:"text_recognition_model"`
 	ImageIDs      []string `json:"image_ids"`
+}
+
+// Parse image-ids to uuid.UUID type
+func (ar *ATRRequest) parseImageIDs() ([]uuid.UUID, error) {
+	parsedImageIDs := make([]uuid.UUID, 0)
+	for _, imageID := range ar.ImageIDs {
+		parsedImageID, err := uuid.Parse(imageID)
+		if err != nil {
+			return nil, err
+		}
+
+		parsedImageIDs = append(parsedImageIDs, parsedImageID)
+	}
+
+	return parsedImageIDs, nil
 }
 
 // Run
@@ -39,7 +51,7 @@ type ATRRequest struct {
 //	@Failure		422	{object}	util.ErrorResponse
 //	@Failure		500	{object}	util.ErrorResponse
 //	@Router			/forsete-atr/v2/atr/ [post]
-func Run(fileService *fileservice.FileService, atrService *atrservice.ATRService) http.HandlerFunc {
+func Run(atrService *atrservice.ATRService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		contextValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
 		if !ok {
@@ -51,54 +63,30 @@ func Run(fileService *fileservice.FileService, atrService *atrservice.ATRService
 
 		atrRequest, err := util.DecodeJSON[ATRRequest](r.Body)
 		if err != nil {
-			util.ERROR(w, http.StatusUnprocessableEntity, err)
+			util.NewInternalErrorLog("RUN ATR (DECODE BODY)", err).PrintLog("CLIENT ERROR")
+			util.ERROR(w, http.StatusUnprocessableEntity, fmt.Errorf("unable to parse response-body"))
 			return
 		}
 
-		var pipeline *pipeline.Pipeline
-		if atrRequest.LineModelName == "" {
-			p, err := atrService.PipelineRepo.PipelineByModel(r.Context(), atrRequest.TextModelName)
-			if err != nil {
-				util.NewInternalErrorLog("RUN ATR (PIPELINE)", err).PrintLog("SERVER ERROR")
-				util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
-				return
-			}
-
-			pipeline = p
-		} else {
-			p, err := atrService.PipelineRepo.PipelineByModels(r.Context(), atrRequest.LineModelName, atrRequest.TextModelName)
-			if err != nil {
-				util.NewInternalErrorLog("RUN ATR (PIPELINE)", err).PrintLog("SERVER ERROR")
-				util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
-				return
-			}
-
-			pipeline = p
+		parsedImageIDs, err := atrRequest.parseImageIDs()
+		if err != nil {
+			util.NewInternalErrorLog("RUN ATR (PARSE IMAGE_IDS)", err).PrintLog("CLIENT ERROR")
+			util.ERROR(w, http.StatusBadRequest, fmt.Errorf("unable to parse imageIDs"))
+			return
 		}
 
-		outputs := make([]*output.Output, 0)
-		for _, imageID := range atrRequest.ImageIDs {
-			parsedImageID, err := uuid.Parse(imageID)
-			if err != nil {
-				util.ERROR(w, http.StatusBadRequest, err)
-				return
-			}
+		pipeline, err := atrService.PipelineRepo.PipelineByModels(r.Context(), atrRequest.LineModelName, atrRequest.TextModelName)
+		if err != nil {
+			util.NewInternalErrorLog("RUN ATR (PIPELINE)", err).PrintLog("SERVER ERROR")
+			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
+			return
+		}
 
-			image, err := fileService.ImageRepo.ImageByID(r.Context(), parsedImageID, contextValues.User.ID)
-			if err != nil {
-				util.NewInternalErrorLog("RUN ATR (IMAGE)", err).PrintLog("SERVER ERROR")
-				util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
-				return
-			}
-
-			output, err := atrService.RunATROnImage(r.Context(), image, pipeline, contextValues.User.ID)
-			if err != nil {
-				util.NewInternalErrorLog("RUN ATR (OUTPUT)", err).PrintLog("SERVER ERROR")
-				util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
-				return
-			}
-
-			outputs = append(outputs, output)
+		outputs, err := atrService.RunATROnImages(r.Context(), pipeline.ID, contextValues.User.ID, parsedImageIDs)
+		if err != nil {
+			util.NewInternalErrorLog("RUN ATR (OUTPUTS)", err).PrintLog("SERVER ERROR")
+			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
+			return
 		}
 
 		util.EncodeJSON(w, http.StatusOK, outputs)
