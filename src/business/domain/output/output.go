@@ -85,3 +85,7 @@ func (o *Output) CreateLocal(data *ATRResponse) error {
 
 	return nil
 }
+
+func (o *Output) DeleteLocal() error {
+	return os.Remove(fmt.Sprintf("%s/%s.%s", o.Path, o.ID.String(), o.Format))
+}
