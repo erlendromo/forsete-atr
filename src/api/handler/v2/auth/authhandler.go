@@ -7,6 +7,7 @@ import (
 	"unicode"
 
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
+	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr_service"
 	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/auth_service"
 	"github.com/erlendromo/forsete-atr/src/util"
 )
@@ -176,7 +177,7 @@ func Login(authService *authservice.AuthService) http.HandlerFunc {
 //	@Router			/forsete-atr/v2/auth/logout/ [post]
 func Logout(authService *authservice.AuthService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		contextValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
+		ctxValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
 		if !ok {
 			err := fmt.Errorf("missing 'context_values' in request-context")
 			util.NewInternalErrorLog("LOGOUT", err).PrintLog("SERVER ERROR")
@@ -184,7 +185,7 @@ func Logout(authService *authservice.AuthService) http.HandlerFunc {
 			return
 		}
 
-		if err := authService.Logout(r.Context(), contextValues.Token); err != nil {
+		if err := authService.Logout(r.Context(), ctxValues.Token); err != nil {
 			util.NewInternalErrorLog("LOGOUT", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
 			return
@@ -194,7 +195,7 @@ func Logout(authService *authservice.AuthService) http.HandlerFunc {
 	}
 }
 
-// Refresh
+// RefreshSession
 //
 //	@Summary		Refresh token
 //	@Description	Refresh session token.
@@ -208,7 +209,7 @@ func Logout(authService *authservice.AuthService) http.HandlerFunc {
 //	@Router			/forsete-atr/v2/auth/refresh/ [post]
 func RefreshSession(authService *authservice.AuthService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		contextValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
+		ctxValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
 		if !ok {
 			err := fmt.Errorf("missing 'context_values' in request-context")
 			util.NewInternalErrorLog("REFRESH SESSION", err).PrintLog("SERVER ERROR")
@@ -216,7 +217,7 @@ func RefreshSession(authService *authservice.AuthService) http.HandlerFunc {
 			return
 		}
 
-		session, err := authService.RefreshToken(r.Context(), contextValues.Token)
+		session, err := authService.RefreshToken(r.Context(), ctxValues.Token)
 		if err != nil {
 			util.NewInternalErrorLog("REFRESH SESSION", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
@@ -225,5 +226,48 @@ func RefreshSession(authService *authservice.AuthService) http.HandlerFunc {
 
 		w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", session.Token.String()))
 		util.EncodeJSON(w, http.StatusOK, session)
+	}
+}
+
+// DeleteUser
+//
+//	@Summary		Delete user
+//	@Description	Delete user and all its data.
+//	@Tags			Auth
+//	@Param			Authorization	header	string	true	"'Bearer token' must be set for valid response"
+//	@Produce		json
+//	@Success		204
+//	@Failure		401	{object}	util.ErrorResponse
+//	@Failure		500	{object}	util.ErrorResponse
+//	@Router			/forsete-atr/v2/auth/ [delete]
+func DeleteUser(authService *authservice.AuthService, atrService *atrservice.ATRService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctxValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
+		if !ok {
+			err := fmt.Errorf("missing 'context_values' in request-context")
+			util.NewInternalErrorLog("DELETE USER", err).PrintLog("SERVER ERROR")
+			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
+			return
+		}
+
+		if err := atrService.DeleteUserData(r.Context(), ctxValues.User.ID); err != nil {
+			util.NewInternalErrorLog("DELETE USER", err).PrintLog("SERVER ERROR")
+			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
+			return
+		}
+
+		if err := authService.DeleteUser(r.Context(), ctxValues.User.ID); err != nil {
+			util.NewInternalErrorLog("DELETE USER", err).PrintLog("SERVER ERROR")
+			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
+			return
+		}
+
+		if err := ctxValues.User.RemoveData(); err != nil {
+			util.NewInternalErrorLog("DELETE USER", err).PrintLog("SERVER ERROR")
+			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
+			return
+		}
+
+		util.EncodeJSON(w, http.StatusNoContent, nil)
 	}
 }

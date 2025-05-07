@@ -2,10 +2,8 @@ package image
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"os"
-	"path"
 
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
 	_ "github.com/erlendromo/forsete-atr/src/business/domain/image"
@@ -170,7 +168,7 @@ func GetImageData(atrService *atrservice.ATRService) http.HandlerFunc {
 			return
 		}
 
-		imagePath := fmt.Sprintf("%s/%s.%s", image.Path, image.ID, image.Format)
+		imagePath := fmt.Sprintf("%s/%s.%s", image.Path, image.ID.String(), image.Format)
 
 		file, err := os.Open(imagePath)
 		if err != nil {
@@ -181,8 +179,46 @@ func GetImageData(atrService *atrservice.ATRService) http.HandlerFunc {
 
 		defer file.Close()
 
-		w.Header().Set("Content-Type", path.Join("image", image.Format))
-		w.WriteHeader(http.StatusOK)
-		io.Copy(w, file)
+		util.EncodeImage(w, http.StatusOK, file)
+	}
+}
+
+// DeleteImageByID
+//
+//	@Summary		Delete image by id
+//	@Description	Delete image (and corresponding output data) by imageID.
+//	@Tags			Images
+//	@Param			imageID			query	string	true	"uuid of image"
+//	@Param			Authorization	header	string	true	"'Bearer token' must be set for valid response"
+//	@Produce		json
+//	@Success		204
+//	@Failure		401	{object}	util.ErrorResponse
+//	@Failure		422	{object}	util.ErrorResponse
+//	@Failure		500	{object}	util.ErrorResponse
+//	@Router			/forsete-atr/v2/images/{imageID}/ [delete]
+func DeleteImageByID(atrService *atrservice.ATRService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctxValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
+		if !ok {
+			err := fmt.Errorf("missing 'context_values' in request-context")
+			util.NewInternalErrorLog("DELETE IMAGE BY ID", err).PrintLog("SERVER ERROR")
+			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
+			return
+		}
+
+		imageID, err := uuid.Parse(r.PathValue("imageID"))
+		if err != nil {
+			util.ERROR(w, http.StatusUnprocessableEntity, fmt.Errorf("invalid imageID"))
+			return
+		}
+
+		if err := atrService.DeleteImageAndOutputs(r.Context(), imageID, ctxValues.User.ID); err != nil {
+			err := fmt.Errorf("missing 'context_values' in request-context")
+			util.NewInternalErrorLog("DELETE IMAGE BY ID", err).PrintLog("SERVER ERROR")
+			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
+			return
+		}
+
+		util.EncodeJSON(w, http.StatusNoContent, nil)
 	}
 }

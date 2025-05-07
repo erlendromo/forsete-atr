@@ -43,7 +43,7 @@ func (ar *ATRRequest) parseImageIDs() ([]uuid.UUID, error) {
 //	@Accept			json
 //	@Param			Authorization	header	string		true	"'Bearer token' must be set for valid response"
 //	@Param			request			body	ATRRequest	true	"Body containing which models to use, alongside the image_ids"
-//	@Body			ATRRequest 																																																																	{object} 	json 	true	"request-form"
+//	@Body			ATRRequest 																																																																											{object} 	json 	true	"request-form"
 //	@Produce		json
 //	@Success		200	{object}	[]output.Output
 //	@Failure		400	{object}	util.ErrorResponse
@@ -53,7 +53,7 @@ func (ar *ATRRequest) parseImageIDs() ([]uuid.UUID, error) {
 //	@Router			/forsete-atr/v2/atr/ [post]
 func Run(atrService *atrservice.ATRService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		contextValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
+		ctxValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
 		if !ok {
 			err := fmt.Errorf("missing 'context_values' in request-context")
 			util.NewInternalErrorLog("RUN ATR (CONTEXT-VALUES)", err).PrintLog("SERVER ERROR")
@@ -82,7 +82,7 @@ func Run(atrService *atrservice.ATRService) http.HandlerFunc {
 			return
 		}
 
-		outputs, err := atrService.RunATROnImages(r.Context(), pipeline.ID, contextValues.User.ID, parsedImageIDs)
+		outputs, err := atrService.RunATROnImages(r.Context(), pipeline.ID, ctxValues.User.ID, parsedImageIDs)
 		if err != nil {
 			util.NewInternalErrorLog("RUN ATR (OUTPUTS)", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
