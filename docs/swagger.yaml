@@ -20,14 +20,6 @@ definitions:
       password:
         type: string
     type: object
-  file.UpdateOutputForm:
-    description: Form containing confirmed and data associated with the update request.
-    properties:
-      confirmed:
-        type: boolean
-      data:
-        $ref: '#/definitions/output.ATRResponse'
-    type: object
   github_com_erlendromo_forsete-atr_src_business_domain_image.Image:
     description: Image containing id, name, format etc.
     properties:
@@ -125,6 +117,14 @@ definitions:
       name:
         type: string
     type: object
+  output.UpdateOutputForm:
+    description: Form containing confirmed and data associated with the update request.
+    properties:
+      confirmed:
+        type: boolean
+      data:
+        $ref: '#/definitions/output.ATRResponse'
+    type: object
   session.Session:
     description: Session containing token etc.
     properties:
@@ -212,6 +212,31 @@ paths:
       summary: Run ATR
       tags:
       - ATR
+  /forsete-atr/v2/auth/:
+    delete:
+      description: Delete user and all its data.
+      parameters:
+      - description: '''Bearer token'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Delete user
+      tags:
+      - Auth
   /forsete-atr/v2/auth/login/:
     post:
       consumes:
@@ -370,6 +395,39 @@ paths:
       tags:
       - Images
   /forsete-atr/v2/images/{imageID}/:
+    delete:
+      description: Delete image (and corresponding output data) by imageID.
+      parameters:
+      - description: uuid of image
+        in: query
+        name: imageID
+        required: true
+        type: string
+      - description: '''Bearer token'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Delete image by id
+      tags:
+      - Images
     get:
       description: Get image by id.
       parameters:
@@ -480,6 +538,44 @@ paths:
       tags:
       - Outputs
   /forsete-atr/v2/images/{imageID}/outputs/{outputID}/:
+    delete:
+      description: Delete output by id.
+      parameters:
+      - description: uuid of image
+        in: query
+        name: imageID
+        required: true
+        type: string
+      - description: uuid of output
+        in: query
+        name: outputID
+        required: true
+        type: string
+      - description: '''Bearer token'' must be set for valid response'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Delete output by id
+      tags:
+      - Outputs
     get:
       description: Get output by id.
       parameters:
@@ -543,7 +639,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/file.UpdateOutputForm'
+          $ref: '#/definitions/output.UpdateOutputForm'
       produces:
       - application/json
       responses:
@@ -604,7 +700,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/util.ErrorResponse'
-      summary: Get output data.
+      summary: Get output data
       tags:
       - Outputs
   /forsete-atr/v2/images/upload/:

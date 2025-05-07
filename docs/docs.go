@@ -83,6 +83,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/forsete-atr/v2/auth/": {
+            "delete": {
+                "description": "Delete user and all its data.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Delete user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "'Bearer token' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/forsete-atr/v2/auth/login/": {
             "post": {
                 "description": "Login as user with email and password.",
@@ -434,6 +472,55 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Delete image (and corresponding output data) by imageID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Delete image by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "uuid of image",
+                        "name": "imageID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "'Bearer token' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/forsete-atr/v2/images/{imageID}/data/": {
@@ -644,7 +731,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/file.UpdateOutputForm"
+                            "$ref": "#/definitions/output.UpdateOutputForm"
                         }
                     }
                 ],
@@ -654,6 +741,62 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/output.Output"
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete output by id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Outputs"
+                ],
+                "summary": "Delete output by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "uuid of image",
+                        "name": "imageID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "uuid of output",
+                        "name": "outputID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "'Bearer token' must be set for valid response",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     },
                     "401": {
                         "description": "Unauthorized",
@@ -685,7 +828,7 @@ const docTemplate = `{
                 "tags": [
                     "Outputs"
                 ],
-                "summary": "Get output data.",
+                "summary": "Get output data",
                 "parameters": [
                     {
                         "type": "string",
@@ -923,18 +1066,6 @@ const docTemplate = `{
                 }
             }
         },
-        "file.UpdateOutputForm": {
-            "description": "Form containing confirmed and data associated with the update request.",
-            "type": "object",
-            "properties": {
-                "confirmed": {
-                    "type": "boolean"
-                },
-                "data": {
-                    "$ref": "#/definitions/output.ATRResponse"
-                }
-            }
-        },
         "github_com_erlendromo_forsete-atr_src_business_domain_image.Image": {
             "description": "Image containing id, name, format etc.",
             "type": "object",
@@ -1081,6 +1212,18 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "output.UpdateOutputForm": {
+            "description": "Form containing confirmed and data associated with the update request.",
+            "type": "object",
+            "properties": {
+                "confirmed": {
+                    "type": "boolean"
+                },
+                "data": {
+                    "$ref": "#/definitions/output.ATRResponse"
                 }
             }
         },
