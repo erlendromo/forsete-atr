@@ -3,7 +3,7 @@
 ## Setup for docker deployment
 
 ### Prerequisites
-- The application needs some dependencies to run. Amongst these nvidia drivers for cuda GPU resources, docker (docker compose) and more. Inside `assets/scripts/linux.sh` the dependencies can be downloaded automatically, but the script only works on linux systems, preferable ubuntu or similar distributions. It is therefore `highly recommended` to setup and run this application on a `vm with ubuntu`.
+- The application needs some dependencies to run. Amongst these nvidia drivers for cuda GPU resources, docker (docker compose) and more. Running `assets/scripts/linux.sh` will download the dependencies automatically, but the script only works on linux systems, preferably ubuntu or similar distributions. It is therefore `highly recommended` to setup and run this application on a `vm with ubuntu`.
 
 ### Install dependencies
 - Open a terminal in the root directory (e.g. where this README.md file is located)
@@ -19,11 +19,14 @@
 - NOTE: If the service is to be run with `cpu resources (NOT cuda)`, the `TIMEOUT` variable should be set above `10m`, as ATR on images take a long time without gpu resources available.
 - NOTE: If the application is run on a distributed cloud service (e.g. Openstack, Azure etc.), make sure to allow `Ingress` on the `API_PORT`.
 
+### Add models
+- TODO: write about this
+
 ### Usage
-- With `make` (NOTE: beware that database will be reset when running make composedown):
+- With `make` (NOTE: beware that database will be reset when running `make composedown`):
   - To run the application on `CPU`, run `make composecpu`
   - To run the application on `CUDA`, run `make composecuda`
-  - To attach the container logs, run `make attach`
+  - To attach the container logs, run `make attachlogs`
   - To stop the container, run `make composedown`
 
 - Manually:

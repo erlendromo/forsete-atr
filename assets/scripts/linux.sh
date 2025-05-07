@@ -70,4 +70,4 @@ sudo systemctl daemon-reload
 sudo systemctl restart docker
 
 echo "Setup complete!"
-echo "User has been added to the Docker group. In case of error when trying to deploy the application, please log out and log back in for the changes to take effect."
+echo "In case of error when trying to deploy the application, please log out of the terminal session and log back in again for the changes to take effect."

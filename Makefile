@@ -13,10 +13,10 @@ composecuda:
 composedown:
 	@docker compose down --volumes --remove-orphans
 
-attach:
+attachlogs:
 	@docker compose logs -f forsete-atr
 
 swag:
 	@swag init -g src/api/router/router.go && swag fmt
 
-.PHONY: run test composecpu composecuda composedown attach swag
+.PHONY: run test composecpu composecuda composedown attachlogs swag
