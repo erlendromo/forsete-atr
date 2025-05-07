@@ -5,10 +5,11 @@ Endpoints
 */
 const (
 	// Shared
-	SLASH       = "/"
-	FORSETE_ATR = "forsete-atr"
-	VERSION     = "v2"
-	DATA        = "data"
+	DEFAULT_API_PORT = "8080"
+	SLASH            = "/"
+	FORSETE_ATR      = "forsete-atr"
+	VERSION          = "v2"
+	DATA             = "data"
 
 	BASE_ENDPOINT = SLASH + FORSETE_ATR + SLASH + VERSION + SLASH
 
@@ -25,12 +26,14 @@ const (
 	LOGIN    = "login"
 	LOGOUT   = "logout"
 	REFRESH  = "refresh"
+	DELETE   = "delete"
 
-	BASE_AUTH_ENDPOINT = BASE_ENDPOINT + AUTH + SLASH
-	REGISTER_ENDPOINT  = BASE_AUTH_ENDPOINT + REGISTER + SLASH
-	LOGIN_ENDPOINT     = BASE_AUTH_ENDPOINT + LOGIN + SLASH
-	LOGOUT_ENDPOINT    = BASE_AUTH_ENDPOINT + LOGOUT + SLASH
-	REFRESH_ENDPOINT   = BASE_AUTH_ENDPOINT + REFRESH + SLASH
+	BASE_AUTH_ENDPOINT   = BASE_ENDPOINT + AUTH + SLASH
+	REGISTER_ENDPOINT    = BASE_AUTH_ENDPOINT + REGISTER + SLASH
+	LOGIN_ENDPOINT       = BASE_AUTH_ENDPOINT + LOGIN + SLASH
+	LOGOUT_ENDPOINT      = BASE_AUTH_ENDPOINT + LOGOUT + SLASH
+	REFRESH_ENDPOINT     = BASE_AUTH_ENDPOINT + REFRESH + SLASH
+	DELETE_USER_ENDPOINT = BASE_AUTH_ENDPOINT + DELETE + SLASH
 
 	// Images
 	IMAGES            = "images"
@@ -78,16 +81,23 @@ const (
 )
 
 /*
-Json
+Content
 */
 const (
 	CONTENT_TYPE     = "Content-Type"
 	APPLICATION_JSON = "application/json"
-	/*
-		IMAGE_PNG        = "image/png"
-		IMAGE_JPG        = "image/jpg"
-		IMAGE_JPEG       = "image/jpeg"
-	*/
+	IMAGE_PNG        = "image/png"
+)
+
+/*
+Logger
+*/
+const (
+	SERVER_ERROR = "SERVER ERROR"
+	CLIENT_ERROR = "CLIENT ERROR"
+	MISC         = "MISC"
+	SUCCESS      = "SUCCESS"
+	INFO         = "INFO"
 )
 
 /*
@@ -103,13 +113,27 @@ const (
 )
 
 /*
-Misc
+Paths
 */
 const (
 	ASSETS              = "assets"
+	PIPELINES           = "pipelines"
+	SCRIPTS             = "scripts"
+	USERS               = "users"
 	REGION_SEGMENTATION = "regionsegmentation"
 	LINE_SEGMENTATION   = "linesegmentation"
 	TEXT_RECOGNITION    = "textrecognition"
+	BIN_BASH            = "/bin/bash"
+	HTRFLOW_SH          = "htrflow.sh"
+
+	PIPELINES_PATH           = ASSETS + SLASH + PIPELINES
+	TEMP_OUTPUTS_PATH        = ASSETS + SLASH + OUTPUTS
+	SCRIPTS_PATH             = ASSETS + SLASH + SCRIPTS
+	USERS_PATH               = ASSETS + SLASH + USERS
+	REGION_SEGMENTATION_PATH = ASSETS + SLASH + MODELS + SLASH + REGION_SEGMENTATION
+	LINE_SEGMENTATION_PATH   = ASSETS + SLASH + MODELS + SLASH + LINE_SEGMENTATION
+	TEXT_RECOGNITION_PATH    = ASSETS + SLASH + MODELS + SLASH + TEXT_RECOGNITION
+	HTRFLOW_SH_PATH          = SCRIPTS_PATH + SLASH + HTRFLOW_SH
 )
 
 const (
