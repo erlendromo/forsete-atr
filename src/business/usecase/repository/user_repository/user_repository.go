@@ -30,8 +30,6 @@ func (u *UserRepository) RegisterUser(ctx context.Context, email, hashedPassword
 		DO UPDATE SET
 			password = EXCLUDED.password,
 			deleted_at = NULL
-		WHERE
-			deleted_at IS NOT NULL
 		RETURNING
 			id
 	`
