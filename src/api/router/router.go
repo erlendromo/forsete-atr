@@ -8,8 +8,9 @@ import (
 	appcontext "github.com/erlendromo/forsete-atr/src/api/app_context"
 	"github.com/erlendromo/forsete-atr/src/api/handler/v2/atr"
 	"github.com/erlendromo/forsete-atr/src/api/handler/v2/auth"
-	"github.com/erlendromo/forsete-atr/src/api/handler/v2/file"
+	"github.com/erlendromo/forsete-atr/src/api/handler/v2/image"
 	"github.com/erlendromo/forsete-atr/src/api/handler/v2/model"
+	"github.com/erlendromo/forsete-atr/src/api/handler/v2/output"
 	"github.com/erlendromo/forsete-atr/src/api/handler/v2/status"
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
 	"github.com/erlendromo/forsete-atr/src/util"
@@ -27,7 +28,6 @@ func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
 	// App Context
 	appCtx := appcontext.GetAppContext()
 	authService := appCtx.AuthService
-	fileService := appCtx.FileService
 	atrService := appCtx.ATRService
 	db := appCtx.DB()
 
@@ -58,37 +58,37 @@ func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
 	// Images
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodGet, util.IMAGES_ENDPOINT),
-		middleware.AuthMiddleware(authService, file.GetImages(fileService)),
+		middleware.AuthMiddleware(authService, image.GetImages(atrService)),
 	)
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodPost, util.UPLOAD_IMAGES_ENDPOINT),
-		middleware.AuthMiddleware(authService, file.UploadImages(fileService)),
+		middleware.AuthMiddleware(authService, image.UploadImages(atrService)),
 	)
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodGet, util.IMAGE_BY_ID_ENDPOINT),
-		middleware.AuthMiddleware(authService, file.GetImageByID(fileService)),
+		middleware.AuthMiddleware(authService, image.GetImageByID(atrService)),
 	)
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodGet, util.IMAGE_DATA_ENDPOINT),
-		middleware.AuthMiddleware(authService, file.GetImageData(fileService)),
+		middleware.AuthMiddleware(authService, image.GetImageData(atrService)),
 	)
 
 	// Outputs
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodGet, util.OUTPUTS_ENDPOINT),
-		middleware.AuthMiddleware(authService, file.GetOutputsByImageID(atrService)),
+		middleware.AuthMiddleware(authService, output.GetOutputsByImageID(atrService)),
 	)
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodGet, util.OUTPUT_BY_ID_ENDPOINT),
-		middleware.AuthMiddleware(authService, file.GetOutputByID(atrService)),
+		middleware.AuthMiddleware(authService, output.GetOutputByID(atrService)),
 	)
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodPut, util.OUTPUT_BY_ID_ENDPOINT),
-		middleware.AuthMiddleware(authService, file.UpdateOutputByID(atrService)),
+		middleware.AuthMiddleware(authService, output.UpdateOutputByID(atrService)),
 	)
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodGet, util.OUTPUT_DATA_ENDPOINT),
-		middleware.AuthMiddleware(authService, file.GetOutputData(atrService)),
+		middleware.AuthMiddleware(authService, output.GetOutputData(atrService)),
 	)
 
 	// Models
@@ -112,7 +112,7 @@ func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
 	// ATR
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodPost, util.ATR_ENDPOINT),
-		middleware.AuthMiddleware(authService, atr.Run(fileService, atrService)),
+		middleware.AuthMiddleware(authService, atr.Run(atrService)),
 	)
 
 	// Status

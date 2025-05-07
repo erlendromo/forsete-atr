@@ -6,7 +6,6 @@ import (
 
 	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr_service"
 	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/auth_service"
-	fileservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/file_service"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -14,7 +13,6 @@ var appCtx *AppContext
 
 type AppContext struct {
 	AuthService *authservice.AuthService
-	FileService *fileservice.FileService
 	ATRService  *atrservice.ATRService
 
 	db *sqlx.DB
@@ -25,7 +23,6 @@ func InitAppContext(db *sqlx.DB) {
 	if appCtx == nil {
 		appCtx = &AppContext{
 			AuthService: authservice.NewAuthService(db),
-			FileService: fileservice.NewFileService(db),
 			ATRService:  atrservice.NewATRService(db),
 			db:          db,
 		}
