@@ -31,7 +31,7 @@ func (u *UserRepository) RegisterUser(ctx context.Context, email, hashedPassword
 			password = EXCLUDED.password,
 			deleted_at = NULL
 		WHERE
-			"user".deleted_at IS NOT NULL
+			deleted_at IS NOT NULL
 		RETURNING
 			id
 	`
@@ -81,4 +81,19 @@ func (u *UserRepository) GetByEmail(ctx context.Context, email string) (*user.Us
 	`
 
 	return database.QueryRowx[user.User](ctx, u.db, query, email)
+}
+
+func (u *UserRepository) DeleteUserByID(ctx context.Context, id uuid.UUID) (int, error) {
+	query := `
+		UPDATE
+			"user"
+		SET
+			deleted_at = now()
+		WHERE
+			id = $1
+		AND
+			deleted_at IS NULL
+	`
+
+	return database.ExecuteContext(ctx, u.db, query, id)
 }

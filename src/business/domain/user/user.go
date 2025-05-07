@@ -5,6 +5,7 @@ import (
 	"path"
 	"time"
 
+	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -33,17 +34,21 @@ func (u *User) IsAdmin() bool {
 }
 
 func (u *User) CreateDirs() error {
-	basePath := path.Join("assets", "users", u.ID.String())
+	basePath := path.Join(util.USERS_PATH, u.ID.String())
 
-	imagesPath := path.Join(basePath, "images")
+	imagesPath := path.Join(basePath, util.IMAGES)
 	if err := os.MkdirAll(imagesPath, os.ModeDir); err != nil {
 		return err
 	}
 
-	outputsPath := path.Join(basePath, "outputs")
+	outputsPath := path.Join(basePath, util.OUTPUTS)
 	if err := os.MkdirAll(outputsPath, os.ModeDir); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (u *User) RemoveData() error {
+	return os.RemoveAll(path.Join(util.USERS_PATH, u.ID.String()))
 }
