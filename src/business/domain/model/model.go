@@ -36,7 +36,7 @@ func (m *Model) CreateLocal(fileHeaders []*multipart.FileHeader) error {
 
 			if err := util.CreateLocal(fileHeader, path, name, ext); err != nil {
 				errs = append(errs, err)
-				util.NewInternalErrorLog("CREATE FILE ERROR", err).PrintLog("SERVER ERROR")
+				util.NewInternalErrorLog("CREATE FILE ERROR", err).PrintLog(util.SERVER_ERROR)
 			}
 
 			wg.Done()
