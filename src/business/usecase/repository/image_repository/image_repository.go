@@ -85,7 +85,7 @@ func (i *ImageRepository) RegisterImage(ctx context.Context, name, format, path 
 	return database.QueryRowx[image.Image](ctx, i.db, query, name, format, path, userID)
 }
 
-func (i *ImageRepository) DeleteImageByID(ctx context.Context, id uuid.UUID) (int, error) {
+func (i *ImageRepository) DeleteImageByID(ctx context.Context, id, userID uuid.UUID) (int, error) {
 	query := `
 		UPDATE
 			"image"
@@ -94,13 +94,16 @@ func (i *ImageRepository) DeleteImageByID(ctx context.Context, id uuid.UUID) (in
 		WHERE
 			id = $1
 		AND
+			user_id = $2
+		AND
 			deleted_at IS NULL
 	`
 
-	return database.ExecuteContext(ctx, i.db, query, id)
+	return database.ExecuteContext(ctx, i.db, query, id, userID)
 }
 
-func (i *ImageRepository) UpdateNameByID(ctx context.Context, id uuid.UUID, name string) (int, error) {
+// Unused for now
+func (i *ImageRepository) UpdateNameByID(ctx context.Context, imageID, userID uuid.UUID, name string) (int, error) {
 	query := `
 		UPDATE
 			"image"
@@ -109,8 +112,25 @@ func (i *ImageRepository) UpdateNameByID(ctx context.Context, id uuid.UUID, name
 		WHERE
 			id = $2
 		AND
+			user_id = $3
+		AND
 			deleted_at IS NULL
 	`
 
-	return database.ExecuteContext(ctx, i.db, query, name, id)
+	return database.ExecuteContext(ctx, i.db, query, name, imageID, userID)
+}
+
+func (i *ImageRepository) DeleteUserImages(ctx context.Context, userID uuid.UUID) (int, error) {
+	query := `
+		UPDATE
+			"image"
+		SET
+			deleted_at = now()
+		WHERE
+			user_id = $1
+		AND
+			deleted_at IS NULL
+	`
+
+	return database.ExecuteContext(ctx, i.db, query, userID)
 }

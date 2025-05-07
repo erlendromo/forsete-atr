@@ -56,5 +56,5 @@ func (i *Image) CreateLocal(fileHeader *multipart.FileHeader) error {
 }
 
 func (i *Image) DeleteLocal() error {
-	return os.Remove(fmt.Sprintf("%s/%s.%s", i.Path, i.Name, i.Format))
+	return os.Remove(fmt.Sprintf("%s/%s.%s", i.Path, i.ID.String(), i.Format))
 }
