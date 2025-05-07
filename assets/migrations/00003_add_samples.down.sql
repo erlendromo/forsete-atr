@@ -1,6 +1,9 @@
-DELETE FROM "role"
+DELETE FROM "model"
 WHERE
-    name IN ('Admin', 'Default');
+    name IN (
+        'yolov9-lines-within-regions-1',
+        'TrOCR-norhand-v3'
+    );
 
 DELETE FROM "model_type"
 WHERE
@@ -10,9 +13,6 @@ WHERE
         'textrecognition'
     );
 
-DELETE FROM "model"
+DELETE FROM "role"
 WHERE
-    name IN (
-        'yolov9-lines-within-regions-1',
-        'TrOCR-norhand-v3'
-    );
+    name IN ('Admin', 'Default');

@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS "session" (
     token uuid PRIMARY KEY DEFAULT gen_random_uuid (),
     user_id uuid NOT NULL,
     created_at timestamptz DEFAULT now (),
-    expires_at timestamptz NOT NULL DEFAULT (now () + interval '24 hours'),
+    expires_at timestamptz NOT NULL DEFAULT (now () + interval '1 hours'),
     FOREIGN KEY (user_id) REFERENCES "user" (id)
 );
 
