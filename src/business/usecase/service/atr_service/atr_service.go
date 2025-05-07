@@ -18,6 +18,7 @@ import (
 	modelrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/model_repository"
 	outputrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/output_repository"
 	pipelinerepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/pipeline_repository"
+	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -59,18 +60,18 @@ func (a *ATRService) UploadModel(ctx context.Context, name, path string, model_t
 // Setup function to create pipelines on launch
 func (a *ATRService) CreatePipelines(ctx context.Context) ([]*pipeline.Pipeline, error) {
 	/*
-		regionModels, err := a.ModelRepo.ModelsByType(ctx, "regionsegmentation")
+		regionModels, err := a.ModelRepo.ModelsByType(ctx, util.REGION_SEGMENTATION)
 		if err != nil {
 			return nil, err
 		}
 	*/
 
-	lineModels, err := a.ModelRepo.ModelsByType(ctx, "linesegmentation")
+	lineModels, err := a.ModelRepo.ModelsByType(ctx, util.LINE_SEGMENTATION)
 	if err != nil {
 		return nil, err
 	}
 
-	textModels, err := a.ModelRepo.ModelsByType(ctx, "textrecognition")
+	textModels, err := a.ModelRepo.ModelsByType(ctx, util.TEXT_RECOGNITION)
 	if err != nil {
 		return nil, err
 	}
@@ -117,9 +118,8 @@ func (a *ATRService) CreatePipeline(ctx context.Context, models []*model.Model) 
 	}
 
 	pipelineName := strings.Join(names, "_")
-	pipelinePath := path.Join("assets", "pipelines")
 
-	pipeline, err := a.PipelineRepo.RegisterPipeline(ctx, pipelineName, pipelinePath)
+	pipeline, err := a.PipelineRepo.RegisterPipeline(ctx, pipelineName, util.PIPELINES_PATH)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (a *ATRService) CreatePipeline(ctx context.Context, models []*model.Model) 
 		}
 	}
 
-	pipeline = pipeline.AppendOrderStep("OrderLines").AppendExportStep("json", "assets/outputs")
+	pipeline = pipeline.AppendOrderStep("OrderLines").AppendExportStep("json", util.TEMP_OUTPUTS_PATH)
 
 	if err := pipeline.CreateLocal(); err != nil {
 		return nil, err
@@ -177,24 +177,26 @@ func (a *ATRService) runATROnImage(ctx context.Context, pipelineID int, imageID,
 		return nil, err
 	}
 
-	// Execute htrflow
+	// File paths
 	pathToPipelineFile := fmt.Sprintf("%s/%s.yaml", pipeline.Path, pipeline.Name)
 	pathToImageFile := fmt.Sprintf("%s/%s.%s", image.Path, image.ID.String(), image.Format)
-	cmd := exec.Command("/bin/bash", "assets/scripts/htrflow.sh", pathToPipelineFile, pathToImageFile)
+
+	// Execute htrflow
+	cmd := exec.Command(util.BIN_BASH, util.HTRFLOW_SH_PATH, pathToPipelineFile, pathToImageFile)
 	if htrflowResponse, err := cmd.CombinedOutput(); err != nil {
 		fmt.Println(string(htrflowResponse))
 		return nil, err
 	}
 
 	// Register output
-	outputPath := path.Join("assets", "users", userID.String(), "outputs")
-	output, err := a.OutputRepo.RegisterOutput(ctx, image.Name, "json", outputPath, image.ID)
+	outputPath := path.Join(util.USERS_PATH, userID.String(), util.OUTPUTS)
+	output, err := a.OutputRepo.RegisterOutput(ctx, image.Name, "json", outputPath, image.ID, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Defer removal of temp-file
-	pathToTempFile := fmt.Sprintf("assets/outputs/images/%s.%s", output.ImageID.String(), output.Format)
+	pathToTempFile := fmt.Sprintf("%s/%s/%s.%s", util.TEMP_OUTPUTS_PATH, util.IMAGES, output.ImageID.String(), output.Format)
 	defer os.Remove(pathToTempFile)
 
 	// Read data from temp-file
@@ -234,7 +236,7 @@ func (a *ATRService) UploadImages(ctx context.Context, userID uuid.UUID, fileHea
 func (a *ATRService) uploadImage(ctx context.Context, userID uuid.UUID, fileHeader *multipart.FileHeader) (*image.Image, error) {
 	originalName := strings.TrimSuffix(fileHeader.Filename, filepath.Ext(fileHeader.Filename))
 	name := strings.ToLower(originalName)
-	path := path.Join("assets", "users", userID.String(), "images")
+	path := path.Join(util.USERS_PATH, userID.String(), util.IMAGES)
 
 	img, err := a.ImageRepo.RegisterImage(ctx, name, "png", path, userID)
 	if err != nil {
@@ -242,7 +244,7 @@ func (a *ATRService) uploadImage(ctx context.Context, userID uuid.UUID, fileHead
 	}
 
 	if err := img.CreateLocal(fileHeader); err != nil {
-		if _, err := a.ImageRepo.DeleteImageByID(ctx, img.ID); err != nil {
+		if _, err := a.ImageRepo.DeleteImageByID(ctx, img.ID, userID); err != nil {
 			return nil, err
 		}
 
@@ -252,20 +254,54 @@ func (a *ATRService) uploadImage(ctx context.Context, userID uuid.UUID, fileHead
 	return img, nil
 }
 
-func (a *ATRService) DeleteImageByID(ctx context.Context, id, userID uuid.UUID) (int, error) {
-	rowsAffected, err := a.ImageRepo.DeleteImageByID(ctx, id)
-	if err != nil {
-		return 0, err
+func (a *ATRService) DeleteImageAndOutputs(ctx context.Context, imageID, userID uuid.UUID) error {
+	outputs, err := a.OutputRepo.OutputsByImageID(ctx, imageID, userID)
+	for _, output := range outputs {
+		if err := output.DeleteLocal(); err != nil {
+			return err
+		}
 	}
 
-	image, err := a.ImageRepo.ImageByID(ctx, id, userID)
+	deletedOutputs, err := a.OutputRepo.DeleteOutputsByImageID(ctx, imageID, userID)
 	if err != nil {
-		return 0, err
+		return err
 	}
+
+	fmt.Printf("Deleted %d outputs", deletedOutputs)
+
+	image, err := a.ImageRepo.ImageByID(ctx, imageID, userID)
+	if err != nil {
+		return err
+	}
+
+	deletedImages, err := a.ImageRepo.DeleteImageByID(ctx, imageID, userID)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Deleted %d images", deletedImages)
 
 	if err := image.DeleteLocal(); err != nil {
-		return 0, err
+		return err
 	}
 
-	return rowsAffected, nil
+	return nil
+}
+
+func (a *ATRService) DeleteUserData(ctx context.Context, userID uuid.UUID) error {
+	deletedOutputs, err := a.OutputRepo.DeleteUserOutputs(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Deleted %d outputs", deletedOutputs)
+
+	deletedImages, err := a.ImageRepo.DeleteUserImages(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Deleted %d images", deletedImages)
+
+	return nil
 }
