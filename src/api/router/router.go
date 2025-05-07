@@ -54,6 +54,10 @@ func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
 		fmt.Sprintf("%s %s", http.MethodPost, util.REFRESH_ENDPOINT),
 		middleware.AuthMiddleware(authService, auth.RefreshSession(authService)),
 	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodDelete, util.BASE_AUTH_ENDPOINT),
+		middleware.AuthMiddleware(authService, auth.DeleteUser(authService, atrService)),
+	)
 
 	// Images
 	mux.HandleFunc(
@@ -67,6 +71,10 @@ func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodGet, util.IMAGE_BY_ID_ENDPOINT),
 		middleware.AuthMiddleware(authService, image.GetImageByID(atrService)),
+	)
+	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodDelete, util.IMAGE_BY_ID_ENDPOINT),
+		middleware.AuthMiddleware(authService, image.DeleteImageByID(atrService)),
 	)
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodGet, util.IMAGE_DATA_ENDPOINT),
@@ -87,6 +95,10 @@ func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
 		middleware.AuthMiddleware(authService, output.UpdateOutputByID(atrService)),
 	)
 	mux.HandleFunc(
+		fmt.Sprintf("%s %s", http.MethodDelete, util.OUTPUT_BY_ID_ENDPOINT),
+		middleware.AuthMiddleware(authService, output.DeleteOutputByID(atrService)),
+	)
+	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodGet, util.OUTPUT_DATA_ENDPOINT),
 		middleware.AuthMiddleware(authService, output.GetOutputData(atrService)),
 	)
@@ -98,15 +110,15 @@ func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
 	)
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodGet, util.REGION_SEGMENTATION_ENDPOINT),
-		model.GetModelsByType(atrService.ModelRepo, "regionsegmentation"),
+		model.GetModelsByType(atrService.ModelRepo, util.REGION_SEGMENTATION),
 	)
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodGet, util.LINE_SEGMENTATION_ENDPOINT),
-		model.GetModelsByType(atrService.ModelRepo, "linesegmentation"),
+		model.GetModelsByType(atrService.ModelRepo, util.LINE_SEGMENTATION),
 	)
 	mux.HandleFunc(
 		fmt.Sprintf("%s %s", http.MethodGet, util.TEXT_RECOGNITION_ENDPOINT),
-		model.GetModelsByType(atrService.ModelRepo, "textrecognition"),
+		model.GetModelsByType(atrService.ModelRepo, util.TEXT_RECOGNITION),
 	)
 
 	// ATR
