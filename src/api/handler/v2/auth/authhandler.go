@@ -104,7 +104,7 @@ func Register(authService *authservice.AuthService) http.HandlerFunc {
 		user, err := authService.RegisterUser(r.Context(), register.Email, register.Password)
 		if err != nil {
 			// TODO Should check if error is constraint violation or not...
-			util.NewInternalErrorLog("REGISTER", err).PrintLog("SERVER ERROR")
+			util.NewInternalErrorLog("REGISTER", err).PrintLog("CLIENT ERROR")
 			util.ERROR(w, http.StatusBadRequest, fmt.Errorf("email already in use"))
 			return
 		}
@@ -234,7 +234,7 @@ func RefreshSession(authService *authservice.AuthService) http.HandlerFunc {
 //	@Success		204
 //	@Failure		401	{object}	util.ErrorResponse
 //	@Failure		500	{object}	util.ErrorResponse
-//	@Router			/forsete-atr/v2/auth/ [delete]
+//	@Router			/forsete-atr/v2/auth/delete/ [delete]
 func DeleteUser(authService *authservice.AuthService, atrService *atrservice.ATRService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctxValues, ok := r.Context().Value(middleware.ContextValuesKey).(*middleware.ContextValues)
@@ -245,20 +245,20 @@ func DeleteUser(authService *authservice.AuthService, atrService *atrservice.ATR
 			return
 		}
 
-		if err := atrService.DeleteUserData(r.Context(), ctxValues.User.ID); err != nil {
-			util.NewInternalErrorLog("DELETE USER", err).PrintLog("SERVER ERROR")
+		if err := atrService.DeleteUserOutputsAndImages(r.Context(), ctxValues.User.ID); err != nil {
+			util.NewInternalErrorLog("DELETE USER (OUTPUTS/IMAGES)", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
 			return
 		}
 
 		if err := authService.DeleteUser(r.Context(), ctxValues.User.ID); err != nil {
-			util.NewInternalErrorLog("DELETE USER", err).PrintLog("SERVER ERROR")
+			util.NewInternalErrorLog("DELETE USER (USER)", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
 			return
 		}
 
 		if err := ctxValues.User.RemoveData(); err != nil {
-			util.NewInternalErrorLog("DELETE USER", err).PrintLog("SERVER ERROR")
+			util.NewInternalErrorLog("DELETE USER (FILES)", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
 			return
 		}

@@ -55,7 +55,7 @@ func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
 		middleware.AuthMiddleware(authService, auth.RefreshSession(authService)),
 	)
 	mux.HandleFunc(
-		fmt.Sprintf("%s %s", http.MethodDelete, util.BASE_AUTH_ENDPOINT),
+		fmt.Sprintf("%s %s", http.MethodDelete, util.DELETE_USER_ENDPOINT),
 		middleware.AuthMiddleware(authService, auth.DeleteUser(authService, atrService)),
 	)
 

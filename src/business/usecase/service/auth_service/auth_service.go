@@ -2,6 +2,7 @@ package authservice
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/erlendromo/forsete-atr/src/business/domain/session"
@@ -93,15 +94,17 @@ func (a *AuthService) RefreshToken(ctx context.Context, oldToken uuid.UUID) (*se
 }
 
 func (a *AuthService) DeleteUser(ctx context.Context, userID uuid.UUID) error {
+	var errNoChange = errors.New("no change")
+
 	deletedSessions, err := a.SessionRepo.ClearSessionsByUserID(ctx, userID)
-	if err != nil {
+	if err != nil && errors.Is(err, errNoChange) {
 		return err
 	}
 
 	fmt.Printf("\nDeleted %d sessions", deletedSessions)
 
 	deletedUsers, err := a.UserRepo.DeleteUserByID(ctx, userID)
-	if err != nil {
+	if err != nil && errors.Is(err, errNoChange) {
 		return err
 	}
 

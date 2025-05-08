@@ -2,6 +2,7 @@ package atrservice
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"mime/multipart"
 	"os"
@@ -288,16 +289,18 @@ func (a *ATRService) DeleteImageAndOutputs(ctx context.Context, imageID, userID 
 	return nil
 }
 
-func (a *ATRService) DeleteUserData(ctx context.Context, userID uuid.UUID) error {
+func (a *ATRService) DeleteUserOutputsAndImages(ctx context.Context, userID uuid.UUID) error {
+	var errNoChange = errors.New("no change")
+
 	deletedOutputs, err := a.OutputRepo.DeleteUserOutputs(ctx, userID)
-	if err != nil {
+	if err != nil && errors.Is(err, errNoChange) {
 		return err
 	}
 
 	fmt.Printf("Deleted %d outputs", deletedOutputs)
 
 	deletedImages, err := a.ImageRepo.DeleteUserImages(ctx, userID)
-	if err != nil {
+	if err != nil && errors.Is(err, errNoChange) {
 		return err
 	}
 
