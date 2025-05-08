@@ -103,8 +103,9 @@ func Register(authService *authservice.AuthService) http.HandlerFunc {
 
 		user, err := authService.RegisterUser(r.Context(), register.Email, register.Password)
 		if err != nil {
+			// TODO Should check if error is constraint violation or not...
 			util.NewInternalErrorLog("REGISTER", err).PrintLog("SERVER ERROR")
-			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
+			util.ERROR(w, http.StatusBadRequest, fmt.Errorf("email already in use"))
 			return
 		}
 
