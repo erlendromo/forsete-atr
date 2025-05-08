@@ -101,12 +101,6 @@ func Register(authService *authservice.AuthService) http.HandlerFunc {
 			return
 		}
 
-		if _, err := authService.UserRepo.GetByEmail(r.Context(), register.Email); err == nil {
-			util.NewInternalErrorLog("REGISTER", err).PrintLog("CLIENT ERROR")
-			util.ERROR(w, http.StatusBadRequest, fmt.Errorf("email already in use"))
-			return
-		}
-
 		user, err := authService.RegisterUser(r.Context(), register.Email, register.Password)
 		if err != nil {
 			util.NewInternalErrorLog("REGISTER", err).PrintLog("SERVER ERROR")
