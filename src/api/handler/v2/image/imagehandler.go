@@ -213,7 +213,6 @@ func DeleteImageByID(atrService *atrservice.ATRService) http.HandlerFunc {
 		}
 
 		if err := atrService.DeleteImageAndOutputs(r.Context(), imageID, ctxValues.User.ID); err != nil {
-			err := fmt.Errorf("missing 'context_values' in request-context")
 			util.NewInternalErrorLog("DELETE IMAGE BY ID", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
 			return

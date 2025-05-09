@@ -101,7 +101,7 @@ func (p *PipelineRepository) PipelineByModels(ctx context.Context, lineModelName
 	return database.QueryRowx[pipeline.Pipeline](ctx, p.db, query, lineModelName, textModelName)
 }
 
-func (p *PipelineRepository) RegisterPipelineModel(ctx context.Context, pipelineID, modelID int) (int, error) {
+func (p *PipelineRepository) RegisterPipelineModel(ctx context.Context, pipelineID, modelID int) error {
 	query := `
 		INSERT INTO
 			"pipeline_model" (pipeline_id, model_id)

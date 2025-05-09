@@ -31,7 +31,7 @@ func (s *SessionRepository) CreateSession(ctx context.Context, userID uuid.UUID)
 	return database.QueryRowx[session.Session](ctx, s.db, query, userID)
 }
 
-func (s *SessionRepository) DeleteSession(ctx context.Context, token uuid.UUID) (int, error) {
+func (s *SessionRepository) DeleteSession(ctx context.Context, token uuid.UUID) error {
 	query := `
 		DELETE FROM
 			"session"
@@ -64,7 +64,7 @@ func (s *SessionRepository) GetValidSession(ctx context.Context, token uuid.UUID
 	return database.QueryRowx[session.Session](ctx, s.db, query, token)
 }
 
-func (s *SessionRepository) ClearSessionsByUserID(ctx context.Context, userID uuid.UUID) (int, error) {
+func (s *SessionRepository) ClearSessionsByUserID(ctx context.Context, userID uuid.UUID) error {
 	query := `
 		DELETE FROM
 			"session"
@@ -75,7 +75,7 @@ func (s *SessionRepository) ClearSessionsByUserID(ctx context.Context, userID uu
 	return database.ExecuteContext(ctx, s.db, query, userID)
 }
 
-func (s *SessionRepository) ClearExpiredSessions(ctx context.Context) (int, error) {
+func (s *SessionRepository) ClearExpiredSessions(ctx context.Context) error {
 	query := `
 		DELETE FROM
 			"session"

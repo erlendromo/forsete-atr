@@ -85,7 +85,7 @@ func (i *ImageRepository) RegisterImage(ctx context.Context, name, format, path 
 	return database.QueryRowx[image.Image](ctx, i.db, query, name, format, path, userID)
 }
 
-func (i *ImageRepository) DeleteImageByID(ctx context.Context, id, userID uuid.UUID) (int, error) {
+func (i *ImageRepository) DeleteImageByID(ctx context.Context, id, userID uuid.UUID) error {
 	query := `
 		UPDATE
 			"image"
@@ -103,7 +103,7 @@ func (i *ImageRepository) DeleteImageByID(ctx context.Context, id, userID uuid.U
 }
 
 // Unused for now
-func (i *ImageRepository) UpdateNameByID(ctx context.Context, imageID, userID uuid.UUID, name string) (int, error) {
+func (i *ImageRepository) UpdateNameByID(ctx context.Context, imageID, userID uuid.UUID, name string) error {
 	query := `
 		UPDATE
 			"image"
@@ -120,7 +120,7 @@ func (i *ImageRepository) UpdateNameByID(ctx context.Context, imageID, userID uu
 	return database.ExecuteContext(ctx, i.db, query, name, imageID, userID)
 }
 
-func (i *ImageRepository) DeleteUserImages(ctx context.Context, userID uuid.UUID) (int, error) {
+func (i *ImageRepository) DeleteUserImages(ctx context.Context, userID uuid.UUID) error {
 	query := `
 		UPDATE
 			"image"

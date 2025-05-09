@@ -257,14 +257,11 @@ func DeleteOutputByID(atrService *atrservice.ATRService) http.HandlerFunc {
 			return
 		}
 
-		deletedOutputs, err := atrService.OutputRepo.DeleteOutputByID(r.Context(), outputID, imageID, ctxValues.User.ID)
-		if err != nil {
+		if err := atrService.OutputRepo.DeleteOutputByID(r.Context(), outputID, imageID, ctxValues.User.ID); err != nil {
 			util.NewInternalErrorLog("DELETE OUTPUT BY ID (DELETE)", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
 			return
 		}
-
-		fmt.Printf("Deleted %d outputs", deletedOutputs)
 
 		util.EncodeJSON(w, http.StatusNoContent, nil)
 	}

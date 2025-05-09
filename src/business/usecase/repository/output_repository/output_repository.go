@@ -151,7 +151,7 @@ func (o *OutputRepository) UpdateOutputByID(ctx context.Context, outputID, image
 	return database.QueryRowx[output.Output](ctx, o.db, query, confirmed, outputID, imageID, userID)
 }
 
-func (o *OutputRepository) DeleteOutputByID(ctx context.Context, outputID, imageID, userID uuid.UUID) (int, error) {
+func (o *OutputRepository) DeleteOutputByID(ctx context.Context, outputID, imageID, userID uuid.UUID) error {
 	query := `
 		UPDATE
 			"output" o
@@ -176,7 +176,7 @@ func (o *OutputRepository) DeleteOutputByID(ctx context.Context, outputID, image
 	return database.ExecuteContext(ctx, o.db, query, outputID, imageID, userID)
 }
 
-func (o *OutputRepository) DeleteOutputsByImageID(ctx context.Context, imageID, userID uuid.UUID) (int, error) {
+func (o *OutputRepository) DeleteOutputsByImageID(ctx context.Context, imageID, userID uuid.UUID) error {
 	query := `
 		UPDATE
 			"output" o
@@ -199,7 +199,7 @@ func (o *OutputRepository) DeleteOutputsByImageID(ctx context.Context, imageID, 
 	return database.ExecuteContext(ctx, o.db, query, imageID, userID)
 }
 
-func (o *OutputRepository) DeleteUserOutputs(ctx context.Context, userID uuid.UUID) (int, error) {
+func (o *OutputRepository) DeleteUserOutputs(ctx context.Context, userID uuid.UUID) error {
 	query := `
 		UPDATE
 			"output"

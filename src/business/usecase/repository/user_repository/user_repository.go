@@ -96,7 +96,7 @@ func (u *UserRepository) GetByEmail(ctx context.Context, email string) (*user.Us
 	return database.QueryRowx[user.User](ctx, u.db, query, email)
 }
 
-func (u *UserRepository) DeleteUserByID(ctx context.Context, id uuid.UUID) (int, error) {
+func (u *UserRepository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 	query := `
 		UPDATE
 			"user"

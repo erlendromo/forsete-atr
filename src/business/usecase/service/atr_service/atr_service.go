@@ -2,7 +2,6 @@ package atrservice
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"mime/multipart"
 	"os"
@@ -81,6 +80,8 @@ func (a *ATRService) CreatePipelines(ctx context.Context) ([]*pipeline.Pipeline,
 
 	// Creates pipelines with all possible model-combinations
 	for _, textModel := range textModels {
+
+		// TextModels
 		pipeline, err := a.CreatePipeline(ctx, []*model.Model{textModel})
 		if err != nil {
 			return nil, err
@@ -89,6 +90,8 @@ func (a *ATRService) CreatePipelines(ctx context.Context) ([]*pipeline.Pipeline,
 		createdPipelines = append(createdPipelines, pipeline)
 
 		for _, lineModel := range lineModels {
+
+			// LineModels + TextModels
 			pipeline, err := a.CreatePipeline(ctx, []*model.Model{lineModel, textModel})
 			if err != nil {
 				return nil, err
@@ -98,6 +101,8 @@ func (a *ATRService) CreatePipelines(ctx context.Context) ([]*pipeline.Pipeline,
 
 			/*
 				for _, regionModel := range regionModels {
+
+					// RegionModels + LineModels + TextModels
 					pipeline, err := a.CreatePipeline(ctx, []*model.Model{regionModel, lineModel, textModel})
 					if err != nil {
 						return nil, err
@@ -119,7 +124,6 @@ func (a *ATRService) CreatePipeline(ctx context.Context, models []*model.Model) 
 	}
 
 	pipelineName := strings.Join(names, "_")
-
 	pipeline, err := a.PipelineRepo.RegisterPipeline(ctx, pipelineName, util.PIPELINES_PATH)
 	if err != nil {
 		return nil, err
@@ -127,16 +131,18 @@ func (a *ATRService) CreatePipeline(ctx context.Context, models []*model.Model) 
 
 	for _, model := range models {
 		switch model.ModelTypeID {
+		// ModelTypeID = 1 -> ModelType = regionsegmentation (yolo)
+		// ModelTypeID = 2 -> ModelType = linesegmentation (yolo)
 		case 1, 2:
 			pipeline = pipeline.AppendYoloStep(model.Path)
+		// ModelTypeID = 3 -> ModelType = textrecognition (trocr)
 		case 3:
 			pipeline = pipeline.AppendTrOCRStep(model.Path)
 		default:
 			return nil, err
 		}
 
-		_, err := a.PipelineRepo.RegisterPipelineModel(ctx, pipeline.ID, model.ID)
-		if err != nil {
+		if err := a.PipelineRepo.RegisterPipelineModel(ctx, pipeline.ID, model.ID); err != nil {
 			return nil, err
 		}
 	}
@@ -245,7 +251,7 @@ func (a *ATRService) uploadImage(ctx context.Context, userID uuid.UUID, fileHead
 	}
 
 	if err := img.CreateLocal(fileHeader); err != nil {
-		if _, err := a.ImageRepo.DeleteImageByID(ctx, img.ID, userID); err != nil {
+		if err := a.ImageRepo.DeleteImageByID(ctx, img.ID, userID); err != nil {
 			return nil, err
 		}
 
@@ -263,24 +269,18 @@ func (a *ATRService) DeleteImageAndOutputs(ctx context.Context, imageID, userID 
 		}
 	}
 
-	deletedOutputs, err := a.OutputRepo.DeleteOutputsByImageID(ctx, imageID, userID)
-	if err != nil {
+	if err := a.OutputRepo.DeleteOutputsByImageID(ctx, imageID, userID); err != nil {
 		return err
 	}
-
-	fmt.Printf("Deleted %d outputs", deletedOutputs)
 
 	image, err := a.ImageRepo.ImageByID(ctx, imageID, userID)
 	if err != nil {
 		return err
 	}
 
-	deletedImages, err := a.ImageRepo.DeleteImageByID(ctx, imageID, userID)
-	if err != nil {
+	if err := a.ImageRepo.DeleteImageByID(ctx, imageID, userID); err != nil {
 		return err
 	}
-
-	fmt.Printf("Deleted %d images", deletedImages)
 
 	if err := image.DeleteLocal(); err != nil {
 		return err
@@ -290,21 +290,13 @@ func (a *ATRService) DeleteImageAndOutputs(ctx context.Context, imageID, userID 
 }
 
 func (a *ATRService) DeleteUserOutputsAndImages(ctx context.Context, userID uuid.UUID) error {
-	var errNoChange = errors.New("no change")
-
-	deletedOutputs, err := a.OutputRepo.DeleteUserOutputs(ctx, userID)
-	if err != nil && errors.Is(err, errNoChange) {
+	if err := a.OutputRepo.DeleteUserOutputs(ctx, userID); err != nil {
 		return err
 	}
 
-	fmt.Printf("Deleted %d outputs", deletedOutputs)
-
-	deletedImages, err := a.ImageRepo.DeleteUserImages(ctx, userID)
-	if err != nil && errors.Is(err, errNoChange) {
+	if err := a.ImageRepo.DeleteUserImages(ctx, userID); err != nil {
 		return err
 	}
-
-	fmt.Printf("Deleted %d images", deletedImages)
 
 	return nil
 }

@@ -52,18 +52,18 @@ func Queryx[T any](ctx context.Context, db *sqlx.DB, query string, args ...inter
 
 // Returns the affected rows after the query is run, assuming no errors.
 // Otherwise the error is returned.
-func ExecuteContext(ctx context.Context, db *sqlx.DB, query string, args ...interface{}) (int, error) {
+func ExecuteContext(ctx context.Context, db *sqlx.DB, query string, args ...interface{}) error {
 	result, err := db.ExecContext(ctx, query, args...)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return 0, err
-	} else if rowsAffected == 0 {
-		return 0, fmt.Errorf("no change")
+		return err
 	}
 
-	return int(rowsAffected), nil
+	fmt.Printf("\nUpdated/Deleted %d rows.\n", rowsAffected)
+
+	return nil
 }
