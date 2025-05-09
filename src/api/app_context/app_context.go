@@ -1,9 +1,6 @@
 package appcontext
 
 import (
-	"context"
-	"fmt"
-
 	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr_service"
 	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/auth_service"
 	"github.com/jmoiron/sqlx"
@@ -26,10 +23,6 @@ func InitAppContext(db *sqlx.DB) {
 			ATRService:  atrservice.NewATRService(db),
 			db:          db,
 		}
-	}
-
-	if _, err := appCtx.ATRService.CreatePipelines(context.Background()); err != nil {
-		panic(fmt.Sprintf("unable to initialize pipelines: %s", err.Error()))
 	}
 }
 

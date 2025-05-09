@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	appcontext "github.com/erlendromo/forsete-atr/src/api/app_context"
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
 	"github.com/erlendromo/forsete-atr/src/api/router"
 	"github.com/erlendromo/forsete-atr/src/util"
@@ -26,7 +27,7 @@ func NewHTTPRouter(addr string) *HTTPRouter {
 }
 
 func (r *HTTPRouter) Serve() error {
-	mux := router.WithV2Endpoints(http.NewServeMux())
+	mux := router.WithV2Endpoints(http.NewServeMux(), appcontext.GetAppContext())
 	log.Printf("Starting server on port %s...\n", r.addr)
 
 	return http.ListenAndServe(

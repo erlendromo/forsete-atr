@@ -24,9 +24,8 @@ type Router interface {
 // @title			Forsete-ATR
 // @version		v2
 // @description	RESTful JSON-API for Automatic Text Recognition (ATR) developed as part of Bachelor Thesis "FORSETE" at NTNU Gjøvik.
-func WithV2Endpoints(mux *http.ServeMux) *http.ServeMux {
+func WithV2Endpoints(mux *http.ServeMux, appCtx *appcontext.AppContext) *http.ServeMux {
 	// App Context
-	appCtx := appcontext.GetAppContext()
 	authService := appCtx.AuthService
 	atrService := appCtx.ATRService
 	db := appCtx.DB()

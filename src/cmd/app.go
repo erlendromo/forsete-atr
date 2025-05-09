@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"context"
+	"fmt"
+
 	appcontext "github.com/erlendromo/forsete-atr/src/api/app_context"
 	"github.com/erlendromo/forsete-atr/src/api/router/httprouter"
 	"github.com/erlendromo/forsete-atr/src/config"
@@ -15,6 +18,11 @@ func StartService() {
 
 	db := postgresql.NewPostgreSQLDatabase()
 	appcontext.InitAppContext(db.Database())
+
+	// Setup pipelines on launch
+	if _, err := appcontext.GetAppContext().ATRService.CreatePipelines(context.Background()); err != nil {
+		panic(fmt.Sprintf("unable to initialize pipelines: %s", err.Error()))
+	}
 
 	// Can migrate down on database when service stops,
 	// but this will remove all entries in the db,
