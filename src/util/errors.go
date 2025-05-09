@@ -22,6 +22,6 @@ func NewErrorResponse(status int, err error) *ErrorResponse {
 }
 
 func ERROR(w http.ResponseWriter, status int, err error) {
-	setHeaders(w, status)
+	setHeaders(w, status, APPLICATION_JSON)
 	json.NewEncoder(w).Encode(NewErrorResponse(status, err))
 }

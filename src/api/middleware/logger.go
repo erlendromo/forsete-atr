@@ -24,7 +24,7 @@ func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		r.URL.Path,
 		r.Method,
 	)
-	receiveLog.PrintLog("INFO")
+	receiveLog.PrintLog(util.INFO)
 
 	// Do request
 	srw := NewStatusResponseWriter(w)
@@ -52,15 +52,15 @@ func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Assign log-type
 	var logType string
 	if srw.Status() < 200 {
-		logType = "MISC"
+		logType = util.MISC
 	} else if srw.Status() < 300 {
-		logType = "SUCCESS"
+		logType = util.SUCCESS
 	} else if srw.Status() < 400 {
-		logType = "MISC"
+		logType = util.MISC
 	} else if srw.Status() < 500 {
-		logType = "CLIENT ERROR"
+		logType = util.CLIENT_ERROR
 	} else {
-		logType = "SERVER ERROR"
+		logType = util.SERVER_ERROR
 	}
 
 	// Print response-log

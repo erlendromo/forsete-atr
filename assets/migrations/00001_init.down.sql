@@ -1,0 +1,17 @@
+DROP TABLE IF EXISTS "pipeline_model";
+
+DROP TABLE IF EXISTS "model";
+
+DROP TABLE IF EXISTS "model_type";
+
+DROP TABLE IF EXISTS "pipeline";
+
+DROP TABLE IF EXISTS "output";
+
+DROP TABLE IF EXISTS "image";
+
+DROP TABLE IF EXISTS "session";
+
+DROP TABLE IF EXISTS "user";
+
+DROP TABLE IF EXISTS "role";

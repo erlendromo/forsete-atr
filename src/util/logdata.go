@@ -5,17 +5,17 @@ import (
 )
 
 var logColors = map[string]string{
-	"INFO":         CYAN,
-	"SUCCESS":      GREEN,
-	"CLIENT ERROR": YELLOW,
-	"SERVER ERROR": RED,
-	"MISC":         PURPLE,
+	INFO:         CYAN,
+	SUCCESS:      GREEN,
+	CLIENT_ERROR: YELLOW,
+	SERVER_ERROR: RED,
+	MISC:         PURPLE,
 }
 
 func getTypeAndColor(logType string) (string, string) {
 	color, found := logColors[logType]
 	if !found {
-		logType = "MISC"
+		logType = MISC
 		color = logColors[logType]
 	}
 
