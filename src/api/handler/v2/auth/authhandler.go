@@ -180,7 +180,7 @@ func Logout(authService *authservice.AuthService) http.HandlerFunc {
 			return
 		}
 
-		if err := authService.Logout(r.Context(), ctxValues.Token); err != nil {
+		if err := authService.Logout(r.Context(), ctxValues.Token, ctxValues.User.ID); err != nil {
 			util.NewInternalErrorLog("LOGOUT", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
 			return
@@ -212,7 +212,7 @@ func RefreshSession(authService *authservice.AuthService) http.HandlerFunc {
 			return
 		}
 
-		session, err := authService.RefreshToken(r.Context(), ctxValues.Token)
+		session, err := authService.RefreshToken(r.Context(), ctxValues.Token, ctxValues.User.ID)
 		if err != nil {
 			util.NewInternalErrorLog("REFRESH SESSION", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))

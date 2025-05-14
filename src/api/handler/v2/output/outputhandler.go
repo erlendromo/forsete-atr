@@ -150,7 +150,7 @@ func UpdateOutputByID(atrService *atrservice.ATRService) http.HandlerFunc {
 			return
 		}
 
-		output, err := atrService.OutputRepo.UpdateOutputByID(r.Context(), outputID, imageID, ctxValues.User.ID, form.Confirmed)
+		output, err := atrService.OutputRepo.UpdateOutputByID(r.Context(), form.Confirmed, outputID, imageID, ctxValues.User.ID)
 		if err != nil {
 			util.NewInternalErrorLog("UPDATE OUTPUT BY ID", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
