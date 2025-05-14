@@ -13,8 +13,7 @@ import (
 )
 
 type PostgreSQLDatabase struct {
-	db            *sqlx.DB
-	hasMigratedUp bool
+	db *sqlx.DB
 }
 
 func NewPostgreSQLDatabase() *PostgreSQLDatabase {
@@ -29,15 +28,12 @@ func NewPostgreSQLDatabase() *PostgreSQLDatabase {
 	)
 
 	psql := &PostgreSQLDatabase{
-		db:            sqlx.MustConnect("postgres", dataSourceName),
-		hasMigratedUp: false,
+		db: sqlx.MustConnect("postgres", dataSourceName),
 	}
 
 	if err := psql.MigrateUp(); err != nil {
 		fmt.Println("Unable to migrate database-schema:\n" + err.Error())
 	}
-
-	psql.hasMigratedUp = true
 
 	return psql
 }
@@ -47,10 +43,6 @@ func (p *PostgreSQLDatabase) Database() *sqlx.DB {
 }
 
 func (p *PostgreSQLDatabase) MigrateUp() error {
-	if p.hasMigratedUp {
-		return fmt.Errorf("database already migrated")
-	}
-
 	fmt.Println("Database migrating up...")
 
 	m, err := p.getMigrate()
