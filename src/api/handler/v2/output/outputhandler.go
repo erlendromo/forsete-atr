@@ -210,7 +210,7 @@ func GetOutputData(atrService *atrservice.ATRService) http.HandlerFunc {
 			return
 		}
 
-		atrResponse, err := output.ReadJson(fmt.Sprintf("%s/%s.%s", output.Path, output.ID, output.Format))
+		atrResponse, err := output.ReadJson()
 		if err != nil {
 			util.NewInternalErrorLog("OUTPUT DATA", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))

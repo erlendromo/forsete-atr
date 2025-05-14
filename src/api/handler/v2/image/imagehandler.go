@@ -168,9 +168,7 @@ func GetImageData(atrService *atrservice.ATRService) http.HandlerFunc {
 			return
 		}
 
-		imagePath := fmt.Sprintf("%s/%s.%s", image.Path, image.ID.String(), image.Format)
-
-		file, err := os.Open(imagePath)
+		file, err := os.Open(image.PathToFile())
 		if err != nil {
 			util.NewInternalErrorLog("GET IMAGE DATA", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, fmt.Errorf(util.INTERNAL_SERVER_ERROR))
