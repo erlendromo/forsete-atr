@@ -26,6 +26,10 @@ type Output struct {
 	ImageID   uuid.UUID  `db:"image_id" json:"image_id"`
 }
 
+// ATRResponse
+//
+//	@Summary		ATRResponse
+//	@Description	ATRResponse containing transcribed data.
 type ATRResponse struct {
 	Filename  string `json:"file_name"`
 	Imagename string `json:"image_name"`
@@ -57,8 +61,8 @@ type ATRResponse struct {
 	} `json:"contains"`
 }
 
-func (o *Output) ReadJson(fullPathToFile string) (*ATRResponse, error) {
-	file, err := os.Open(fullPathToFile)
+func (o *Output) ReadJson() (*ATRResponse, error) {
+	file, err := os.Open(o.PathToFile())
 	if err != nil {
 		return nil, err
 	}
@@ -70,9 +74,7 @@ func (o *Output) ReadJson(fullPathToFile string) (*ATRResponse, error) {
 
 // Only supports json
 func (o *Output) CreateLocal(data *ATRResponse) error {
-	fullPathToFile := fmt.Sprintf("%s/%s.%s", o.Path, o.ID, o.Format)
-
-	file, err := os.Create(fullPathToFile)
+	file, err := os.Create(o.PathToFile())
 	if err != nil {
 		return err
 	}
@@ -86,6 +88,10 @@ func (o *Output) CreateLocal(data *ATRResponse) error {
 	return nil
 }
 
+func (o *Output) PathToFile() string {
+	return fmt.Sprintf("%s/%s.%s", o.Path, o.ID.String(), o.Format)
+}
+
 func (o *Output) DeleteLocal() error {
-	return os.Remove(fmt.Sprintf("%s/%s.%s", o.Path, o.ID.String(), o.Format))
+	return os.Remove(o.PathToFile())
 }
