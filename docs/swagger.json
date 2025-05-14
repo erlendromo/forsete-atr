@@ -75,7 +75,7 @@
                 }
             }
         },
-        "/forsete-atr/v2/auth/": {
+        "/forsete-atr/v2/auth/delete/": {
             "delete": {
                 "description": "Delete user and all its data.",
                 "produces": [
@@ -281,11 +281,8 @@
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/user.User"
-                        }
+                    "204": {
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -333,7 +330,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image"
+                                "$ref": "#/definitions/image.Image"
                             }
                         }
                     },
@@ -382,7 +379,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image"
+                            "$ref": "#/definitions/image.Image"
                         }
                     },
                     "400": {
@@ -442,7 +439,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image"
+                            "$ref": "#/definitions/image.Image"
                         }
                     },
                     "401": {
@@ -888,7 +885,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model"
+                                "$ref": "#/definitions/model.Model"
                             }
                         }
                     },
@@ -917,7 +914,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model"
+                                "$ref": "#/definitions/model.Model"
                             }
                         }
                     },
@@ -946,7 +943,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model"
+                                "$ref": "#/definitions/model.Model"
                             }
                         }
                     },
@@ -975,7 +972,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model"
+                                "$ref": "#/definitions/model.Model"
                             }
                         }
                     },
@@ -1058,7 +1055,7 @@
                 }
             }
         },
-        "github_com_erlendromo_forsete-atr_src_business_domain_image.Image": {
+        "image.Image": {
             "description": "Image containing id, name, format etc.",
             "type": "object",
             "properties": {
@@ -1073,7 +1070,7 @@
                 }
             }
         },
-        "github_com_erlendromo_forsete-atr_src_business_domain_model.Model": {
+        "model.Model": {
             "description": "Model containing id, name etc.",
             "type": "object",
             "properties": {
@@ -1089,6 +1086,7 @@
             }
         },
         "output.ATRResponse": {
+            "description": "ATRResponse containing transcribed data.",
             "type": "object",
             "properties": {
                 "contains": {
@@ -1242,18 +1240,6 @@
                     "type": "string"
                 },
                 "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "user.User": {
-            "description": "User containing id, email etc.",
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 }
             }
