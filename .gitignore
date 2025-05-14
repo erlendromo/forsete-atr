@@ -17,5 +17,8 @@
 *.log
 
 # Models
-models
-tmp
+assets/models
+assets/pipelines
+
+# Secret migration
+assets/migrations/00004_add_secret.*

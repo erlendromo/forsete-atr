@@ -4,7 +4,9 @@ import (
 	"testing"
 	"time"
 
+	appcontext "github.com/erlendromo/forsete-atr/src/api/app_context"
 	"github.com/erlendromo/forsete-atr/src/api/router"
+	"github.com/erlendromo/forsete-atr/src/database/mock"
 )
 
 type serveHTTPCase struct {
@@ -17,7 +19,14 @@ var serveHTTPCases []serveHTTPCase = []serveHTTPCase{
 	{router: NewHTTPRouter("9090"), expectedPass: true},
 }
 
+func setup() {
+	appcontext.InitAppContext(
+		mock.NewMockDatabase(),
+	)
+}
+
 func TestServe(t *testing.T) {
+	setup()
 	t.Run("Serve HTTP test", testServe)
 }
 

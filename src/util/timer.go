@@ -7,8 +7,8 @@ import (
 
 var start time.Time
 
-func StartTimer() {
-	start = time.Now()
+func StartUTCTimer() {
+	start = time.Now().UTC()
 }
 
 func UpTimeInSeconds() string {
