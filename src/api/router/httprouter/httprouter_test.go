@@ -6,7 +6,7 @@ import (
 
 	appcontext "github.com/erlendromo/forsete-atr/src/api/app_context"
 	"github.com/erlendromo/forsete-atr/src/api/router"
-	"github.com/jmoiron/sqlx"
+	"github.com/erlendromo/forsete-atr/src/database/mock"
 )
 
 type serveHTTPCase struct {
@@ -20,7 +20,9 @@ var serveHTTPCases []serveHTTPCase = []serveHTTPCase{
 }
 
 func setup() {
-	appcontext.InitAppContext(&sqlx.DB{})
+	appcontext.InitAppContext(
+		mock.NewMockDatabase(),
+	)
 }
 
 func TestServe(t *testing.T) {
