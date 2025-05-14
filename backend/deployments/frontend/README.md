@@ -18,15 +18,15 @@ This configuration provisions a frontend application environment in OpenStack, i
 
 ## Modules Used
 
-| Module     | Description                                           |
-|------------|-------------------------------------------------------|
-| `network`  | Creates network, subnet, router, and router interface |
-| `ssh_sg`   | Creates a security group allowing SSH access          |
-| `app_sg`   | Creates a security group for the app port (3000)      |
-| `keypair`  | Registers an OpenStack key pair for SSH               |
-| `port`     | Provisions a network port with security groups        |
-| `instance` | Launches the compute instance                         |
-| `ip`       | Allocates and associates a floating IP                |
+| Module        | Description                                           |
+|---------------|-------------------------------------------------------|
+| `network`     | Creates network, subnet, router, and router interface |
+| `ssh_sg`      | Creates a security group allowing SSH access          |
+| `frontend_sg` | Creates a security group for the frontend port (3000)      |
+| `keypair`     | Registers an OpenStack key pair for SSH               |
+| `port`        | Provisions a network port with security groups        |
+| `instance`    | Launches the compute instance                         |
+| `ip`          | Allocates and associates a floating IP                |
 
 ---
 
