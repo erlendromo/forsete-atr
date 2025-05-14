@@ -5,17 +5,18 @@ import (
 
 	"github.com/erlendromo/forsete-atr/src/business/domain/session"
 	"github.com/erlendromo/forsete-atr/src/database"
+	"github.com/erlendromo/forsete-atr/src/querier"
+	"github.com/erlendromo/forsete-atr/src/querier/sqlx"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 )
 
 type SessionRepository struct {
-	db *sqlx.DB
+	querier querier.Querier[session.Session]
 }
 
-func NewSessionRepository(db *sqlx.DB) *SessionRepository {
+func NewSessionRepository(db database.Database) *SessionRepository {
 	return &SessionRepository{
-		db: db,
+		querier: sqlx.NewSqlxQuerier[session.Session](db),
 	}
 }
 
@@ -28,18 +29,20 @@ func (s *SessionRepository) CreateSession(ctx context.Context, userID uuid.UUID)
 		RETURNING token
 	`
 
-	return database.QueryRowx[session.Session](ctx, s.db, query, userID)
+	return s.querier.QueryRowx(ctx, query, userID)
 }
 
-func (s *SessionRepository) DeleteSession(ctx context.Context, token uuid.UUID) error {
+func (s *SessionRepository) DeleteSession(ctx context.Context, token, userID uuid.UUID) error {
 	query := `
 		DELETE FROM
 			"session"
 		WHERE
 			token = $1
+		AND
+			user_id = $2
 	`
 
-	return database.ExecuteContext(ctx, s.db, query, token)
+	return s.querier.Executex(ctx, query, token, userID)
 }
 
 func (s *SessionRepository) GetValidSession(ctx context.Context, token uuid.UUID) (*session.Session, error) {
@@ -61,7 +64,7 @@ func (s *SessionRepository) GetValidSession(ctx context.Context, token uuid.UUID
 			1
 	`
 
-	return database.QueryRowx[session.Session](ctx, s.db, query, token)
+	return s.querier.QueryRowx(ctx, query, token)
 }
 
 func (s *SessionRepository) ClearSessionsByUserID(ctx context.Context, userID uuid.UUID) error {
@@ -72,7 +75,7 @@ func (s *SessionRepository) ClearSessionsByUserID(ctx context.Context, userID uu
 			user_id = $1
 	`
 
-	return database.ExecuteContext(ctx, s.db, query, userID)
+	return s.querier.Executex(ctx, query, userID)
 }
 
 func (s *SessionRepository) ClearExpiredSessions(ctx context.Context) error {
@@ -83,5 +86,5 @@ func (s *SessionRepository) ClearExpiredSessions(ctx context.Context) error {
 			expires_at < now()
 	`
 
-	return database.ExecuteContext(ctx, s.db, query)
+	return s.querier.Executex(ctx, query)
 }

@@ -5,17 +5,18 @@ import (
 
 	"github.com/erlendromo/forsete-atr/src/business/domain/user"
 	"github.com/erlendromo/forsete-atr/src/database"
+	"github.com/erlendromo/forsete-atr/src/querier"
+	"github.com/erlendromo/forsete-atr/src/querier/sqlx"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 )
 
 type UserRepository struct {
-	db *sqlx.DB
+	querier querier.Querier[user.User]
 }
 
-func NewUserRepository(db *sqlx.DB) *UserRepository {
+func NewUserRepository(db database.Database) *UserRepository {
 	return &UserRepository{
-		db: db,
+		querier: sqlx.NewSqlxQuerier[user.User](db),
 	}
 }
 
@@ -49,7 +50,7 @@ func (u *UserRepository) RegisterUser(ctx context.Context, email, hashedPassword
 			id
 	`
 
-	return database.QueryRowx[user.User](ctx, u.db, query, email, hashedPassword)
+	return u.querier.QueryRowx(ctx, query, email, hashedPassword)
 }
 
 func (u *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*user.User, error) {
@@ -71,7 +72,7 @@ func (u *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*user.User,
 			u.deleted_at IS NULL
 	`
 
-	return database.QueryRowx[user.User](ctx, u.db, query, id)
+	return u.querier.QueryRowx(ctx, query, id)
 }
 
 func (u *UserRepository) GetByEmail(ctx context.Context, email string) (*user.User, error) {
@@ -93,7 +94,7 @@ func (u *UserRepository) GetByEmail(ctx context.Context, email string) (*user.Us
 			u.deleted_at IS NULL
 	`
 
-	return database.QueryRowx[user.User](ctx, u.db, query, email)
+	return u.querier.QueryRowx(ctx, query, email)
 }
 
 func (u *UserRepository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
@@ -108,5 +109,5 @@ func (u *UserRepository) DeleteUserByID(ctx context.Context, id uuid.UUID) error
 			deleted_at IS NULL
 	`
 
-	return database.ExecuteContext(ctx, u.db, query, id)
+	return u.querier.Executex(ctx, query, id)
 }

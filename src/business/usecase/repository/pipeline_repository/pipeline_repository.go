@@ -5,16 +5,17 @@ import (
 
 	"github.com/erlendromo/forsete-atr/src/business/domain/pipeline"
 	"github.com/erlendromo/forsete-atr/src/database"
-	"github.com/jmoiron/sqlx"
+	"github.com/erlendromo/forsete-atr/src/querier"
+	"github.com/erlendromo/forsete-atr/src/querier/sqlx"
 )
 
 type PipelineRepository struct {
-	db *sqlx.DB
+	querier querier.Querier[pipeline.Pipeline]
 }
 
-func NewPipelineRepository(db *sqlx.DB) *PipelineRepository {
+func NewPipelineRepository(db database.Database) *PipelineRepository {
 	return &PipelineRepository{
-		db: db,
+		querier: sqlx.NewSqlxQuerier[pipeline.Pipeline](db),
 	}
 }
 
@@ -30,7 +31,7 @@ func (p *PipelineRepository) PipelineByID(ctx context.Context, id int) (*pipelin
 			id = $1
 	`
 
-	return database.QueryRowx[pipeline.Pipeline](ctx, p.db, query, id)
+	return p.querier.QueryRowx(ctx, query, id)
 }
 
 func (p *PipelineRepository) AllPipelines(ctx context.Context) ([]*pipeline.Pipeline, error) {
@@ -43,7 +44,7 @@ func (p *PipelineRepository) AllPipelines(ctx context.Context) ([]*pipeline.Pipe
 			"pipeline"
 	`
 
-	return database.Queryx[pipeline.Pipeline](ctx, p.db, query)
+	return p.querier.Queryx(ctx, query)
 }
 
 func (p *PipelineRepository) RegisterPipeline(ctx context.Context, name, path string) (*pipeline.Pipeline, error) {
@@ -58,7 +59,7 @@ func (p *PipelineRepository) RegisterPipeline(ctx context.Context, name, path st
 			path
 	`
 
-	return database.QueryRowx[pipeline.Pipeline](ctx, p.db, query, name, path)
+	return p.querier.QueryRowx(ctx, query, name, path)
 }
 
 func (p *PipelineRepository) PipelineByModel(ctx context.Context, textModelName string) (*pipeline.Pipeline, error) {
@@ -76,7 +77,7 @@ func (p *PipelineRepository) PipelineByModel(ctx context.Context, textModelName 
 		LIMIT 1
 	`
 
-	return database.QueryRowx[pipeline.Pipeline](ctx, p.db, query, textModelName)
+	return p.querier.QueryRowx(ctx, query, textModelName)
 }
 
 func (p *PipelineRepository) PipelineByModels(ctx context.Context, lineModelName, textModelName string) (*pipeline.Pipeline, error) {
@@ -98,7 +99,7 @@ func (p *PipelineRepository) PipelineByModels(ctx context.Context, lineModelName
 		LIMIT 1
 	`
 
-	return database.QueryRowx[pipeline.Pipeline](ctx, p.db, query, lineModelName, textModelName)
+	return p.querier.QueryRowx(ctx, query, lineModelName, textModelName)
 }
 
 func (p *PipelineRepository) RegisterPipelineModel(ctx context.Context, pipelineID, modelID int) error {
@@ -109,5 +110,5 @@ func (p *PipelineRepository) RegisterPipelineModel(ctx context.Context, pipeline
 			($1, $2)
 	`
 
-	return database.ExecuteContext(ctx, p.db, query, pipelineID, modelID)
+	return p.querier.Executex(ctx, query, pipelineID, modelID)
 }

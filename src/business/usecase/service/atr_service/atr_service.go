@@ -18,9 +18,9 @@ import (
 	modelrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/model_repository"
 	outputrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/output_repository"
 	pipelinerepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/pipeline_repository"
+	"github.com/erlendromo/forsete-atr/src/database"
 	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 )
 
 type ATRService struct {
@@ -30,7 +30,7 @@ type ATRService struct {
 	OutputRepo   *outputrepository.OutputRepository
 }
 
-func NewATRService(db *sqlx.DB) *ATRService {
+func NewATRService(db database.Database) *ATRService {
 	return &ATRService{
 		ModelRepo:    modelrepository.NewModelRepository(db),
 		PipelineRepo: pipelinerepository.NewPipelineRepository(db),

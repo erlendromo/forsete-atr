@@ -5,16 +5,17 @@ import (
 
 	"github.com/erlendromo/forsete-atr/src/business/domain/model"
 	"github.com/erlendromo/forsete-atr/src/database"
-	"github.com/jmoiron/sqlx"
+	"github.com/erlendromo/forsete-atr/src/querier"
+	"github.com/erlendromo/forsete-atr/src/querier/sqlx"
 )
 
 type ModelRepository struct {
-	db *sqlx.DB
+	querier querier.Querier[model.Model]
 }
 
-func NewModelRepository(db *sqlx.DB) *ModelRepository {
+func NewModelRepository(db database.Database) *ModelRepository {
 	return &ModelRepository{
-		db: db,
+		querier: sqlx.NewSqlxQuerier[model.Model](db),
 	}
 }
 
@@ -32,7 +33,7 @@ func (m *ModelRepository) AllModels(ctx context.Context) ([]*model.Model, error)
 			"model_type" mt ON m.model_type_id = mt.id
 	`
 
-	return database.Queryx[model.Model](ctx, m.db, query)
+	return m.querier.Queryx(ctx, query)
 }
 
 func (m *ModelRepository) ModelsByType(ctx context.Context, modelType string) ([]*model.Model, error) {
@@ -51,7 +52,7 @@ func (m *ModelRepository) ModelsByType(ctx context.Context, modelType string) ([
             mt.type = $1
     `
 
-	return database.Queryx[model.Model](ctx, m.db, query, modelType)
+	return m.querier.Queryx(ctx, query, modelType)
 }
 
 func (m *ModelRepository) ModelByID(ctx context.Context, id int) (*model.Model, error) {
@@ -70,7 +71,7 @@ func (m *ModelRepository) ModelByID(ctx context.Context, id int) (*model.Model, 
         	m.id = $1
 	`
 
-	return database.QueryRowx[model.Model](ctx, m.db, query, id)
+	return m.querier.QueryRowx(ctx, query, id)
 }
 
 func (m *ModelRepository) ModelByName(ctx context.Context, name string) (*model.Model, error) {
@@ -89,10 +90,10 @@ func (m *ModelRepository) ModelByName(ctx context.Context, name string) (*model.
         	m.name = $1
 	`
 
-	return database.QueryRowx[model.Model](ctx, m.db, query, name)
+	return m.querier.QueryRowx(ctx, query, name)
 }
 
-func (m *ModelRepository) RegisterModel(ctx context.Context, name, path string, model_type_id int) (*model.Model, error) {
+func (m *ModelRepository) RegisterModel(ctx context.Context, name, path string, modelTypeID int) (*model.Model, error) {
 	query := `
 		WITH "inserted_model" AS
 			(
@@ -118,5 +119,5 @@ func (m *ModelRepository) RegisterModel(ctx context.Context, name, path string, 
 			"model_type" mt ON im.model_type_id = mt.id;
 	`
 
-	return database.QueryRowx[model.Model](ctx, m.db, query, name, path, model_type_id)
+	return m.querier.QueryRowx(ctx, query, name, path, modelTypeID)
 }

@@ -5,17 +5,18 @@ import (
 
 	"github.com/erlendromo/forsete-atr/src/business/domain/output"
 	"github.com/erlendromo/forsete-atr/src/database"
+	"github.com/erlendromo/forsete-atr/src/querier"
+	"github.com/erlendromo/forsete-atr/src/querier/sqlx"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 )
 
 type OutputRepository struct {
-	db *sqlx.DB
+	querier querier.Querier[output.Output]
 }
 
-func NewOutputRepository(db *sqlx.DB) *OutputRepository {
+func NewOutputRepository(db database.Database) *OutputRepository {
 	return &OutputRepository{
-		db: db,
+		querier: sqlx.NewSqlxQuerier[output.Output](db),
 	}
 }
 
@@ -49,7 +50,7 @@ func (o *OutputRepository) OutputByID(ctx context.Context, outputID, imageID, us
 			o.deleted_at IS NULL
 	`
 
-	return database.QueryRowx[output.Output](ctx, o.db, query, outputID, imageID, userID)
+	return o.querier.QueryRowx(ctx, query, outputID, imageID, userID)
 }
 
 func (o *OutputRepository) OutputsByImageID(ctx context.Context, imageID, userID uuid.UUID) ([]*output.Output, error) {
@@ -80,7 +81,7 @@ func (o *OutputRepository) OutputsByImageID(ctx context.Context, imageID, userID
 			o.deleted_at IS NULL
 	`
 
-	return database.Queryx[output.Output](ctx, o.db, query, imageID, userID)
+	return o.querier.Queryx(ctx, query, imageID, userID)
 }
 
 func (o *OutputRepository) RegisterOutput(ctx context.Context, name, format, path string, imageID, userID uuid.UUID) (*output.Output, error) {
@@ -112,10 +113,10 @@ func (o *OutputRepository) RegisterOutput(ctx context.Context, name, format, pat
 			image_id
 	`
 
-	return database.QueryRowx[output.Output](ctx, o.db, query, name, format, path, imageID, userID)
+	return o.querier.QueryRowx(ctx, query, name, format, path, imageID, userID)
 }
 
-func (o *OutputRepository) UpdateOutputByID(ctx context.Context, outputID, imageID, userID uuid.UUID, confirmed bool) (*output.Output, error) {
+func (o *OutputRepository) UpdateOutputByID(ctx context.Context, confirmed bool, outputID, imageID, userID uuid.UUID) (*output.Output, error) {
 	query := `
 		UPDATE
 			"output" o
@@ -148,7 +149,7 @@ func (o *OutputRepository) UpdateOutputByID(ctx context.Context, outputID, image
 			o.image_id
 	`
 
-	return database.QueryRowx[output.Output](ctx, o.db, query, confirmed, outputID, imageID, userID)
+	return o.querier.QueryRowx(ctx, query, confirmed, outputID, imageID, userID)
 }
 
 func (o *OutputRepository) DeleteOutputByID(ctx context.Context, outputID, imageID, userID uuid.UUID) error {
@@ -173,7 +174,7 @@ func (o *OutputRepository) DeleteOutputByID(ctx context.Context, outputID, image
 			i.deleted_at IS NULL
 	`
 
-	return database.ExecuteContext(ctx, o.db, query, outputID, imageID, userID)
+	return o.querier.Executex(ctx, query, outputID, imageID, userID)
 }
 
 func (o *OutputRepository) DeleteOutputsByImageID(ctx context.Context, imageID, userID uuid.UUID) error {
@@ -196,7 +197,7 @@ func (o *OutputRepository) DeleteOutputsByImageID(ctx context.Context, imageID, 
 			i.deleted_at IS NULL
     `
 
-	return database.ExecuteContext(ctx, o.db, query, imageID, userID)
+	return o.querier.Executex(ctx, query, imageID, userID)
 }
 
 func (o *OutputRepository) DeleteUserOutputs(ctx context.Context, userID uuid.UUID) error {
@@ -220,5 +221,5 @@ func (o *OutputRepository) DeleteUserOutputs(ctx context.Context, userID uuid.UU
 			deleted_at IS NULL
 	`
 
-	return database.ExecuteContext(ctx, o.db, query, userID)
+	return o.querier.Executex(ctx, query, userID)
 }

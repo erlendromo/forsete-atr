@@ -5,17 +5,18 @@ import (
 
 	"github.com/erlendromo/forsete-atr/src/business/domain/image"
 	"github.com/erlendromo/forsete-atr/src/database"
+	"github.com/erlendromo/forsete-atr/src/querier"
+	"github.com/erlendromo/forsete-atr/src/querier/sqlx"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 )
 
 type ImageRepository struct {
-	db *sqlx.DB
+	querier querier.Querier[image.Image]
 }
 
-func NewImageRepository(db *sqlx.DB) *ImageRepository {
+func NewImageRepository(db database.Database) *ImageRepository {
 	return &ImageRepository{
-		db: db,
+		querier: sqlx.NewSqlxQuerier[image.Image](db),
 	}
 }
 
@@ -39,7 +40,7 @@ func (i *ImageRepository) ImageByID(ctx context.Context, id, userID uuid.UUID) (
 			deleted_at IS NULL
 	`
 
-	return database.QueryRowx[image.Image](ctx, i.db, query, id, userID)
+	return i.querier.QueryRowx(ctx, query, id, userID)
 }
 
 func (i *ImageRepository) ImagesByUserID(ctx context.Context, userID uuid.UUID) ([]*image.Image, error) {
@@ -63,7 +64,7 @@ func (i *ImageRepository) ImagesByUserID(ctx context.Context, userID uuid.UUID) 
 		ASC
 	`
 
-	return database.Queryx[image.Image](ctx, i.db, query, userID)
+	return i.querier.Queryx(ctx, query, userID)
 }
 
 func (i *ImageRepository) RegisterImage(ctx context.Context, name, format, path string, userID uuid.UUID) (*image.Image, error) {
@@ -82,7 +83,7 @@ func (i *ImageRepository) RegisterImage(ctx context.Context, name, format, path 
 			user_id
 	`
 
-	return database.QueryRowx[image.Image](ctx, i.db, query, name, format, path, userID)
+	return i.querier.QueryRowx(ctx, query, name, format, path, userID)
 }
 
 func (i *ImageRepository) DeleteImageByID(ctx context.Context, id, userID uuid.UUID) error {
@@ -99,11 +100,11 @@ func (i *ImageRepository) DeleteImageByID(ctx context.Context, id, userID uuid.U
 			deleted_at IS NULL
 	`
 
-	return database.ExecuteContext(ctx, i.db, query, id, userID)
+	return i.querier.Executex(ctx, query, id, userID)
 }
 
 // Unused for now
-func (i *ImageRepository) UpdateNameByID(ctx context.Context, imageID, userID uuid.UUID, name string) error {
+func (i *ImageRepository) UpdateNameByID(ctx context.Context, name string, imageID, userID uuid.UUID) error {
 	query := `
 		UPDATE
 			"image"
@@ -117,7 +118,7 @@ func (i *ImageRepository) UpdateNameByID(ctx context.Context, imageID, userID uu
 			deleted_at IS NULL
 	`
 
-	return database.ExecuteContext(ctx, i.db, query, name, imageID, userID)
+	return i.querier.Executex(ctx, query, name, imageID, userID)
 }
 
 func (i *ImageRepository) DeleteUserImages(ctx context.Context, userID uuid.UUID) error {
@@ -132,5 +133,5 @@ func (i *ImageRepository) DeleteUserImages(ctx context.Context, userID uuid.UUID
 			deleted_at IS NULL
 	`
 
-	return database.ExecuteContext(ctx, i.db, query, userID)
+	return i.querier.Executex(ctx, query, userID)
 }
