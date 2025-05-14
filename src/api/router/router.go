@@ -28,7 +28,7 @@ func WithV2Endpoints(mux *http.ServeMux, appCtx *appcontext.AppContext) *http.Se
 	// App Context
 	authService := appCtx.AuthService
 	atrService := appCtx.ATRService
-	db := appCtx.DB()
+	db := appCtx.DB
 
 	// Swaggo
 	mux.HandleFunc(
