@@ -3,6 +3,7 @@ package appcontext
 import (
 	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr_service"
 	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/auth_service"
+	"github.com/erlendromo/forsete-atr/src/database"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -12,11 +13,11 @@ type AppContext struct {
 	AuthService *authservice.AuthService
 	ATRService  *atrservice.ATRService
 
-	db *sqlx.DB
+	db database.Database
 	//cache *cache.Cache
 }
 
-func InitAppContext(db *sqlx.DB) {
+func InitAppContext(db database.Database) {
 	if appCtx == nil {
 		appCtx = &AppContext{
 			AuthService: authservice.NewAuthService(db),
@@ -31,7 +32,7 @@ func GetAppContext() *AppContext {
 }
 
 func (a *AppContext) DB() *sqlx.DB {
-	return a.db
+	return a.db.Database()
 }
 
 /*

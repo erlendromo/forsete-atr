@@ -16,8 +16,9 @@ func StartService() {
 	apiConfig := config.GetConfig().APIConfig()
 	router := httprouter.NewHTTPRouter(apiConfig.API_PORT)
 
-	db := postgresql.NewPostgreSQLDatabase()
-	appcontext.InitAppContext(db.Database())
+	appcontext.InitAppContext(
+		postgresql.NewPostgreSQLDatabase(),
+	)
 
 	// Setup pipelines on launch
 	if _, err := appcontext.GetAppContext().ATRService.CreatePipelines(context.Background()); err != nil {
