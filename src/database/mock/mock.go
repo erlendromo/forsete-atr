@@ -1,6 +1,8 @@
 package mock
 
-import "github.com/jmoiron/sqlx"
+import (
+	"github.com/jmoiron/sqlx"
+)
 
 type MockDatabase struct{}
 
@@ -8,7 +10,7 @@ func NewMockDatabase() *MockDatabase {
 	return &MockDatabase{}
 }
 
-func (m *MockDatabase) Database() *sqlx.DB {
+func (m *MockDatabase) DB() *sqlx.DB {
 	return &sqlx.DB{}
 }
 

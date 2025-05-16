@@ -38,7 +38,7 @@ func NewPostgreSQLDatabase() *PostgreSQLDatabase {
 	return psql
 }
 
-func (p *PostgreSQLDatabase) Database() *sqlx.DB {
+func (p *PostgreSQLDatabase) DB() *sqlx.DB {
 	return p.db
 }
 
