@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/erlendromo/forsete-atr/src/business/domain/user"
-	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/auth_service"
+	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/auth"
 	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
 )
