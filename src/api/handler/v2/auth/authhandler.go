@@ -7,8 +7,8 @@ import (
 	"unicode"
 
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
-	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr_service"
-	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/auth_service"
+	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr"
+	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/auth"
 	"github.com/erlendromo/forsete-atr/src/util"
 )
 
@@ -82,7 +82,7 @@ func (rlf *RegisterAndLoginRequest) Validate() error {
 //	@Accept			json
 //	@Param request body			RegisterAndLoginRequest true "Register user form"
 //	@Produce		json
-//	@Success		201	{object}	user.User
+//	@Success		204
 //	@Failure		400	{object}	util.ErrorResponse
 //	@Failure		422	{object}	util.ErrorResponse
 //	@Failure		500	{object}	util.ErrorResponse
@@ -115,7 +115,7 @@ func Register(authService *authservice.AuthService) http.HandlerFunc {
 			return
 		}
 
-		util.EncodeJSON(w, http.StatusCreated, user)
+		util.EncodeJSON(w, http.StatusNoContent, nil)
 	}
 }
 

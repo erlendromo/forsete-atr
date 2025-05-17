@@ -5,7 +5,7 @@ import (
 )
 
 type Database interface {
-	Database() *sqlx.DB
+	DB() *sqlx.DB
 	MigrateUp() error
 	MigrateDown() error
 }

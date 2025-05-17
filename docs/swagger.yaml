@@ -20,7 +20,7 @@ definitions:
       password:
         type: string
     type: object
-  github_com_erlendromo_forsete-atr_src_business_domain_image.Image:
+  image.Image:
     description: Image containing id, name, format etc.
     properties:
       format:
@@ -30,7 +30,7 @@ definitions:
       name:
         type: string
     type: object
-  github_com_erlendromo_forsete-atr_src_business_domain_model.Model:
+  model.Model:
     description: Model containing id, name etc.
     properties:
       id:
@@ -41,6 +41,7 @@ definitions:
         type: string
     type: object
   output.ATRResponse:
+    description: ATRResponse containing transcribed data.
     properties:
       contains:
         items:
@@ -144,14 +145,6 @@ definitions:
       version:
         type: string
     type: object
-  user.User:
-    description: User containing id, email etc.
-    properties:
-      email:
-        type: string
-      id:
-        type: string
-    type: object
   util.ErrorResponse:
     description: Json-Response on error
     properties:
@@ -212,7 +205,7 @@ paths:
       summary: Run ATR
       tags:
       - ATR
-  /forsete-atr/v2/auth/:
+  /forsete-atr/v2/auth/delete/:
     delete:
       description: Delete user and all its data.
       parameters:
@@ -346,10 +339,8 @@ paths:
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/user.User'
+        "204":
+          description: No Content
         "400":
           description: Bad Request
           schema:
@@ -381,7 +372,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image'
+              $ref: '#/definitions/image.Image'
             type: array
         "401":
           description: Unauthorized
@@ -447,7 +438,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image'
+            $ref: '#/definitions/image.Image'
         "401":
           description: Unauthorized
           schema:
@@ -723,7 +714,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image'
+            $ref: '#/definitions/image.Image'
         "400":
           description: Bad Request
           schema:
@@ -753,7 +744,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model'
+              $ref: '#/definitions/model.Model'
             type: array
         "500":
           description: Internal Server Error
@@ -772,7 +763,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model'
+              $ref: '#/definitions/model.Model'
             type: array
         "500":
           description: Internal Server Error
@@ -791,7 +782,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model'
+              $ref: '#/definitions/model.Model'
             type: array
         "500":
           description: Internal Server Error
@@ -810,7 +801,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model'
+              $ref: '#/definitions/model.Model'
             type: array
         "500":
           description: Internal Server Error

@@ -74,3 +74,7 @@ func (p *Pipeline) CreateLocal() error {
 
 	return nil
 }
+
+func (p *Pipeline) PathToFile() string {
+	return fmt.Sprintf("%s/%s.yaml", p.Path, p.Name)
+}

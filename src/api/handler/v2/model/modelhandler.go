@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	_ "github.com/erlendromo/forsete-atr/src/business/domain/model"
-	modelrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/model_repository"
+	modelrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/model"
 	"github.com/erlendromo/forsete-atr/src/util"
 )
 

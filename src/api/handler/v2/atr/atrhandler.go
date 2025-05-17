@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
-	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr_service"
+	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr"
 	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
 )
@@ -43,7 +43,7 @@ func (ar *ATRRequest) parseImageIDs() ([]uuid.UUID, error) {
 //	@Accept			json
 //	@Param			Authorization	header	string		true	"'Bearer token' must be set for valid response"
 //	@Param			request			body	ATRRequest	true	"Body containing which models to use, alongside the image_ids"
-//	@Body			ATRRequest 																																																																											{object} 	json 	true	"request-form"
+//	@Body			ATRRequest 																																																																																										{object} 	json 	true	"request-form"
 //	@Produce		json
 //	@Success		200	{object}	[]output.Output
 //	@Failure		400	{object}	util.ErrorResponse

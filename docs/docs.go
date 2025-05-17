@@ -83,7 +83,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/forsete-atr/v2/auth/": {
+        "/forsete-atr/v2/auth/delete/": {
             "delete": {
                 "description": "Delete user and all its data.",
                 "produces": [
@@ -289,11 +289,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/user.User"
-                        }
+                    "204": {
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -341,7 +338,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image"
+                                "$ref": "#/definitions/image.Image"
                             }
                         }
                     },
@@ -390,7 +387,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image"
+                            "$ref": "#/definitions/image.Image"
                         }
                     },
                     "400": {
@@ -450,7 +447,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_image.Image"
+                            "$ref": "#/definitions/image.Image"
                         }
                     },
                     "401": {
@@ -896,7 +893,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model"
+                                "$ref": "#/definitions/model.Model"
                             }
                         }
                     },
@@ -925,7 +922,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model"
+                                "$ref": "#/definitions/model.Model"
                             }
                         }
                     },
@@ -954,7 +951,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model"
+                                "$ref": "#/definitions/model.Model"
                             }
                         }
                     },
@@ -983,7 +980,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_erlendromo_forsete-atr_src_business_domain_model.Model"
+                                "$ref": "#/definitions/model.Model"
                             }
                         }
                     },
@@ -1066,7 +1063,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_erlendromo_forsete-atr_src_business_domain_image.Image": {
+        "image.Image": {
             "description": "Image containing id, name, format etc.",
             "type": "object",
             "properties": {
@@ -1081,7 +1078,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_erlendromo_forsete-atr_src_business_domain_model.Model": {
+        "model.Model": {
             "description": "Model containing id, name etc.",
             "type": "object",
             "properties": {
@@ -1097,6 +1094,7 @@ const docTemplate = `{
             }
         },
         "output.ATRResponse": {
+            "description": "ATRResponse containing transcribed data.",
             "type": "object",
             "properties": {
                 "contains": {
@@ -1250,18 +1248,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "user.User": {
-            "description": "User containing id, email etc.",
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 }
             }
