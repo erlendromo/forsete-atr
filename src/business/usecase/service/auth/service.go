@@ -1,13 +1,12 @@
-package authservice
+package auth
 
 import (
 	"context"
 
 	"github.com/erlendromo/forsete-atr/src/business/domain/session"
 	"github.com/erlendromo/forsete-atr/src/business/domain/user"
-	sessionrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/session_repository"
-	userrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/user_repository"
-	"github.com/erlendromo/forsete-atr/src/database"
+	sessionrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/session"
+	userrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/user"
 	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
 )
@@ -17,10 +16,10 @@ type AuthService struct {
 	SessionRepo *sessionrepository.SessionRepository
 }
 
-func NewAuthService(db database.Database) *AuthService {
+func NewAuthService(u *userrepository.UserRepository, s *sessionrepository.SessionRepository) *AuthService {
 	return &AuthService{
-		UserRepo:    userrepository.NewUserRepository(db),
-		SessionRepo: sessionrepository.NewSessionRepository(db),
+		UserRepo:    u,
+		SessionRepo: s,
 	}
 }
 
@@ -34,7 +33,7 @@ func (a *AuthService) RegisterUser(ctx context.Context, email, password string) 
 }
 
 func (a *AuthService) Login(ctx context.Context, email, password string) (*session.Session, error) {
-	user, err := a.UserRepo.GetByEmail(ctx, email)
+	user, err := a.UserRepo.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +64,7 @@ func (a *AuthService) IsAuthorized(ctx context.Context, token uuid.UUID) (*user.
 		return nil, err
 	}
 
-	return a.UserRepo.GetByID(ctx, session.UserID)
+	return a.UserRepo.GetUserByID(ctx, session.UserID)
 }
 
 func (a *AuthService) RefreshToken(ctx context.Context, oldToken, userID uuid.UUID) (*session.Session, error) {

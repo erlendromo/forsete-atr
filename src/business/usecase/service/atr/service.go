@@ -1,4 +1,4 @@
-package atrservice
+package atr
 
 import (
 	"context"
@@ -14,11 +14,10 @@ import (
 	"github.com/erlendromo/forsete-atr/src/business/domain/model"
 	"github.com/erlendromo/forsete-atr/src/business/domain/output"
 	"github.com/erlendromo/forsete-atr/src/business/domain/pipeline"
-	imagerepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/image_repository"
-	modelrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/model_repository"
-	outputrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/output_repository"
-	pipelinerepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/pipeline_repository"
-	"github.com/erlendromo/forsete-atr/src/database"
+	imagerepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/image"
+	modelrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/model"
+	outputrepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/output"
+	pipelinerepository "github.com/erlendromo/forsete-atr/src/business/usecase/repository/pipeline"
 	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
 )
@@ -30,12 +29,12 @@ type ATRService struct {
 	OutputRepo   *outputrepository.OutputRepository
 }
 
-func NewATRService(db database.Database) *ATRService {
+func NewATRService(m *modelrepository.ModelRepository, p *pipelinerepository.PipelineRepository, i *imagerepository.ImageRepository, o *outputrepository.OutputRepository) *ATRService {
 	return &ATRService{
-		ModelRepo:    modelrepository.NewModelRepository(db),
-		PipelineRepo: pipelinerepository.NewPipelineRepository(db),
-		ImageRepo:    imagerepository.NewImageRepository(db),
-		OutputRepo:   outputrepository.NewOutputRepository(db),
+		ModelRepo:    m,
+		PipelineRepo: p,
+		ImageRepo:    i,
+		OutputRepo:   o,
 	}
 }
 
