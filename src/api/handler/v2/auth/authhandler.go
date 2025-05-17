@@ -7,8 +7,8 @@ import (
 	"unicode"
 
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
-	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr_service"
-	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/auth_service"
+	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr"
+	authservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/auth"
 	"github.com/erlendromo/forsete-atr/src/util"
 )
 

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/erlendromo/forsete-atr/src/api/middleware"
-	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr_service"
+	atrservice "github.com/erlendromo/forsete-atr/src/business/usecase/service/atr"
 	"github.com/erlendromo/forsete-atr/src/util"
 	"github.com/google/uuid"
 )

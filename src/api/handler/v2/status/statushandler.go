@@ -35,7 +35,7 @@ func HeadStatus(db database.Database) http.HandlerFunc {
 			util.ERROR(w, http.StatusInternalServerError, errors.New(util.INTERNAL_SERVER_ERROR))
 		}
 
-		if err := db.Database().Ping(); err != nil {
+		if err := db.DB().Ping(); err != nil {
 			util.NewInternalErrorLog("DATABASE STATUS ERROR", err).PrintLog("SERVER ERROR")
 			util.ERROR(w, http.StatusInternalServerError, errors.New(util.INTERNAL_SERVER_ERROR))
 		}
@@ -61,7 +61,7 @@ func GetStatus(db database.Database) http.HandlerFunc {
 		}
 
 		dbStatus := "ready"
-		if err := db.Database().Ping(); err != nil {
+		if err := db.DB().Ping(); err != nil {
 			dbStatus = "unavailable, service restart needed"
 		}
 
