@@ -48,7 +48,7 @@ func (q *SQLOutputQuerier) RegisterOutput(ctx context.Context, name, format, pat
 	`
 
 	var o output.Output
-	err := q.db.QueryRowxContext(ctx, query, name, format, path, imageID).StructScan(&o)
+	err := q.db.QueryRowxContext(ctx, query, name, format, path, imageID, userID).StructScan(&o)
 
 	return &o, err
 }
