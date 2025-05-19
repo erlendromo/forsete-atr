@@ -1,5 +1,217 @@
 # forsete-atr
 
+## Repository content
+```
+.
+├── LICENSE
+├── Makefile
+├── README.md # This file
+├── assets
+│   ├── migrations
+│   │   ├── 00001_init.down.sql
+│   │   ├── 00001_init.up.sql
+│   │   ├── 00002_indexes.down.sql
+│   │   ├── 00002_indexes.up.sql
+│   │   ├── 00003_add_samples.down.sql
+│   │   └── 00003_add_samples.up.sql
+│   └── scripts
+│       ├── htrflow.sh # Run htrflow script
+│       └── linux.sh # Setup linux (ubuntu) environment script
+├── backend
+│   ├── README.md
+│   ├── deployments
+│   │   ├── application
+│   │   │   ├── README.md
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   └── variables.tf
+│   │   └── frontend
+│   │       ├── README.md
+│   │       ├── main.tf
+│   │       ├── outputs.tf
+│   │       └── variables.tf
+│   ├── locals.tf
+│   ├── main.tf
+│   ├── modules
+│   │   ├── instance
+│   │   │   ├── README.md
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   ├── terraform.tf
+│   │   │   └── variables.tf
+│   │   ├── ip
+│   │   │   ├── README.md
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   ├── terraform.tf
+│   │   │   └── variables.tf
+│   │   ├── keypair
+│   │   │   ├── README.md
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   ├── terraform.tf
+│   │   │   └── variables.tf
+│   │   ├── network
+│   │   │   ├── README.md
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   ├── terraform.tf
+│   │   │   └── variables.tf
+│   │   ├── port
+│   │   │   ├── README.md
+│   │   │   ├── main.tf
+│   │   │   ├── outputs.tf
+│   │   │   ├── terraform.tf
+│   │   │   └── variables.tf
+│   │   └── security_group
+│   │       ├── README.md
+│   │       ├── main.tf
+│   │       ├── outputs.tf
+│   │       ├── terraform.tf
+│   │       └── variables.tf
+│   ├── outputs.tf
+│   ├── providers.tf
+│   ├── terraform.tf
+│   ├── .terraform.lock.hcl
+│   ├── terraform.tfvars # Needs to be added manually
+│   └── variables.tf
+├── docker
+│   ├── Dockerfile
+│   ├── docker-compose-cuda.yaml
+│   └── requirements.txt
+├── docker-compose.yaml
+├── docs
+│   ├── docs.go
+│   ├── swagger.json
+│   └── swagger.yaml
+├── example.env # Used to create the actual .env file
+├── go.mod
+├── go.sum
+├── main.go
+├── src
+│   ├── api
+│   │   ├── app_context
+│   │   │   └── app_context.go
+│   │   ├── handler
+│   │   │   └── v2
+│   │   │       ├── atr
+│   │   │       │   └── atrhandler.go
+│   │   │       ├── auth
+│   │   │       │   └── authhandler.go
+│   │   │       ├── image
+│   │   │       │   └── imagehandler.go
+│   │   │       ├── model
+│   │   │       │   └── modelhandler.go
+│   │   │       ├── output
+│   │   │       │   └── outputhandler.go
+│   │   │       └── status
+│   │   │           └── statushandler.go
+│   │   ├── middleware
+│   │   │   ├── auth.go
+│   │   │   ├── context.go
+│   │   │   ├── logger.go
+│   │   │   └── statusresponsewriter.go
+│   │   └── router
+│   │       ├── httprouter
+│   │       │   ├── httprouter.go
+│   │       │   └── httprouter_test.go
+│   │       ├── httpsrouter
+│   │       │   ├── httpsrouter.go
+│   │       │   └── httpsrouter_test.go
+│   │       └── router.go
+│   ├── business
+│   │   ├── domain
+│   │   │   ├── image
+│   │   │   │   └── image.go
+│   │   │   ├── model
+│   │   │   │   └── model.go
+│   │   │   ├── output
+│   │   │   │   └── output.go
+│   │   │   ├── pipeline
+│   │   │   │   ├── pipeline.go
+│   │   │   │   └── step
+│   │   │   │       ├── exportstep.go
+│   │   │   │       ├── modelstep.go
+│   │   │   │       ├── orderstep.go
+│   │   │   │       └── step.go
+│   │   │   ├── session
+│   │   │   │   └── session.go
+│   │   │   └── user
+│   │   │       └── user.go
+│   │   └── usecase
+│   │       ├── querier # Uses database or in-memory-mock
+│   │       │   ├── image
+│   │       │   │   ├── mock.go
+│   │       │   │   ├── querier.go
+│   │       │   │   └── sqlx.go
+│   │       │   ├── model
+│   │       │   │   ├── mock.go
+│   │       │   │   ├── querier.go
+│   │       │   │   └── sqlx.go
+│   │       │   ├── output
+│   │       │   │   ├── mock.go
+│   │       │   │   ├── querier.go
+│   │       │   │   └── sqlx.go
+│   │       │   ├── pipeline
+│   │       │   │   ├── mock.go
+│   │       │   │   ├── querier.go
+│   │       │   │   └── sqlx.go
+│   │       │   ├── session
+│   │       │   │   ├── mock.go
+│   │       │   │   ├── querier.go
+│   │       │   │   └── sqlx.go
+│   │       │   └── user
+│   │       │       ├── mock.go
+│   │       │       ├── querier.go
+│   │       │       └── sqlx.go
+│   │       ├── repository # Uses queriers
+│   │       │   ├── image
+│   │       │   │   ├── repository.go
+│   │       │   │   └── repository_test.go
+│   │       │   ├── model
+│   │       │   │   ├── repository.go
+│   │       │   │   └── repository_test.go
+│   │       │   ├── output
+│   │       │   │   ├── repository.go
+│   │       │   │   └── repository_test.go
+│   │       │   ├── pipeline
+│   │       │   │   ├── repository.go
+│   │       │   │   └── repository_test.go
+│   │       │   ├── session
+│   │       │   │   ├── repository.go
+│   │       │   │   └── repository_test.go
+│   │       │   └── user
+│   │       │       ├── repository.go
+│   │       │       └── repository_test.go
+│   │       └── service # Uses repositories
+│   │           ├── atr
+│   │           │   └── service.go
+│   │           └── auth
+│   │               └── service.go
+│   ├── cmd
+│   │   └── app.go
+│   ├── config
+│   │   ├── api
+│   │   │   └── api_config.go
+│   │   ├── config.go
+│   │   └── db
+│   │       └── db_config.go
+│   ├── database
+│   │   ├── database.go
+│   │   ├── mock
+│   │   │   └── mock.go
+│   │   └── postgresql
+│   │       └── postgresql.go
+│   └── util
+│       ├── constant.go
+│       ├── decoder.go
+│       ├── errors.go
+│       ├── logdata.go
+│       ├── timer.go
+│       ├── util.go
+│       └── writer.go
+```
+
 ## Setup for docker deployment
 
 ### Prerequisites
