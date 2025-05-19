@@ -2,7 +2,7 @@ run:
 	@go run main.go
 
 test:
-	@go test -v ./... --race
+	@go test -v ./... --race -cover -vet=all
 
 composecpu:
 	@docker compose -f docker-compose.yaml up --build -d
