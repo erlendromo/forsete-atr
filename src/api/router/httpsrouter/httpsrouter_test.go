@@ -4,7 +4,9 @@ import (
 	"testing"
 	"time"
 
+	appcontext "github.com/erlendromo/forsete-atr/src/api/app_context"
 	"github.com/erlendromo/forsete-atr/src/api/router"
+	"github.com/erlendromo/forsete-atr/src/database/mock"
 )
 
 type serveHTTPSCase struct {
@@ -17,7 +19,14 @@ var serveHTTPSCases []serveHTTPSCase = []serveHTTPSCase{
 	{router: NewHTTPSRouter("8002", "ccc", "ddd"), expectedPass: false},
 }
 
+func setup() {
+	appcontext.InitAppContext(
+		mock.NewMockDatabase(),
+	)
+}
+
 func TestServeTLS(t *testing.T) {
+	setup()
 	t.Run("Serve HTTPS test", testServeTLS)
 }
 

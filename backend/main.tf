@@ -1,126 +1,15 @@
-data "openstack_networking_network_v2" "ntnu_internal" {
-  name = "ntnu-internal"
+module "app" {
+  source = "./deployments/application"
+
+  external_network_name = "ntnu-internal"
+  keypair_name          = "app-key"
+  public_key            = var.public_key
 }
 
-resource "openstack_networking_network_v2" "main" {
-  name           = var.network_name
-  admin_state_up = var.admin_state_up
-}
+module "frontend" {
+  source = "./deployments/frontend"
 
-resource "openstack_networking_subnet_v2" "main" {
-  network_id = openstack_networking_network_v2.main.id
-
-  name        = var.subnet_name
-  cidr        = var.subnet_cidr
-  ip_version  = var.subnet_ip_version
-  enable_dhcp = var.subnet_enable_dhcp
-
-  depends_on = [
-    openstack_networking_network_v2.main
-  ]
-}
-
-resource "openstack_networking_router_v2" "main" {
-  name                = var.router_name
-  external_network_id = data.openstack_networking_network_v2.ntnu_internal.id
-
-  depends_on = [
-    data.openstack_networking_network_v2.ntnu_internal
-  ]
-}
-
-resource "openstack_networking_router_interface_v2" "main" {
-  router_id = openstack_networking_router_v2.main.id
-  subnet_id = openstack_networking_subnet_v2.main.id
-
-  depends_on = [
-    openstack_networking_router_v2.main,
-    openstack_networking_subnet_v2.main
-  ]
-}
-
-resource "openstack_networking_secgroup_v2" "main" {
-  name        = "My-Security-Group"
-  description = "Allow SSH and application endpoint"
-
-}
-
-resource "openstack_networking_secgroup_rule_v2" "ssh" {
-  security_group_id = openstack_networking_secgroup_v2.main.id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-
-  depends_on = [
-    openstack_networking_secgroup_v2.main
-  ]
-}
-
-resource "openstack_networking_secgroup_rule_v2" "application" {
-  security_group_id = openstack_networking_secgroup_v2.main.id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = var.application_port
-  port_range_max    = var.application_port
-
-  depends_on = [
-    openstack_networking_secgroup_v2.main
-  ]
-}
-
-resource "openstack_networking_port_v2" "main" {
-  network_id         = openstack_networking_network_v2.main.id
-  security_group_ids = [openstack_networking_secgroup_v2.main.id]
-
-  fixed_ip {
-    subnet_id = openstack_networking_subnet_v2.main.id
-  }
-
-  depends_on = [
-    openstack_networking_network_v2.main,
-    openstack_networking_secgroup_v2.main,
-    openstack_networking_subnet_v2.main
-  ]
-}
-
-resource "openstack_compute_keypair_v2" "main" {
-  name       = var.my_openstack_key_name
-  public_key = var.my_openstack_key_public
-}
-
-resource "openstack_compute_instance_v2" "main" {
-  name        = var.vm_name
-  image_id    = var.vm_image_id
-  flavor_name = var.vm_flavor_name
-  key_pair    = openstack_compute_keypair_v2.main.name
-
-  network {
-    port = openstack_networking_port_v2.main.id
-  }
-
-  depends_on = [
-    openstack_compute_keypair_v2.main,
-    openstack_networking_port_v2.main
-  ]
-}
-
-resource "openstack_networking_floatingip_v2" "main" {
-  pool = data.openstack_networking_network_v2.ntnu_internal.name
-
-  depends_on = [
-    data.openstack_networking_network_v2.ntnu_internal
-  ]
-}
-
-resource "openstack_networking_floatingip_associate_v2" "main" {
-  floating_ip = openstack_networking_floatingip_v2.main.address
-  port_id     = openstack_networking_port_v2.main.id
-
-  depends_on = [
-    openstack_networking_floatingip_v2.main,
-    openstack_networking_port_v2.main
-  ]
+  external_network_name = "ntnu-global"
+  keypair_name          = "frontend-key"
+  public_key            = var.public_key
 }
