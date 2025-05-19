@@ -15,7 +15,7 @@ type Contexter struct {
 
 func (c *Contexter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Set timeout
-	timeoutCtx, cancelTimeout := context.WithTimeout(r.Context(), config.GetConfig().TIMEOUT)
+	timeoutCtx, cancelTimeout := context.WithTimeout(r.Context(), config.GetConfig().APIConfig().TIMEOUT)
 	defer cancelTimeout()
 
 	// Reassign request and responsewriter
